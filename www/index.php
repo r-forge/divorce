@@ -72,7 +72,7 @@ The most recent build is available for Windows and Linux here: <a href="https://
 <h3>People:</h3>
 <dl>
 <li><a href="http://www.wu.ac.at/statmath/en/faculty_staff/faculty/khornik">Kurt Hornik</a></li> 
-<li><a href="http://www.wu.ac.at/methods/team/dr-thomas-rusch/en/">Thomas Rusch</a></li> 
+<li><a href="https://www.wu.ac.at/en/competence-center-for-empirical-research-methods/team/dr-thomas-rusch">Thomas Rusch</a></li> 
 <li><a href="http://www.wu.ac.at/statmath/en/faculty_staff/faculty/lukas-sablica">Lukas Sablica</a></li> 
 </dl>
 
