@@ -1,0 +1,31 @@
+#' Adapted Iris Dataset
+#'
+#' This dataset is an adaptation of the famous Iris dataset. The original dataset contains measurements 
+#' of iris flowers from three different species. In this adaptation, the dataset has been modified to 
+#' create an ordinal response variable based on petal length, categorizing it into three groups: Low, 
+#' Medium, and High, so that it shows separation. The dataset consists of five predictor variables and one ordinal response variable.
+#'
+#' @format A data frame with 150 rows and 6 coumns/variables:
+#' \describe{
+#'   \item{y}{An ordered factor representing the petal length category:
+#'     \itemize{
+#'       \item Low: Petal length less than 2.5
+#'       \item Medium: Petal length between 2.5 and 5.0
+#'       \item High: Petal length greater than 5.0
+#'     }}
+#'   \item{Sepal.Length}{Numeric. The length of the sepal in centimeters.}
+#'   \item{Sepal.Width}{Numeric. The width of the sepal in centimeters.}
+#'   \item{Petal.Length}{Numeric. The length of the petal in centimeters.}
+#'   \item{Petal.Width}{Numeric. The width of the petal in centimeters.}
+#'   \item{Species}{Categorical. The species of Iris.}
+#' }
+#'
+#' @source The original Iris dataset is available as data(iris) in R 
+#' @examples
+#' # View the structure of the dataset
+#' str(iris2)
+#' @name iris2
+#' @docType data
+#' @keywords datasets
+#' @usage data(iris2)
+NULL

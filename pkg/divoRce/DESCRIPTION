@@ -1,0 +1,19 @@
+Package: divoRce
+Title: Diagnosing Separation Phenomena in Categorical Data Models 
+Version: 0.1-1
+Authors@R: c(
+    person(given="Thomas", family="Rusch", email="thomas.rusch@wu.ac.at", role = c("aut","cre"), comment = c(ORCID = "0000-0002-7773-2096")),
+    person(given="Lukas",family="Sablica", role = c("aut")),
+    person(given="Kurt",family="Hornik", role = "aut"))
+Maintainer: Thomas Rusch <thomas.rusch@wu.ac.at>
+Description: Utilities for checking and diagnosing separation phenomena (complete separation, quasi-complete separation, overlap) for binary, nominal and ordinal data models with link construction as baseline-category, adjacent-category, cumulative, sequential (continuation-ratio), ordered stereotype and arbitrary link error distribution (including logit, probit, cauchit, cloglog, loglog, log, ...). The package functionality includes a check for overlap with a linear program, a quick check for overlap, detailed separation diagnostics such as identification of columns in the design matrix that leads to separation, identification of observations that lead to separation, the dimension of the recession cone and the structure vectors that are linearities. 
+Depends:
+    R (>= 3.5.0)
+Imports:
+    rcdd
+Suggests:
+    detectseparation
+License: GPL-2 | GPL-3
+LazyData: true
+RoxygenNote: 7.3.2
+Encoding: UTF-8
