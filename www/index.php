@@ -10,11 +10,11 @@ $themeroot='r-forge.r-project.org/themes/rforge/';
 
 echo '<?xml version="1.0" encoding="UTF-8"?>';
 ?>
+
 <!DOCTYPE html
 	PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en   ">
-
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<title><?php echo $group_name; ?></title>
@@ -57,61 +57,11 @@ echo $contents; } ?>
 <ul>
 <li>Sablica, L., Hornik, K., & Rusch, T. (2025). Existence and uniqueness of maximum likelihood estimation in categorical response models.</li>
 <ul> 
- <li>Replication Material: <a href="repscript.R"">R Script</a></li>
+ <li>Replication Material: <a href="repscript.R">R Script</a></li>
 </ul>
 </ul>
 </p>
 
-
-<!--
-<h4>Technical Reports:</h4>
-<p>
-<a href="https://research.wu.ac.at/en/publications/stops-structure-optimized-proximity-scaling-4">STOPS: Structure Optimized Proximity Scaling</a></br> 
-<a href="http://epub.wu.ac.at/4888/">COPS: Cluster Optimized Proximity Scaling</a></br> 
-<a href="http://epub.wu.ac.at/4789/">Assessing and Quantifying Clusteredness: The OPTICS Cordillera</a> 
-</p>
-
-<h3>Talks:</h3>
-(title links lead to slides)</br>
-<table>
-<tr>
-  <th>Title</th>
-  <th>Event</th>
-  <th>Date</th>
-  <th>Place</th>
-</tr> 
-<tr>
-  <td><a href="stops-psychoco17.pdf">Structure Optimized Proximity Scaling (STOPS): A Framework for Hyperparameter Selection in Multidimensional Scaling</a></td>
-  <td>Psychoco 2017</td>
-  <td>09.02.2017-10.02.2017</td>
-  <td>WU Vienna, Austria</td>
-</tr> 
-<tr>
-  <td><a href="stopsBBS.pdf">COPS and STOPS: Cluster and/or Structure Optimized Proximity Scaling</a></td> 
-  <td>Brown Bag Seminar, Institute for Statistics and Mathematics </td>
-  <td>07.12.2016</td>
-  <td>WU Vienna, Austria</td>
-</tr> 
-<tr>
-  <td><a href="cordilleraBBS.pdf">The OPTICS Cordillera: Nonparametric Assessment of Clusteredness</a></td>
-  <td>Brown Bag Seminar, Institute for Statistics and Mathematics </td>
-  <td>23.10.2016</td>
-  <td>WU Vienna, Austria</td>
-</tr> 
-<tr>
-  <td><a href="http://epub.wu.ac.at/4478/">COPS: Cluster Optimized Proximity Scaling</a></td>
-  <td>Psychoco 2015</td>
-  <td>12.02.2015-13.02.2015</td>
-  <td>Amsterdam, The Netherlands</td>
-</tr> 
-<tr>
-  <td><a href="http://epub.wu.ac.at/4477/">Scaling for Clusters with COPS: Cluster Optimized Proximity Scaling</a>
-  <td>CFE-ERCIM 2014</td>
-  <td>06.12.2014-08.12.2014</td>
-  <td>Pisa, Italy</td>
-</tr> 
-</table>
--->
 
 <h3>Software:</h3>
 <p> The <strong>project summary page</strong> you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>. </p>
@@ -119,18 +69,14 @@ echo $contents; } ?>
 The most recent build is available for Windows and Linux here: <a href="https://r-forge.r-project.org/R/?group_id=2484">divoRce Package</a>
 
 
-<!--- <p>Until the current issues with R-Forge are fixed however you can get the package here too:</p> 
-<dl>
-<li><a href="stops_current.tar.gz">STOPS Package Source</a>
-</dl>
---->
-
 <h3>People:</h3>
 <dl>
 <li><a href="http://www.wu.ac.at/statmath/en/faculty_staff/faculty/khornik">Kurt Hornik</a></li> 
 <li><a href="http://www.wu.ac.at/methods/team/dr-thomas-rusch/en/">Thomas Rusch</a></li> 
 <li><a href="http://www.wu.ac.at/statmath/en/faculty_staff/faculty/lukas-sablica">Lukas Sablica</a></li> 
 </dl>
+
+
 </body>
 </html>
 
