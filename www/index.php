@@ -55,9 +55,9 @@ echo $contents; } ?>
 -->
 <p>
 <ul>
-<li>Sablica, L., Hornik, K., & Rusch, T. (2025). Existence and uniqueness of maximum likelihood estimation in categorical response models.</li>
+<li>Sablica, L., Hornik, K., & Rusch, T. (2026). Existence and uniqueness of maximum likelihood estimation in categorical response models.</li>
 <ul> 
- <li>Replication Material: <a href="repscript.R">R Script</a></li>
+ <li>Replication Material: <a href="divorce-reprodscript.R">R Script</a></li>
 </ul>
 </ul>
 </p>
