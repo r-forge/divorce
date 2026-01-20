@@ -4,8 +4,8 @@
 
 <?php
 
-$domain=ereg_replace('[^\.]*\.(.*)$','\1',$_SERVER['HTTP_HOST']);
-$group_name=ereg_replace('([^\.]*)\..*$','\1',$_SERVER['HTTP_HOST']);
+$domain=preg_replace('[^\.]*\.(.*)$','\1',$_SERVER['HTTP_HOST']);
+$group_name=preg_replace('([^\.]*)\..*$','\1',$_SERVER['HTTP_HOST']);
 $themeroot='r-forge.r-project.org/themes/rforge/';
 
 echo '<?xml version="1.0" encoding="UTF-8"?>';
@@ -52,7 +52,6 @@ echo $contents; } ?>
 <h3>Papers:</h3>
 <!--<h4>Peer-reviewed Articles:</h4>
 (all open access)</br>
--->
 <p>
 <ul>
 <li>Sablica, L., Hornik, K., & Rusch, T. (2026). Existence and uniqueness of maximum likelihood estimation in categorical response models.</li>
@@ -61,6 +60,13 @@ echo $contents; } ?>
 </ul>
 </ul>
 </p>
+-->
+<p>
+Sablica, L., Hornik, K., & Rusch, T. (2026). Existence and uniqueness of maximum likelihood estimation in categorical response models.
+</p>
+<ul>
+    <li>Replication Material: <a href="divorce-reprodscript.R">R Script</a></li>
+</ul>
 
 
 <h3>Software:</h3>
