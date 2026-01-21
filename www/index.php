@@ -4,8 +4,8 @@
 
 <?php
 
-$domain=preg_replace('[^\.]*\.(.*)$','\1',$_SERVER['HTTP_HOST']);
-$group_name=preg_replace('([^\.]*)\..*$','\1',$_SERVER['HTTP_HOST']);
+$domain=ereg_replace('[^\.]*\.(.*)$','\1',$_SERVER['HTTP_HOST']);
+$group_name=ereg_replace('([^\.]*)\..*$','\1',$_SERVER['HTTP_HOST']);
 $themeroot='r-forge.r-project.org/themes/rforge/';
 
 echo '<?xml version="1.0" encoding="UTF-8"?>';
