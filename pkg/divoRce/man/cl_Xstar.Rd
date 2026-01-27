@@ -2,7 +2,7 @@
 % Please edit documentation in R/cl_Xstar.R
 \name{cl_Xstar}
 \alias{cl_Xstar}
-\title{Function to calculate the structure vector matrix X* for a cumulative link model.}
+\title{Function to calculate the negative structure vector matrix X* for a cumulative link model.}
 \usage{
 cl_Xstar(y, X, label = TRUE, rational = FALSE)
 }
@@ -16,10 +16,10 @@ cl_Xstar(y, X, label = TRUE, rational = FALSE)
 \item{rational}{should the structure vectors been given in rational format?}
 }
 \value{
-a matrix of structure vectors with or without labels
+a matrix of negative structure vectors with or without labels
 }
 \description{
-Function to calculate the structure vector matrix X* for a cumulative link model.
+Function to calculate the negative structure vector matrix X* for a cumulative link model.
 }
 \details{
 If \code{X} is given as the standard R object for design matrices (i.e., a numeric matrix) or as a data frame, they are returned the same way unless \code{rational=TRUE}; then it is returned as a character matrix of rational numbers. If \code{X} is given in rational format, it is also returned as rational format even if rational is set to \code{FALSE}.

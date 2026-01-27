@@ -1,4 +1,4 @@
-#' Function to calculate the structure vector matrix X* for an ordered stereotype model.
+#' Function to calculate the negative structure vector matrix X* for an ordered stereotype model.
 #'
 #' @param y an ordinal outcome variable. Should be an ordered factor else we order increasingly in an alpha-numeric fashion.
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
@@ -8,7 +8,7 @@
 #'
 #'@details If \code{X} is given as the standard R object for design matrices (i.e., a numeric matrix) or as a data frame, they are returned the same way unless \code{rational=TRUE}; then it is returned as a character matrix of rational numbers. If \code{X} is given in rational format, it is also returned as rational format even if rational is set to \code{FALSE}. OSM checks do not need to consider the reference category. 
 #' 
-#' @return a matrix of structure vectors with or without labels
+#' @return a matrix of negative structure vectors with or without labels
 #'
 #' @export
 osm_Xstar <- function(y, X, label=TRUE, rational=FALSE){

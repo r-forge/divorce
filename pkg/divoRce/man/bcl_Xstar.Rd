@@ -2,7 +2,7 @@
 % Please edit documentation in R/bcl_Xstar.R
 \name{bcl_Xstar}
 \alias{bcl_Xstar}
-\title{Function to calculate the structure vector matrix X* for baseline-category outcomes.}
+\title{Function to calculate the negative structure vector matrix X* for baseline-category outcomes.}
 \usage{
 bcl_Xstar(y, X, label = TRUE, rational = FALSE)
 }
@@ -16,10 +16,10 @@ bcl_Xstar(y, X, label = TRUE, rational = FALSE)
 \item{rational}{should the structure vectors been given in rational format?}
 }
 \value{
-a matrix of structure vectors with or without labels.
+a matrix of negative structure vectors with or without labels.
 }
 \description{
-Function to calculate the structure vector matrix X* for baseline-category outcomes.
+Function to calculate the negative structure vector matrix X* for baseline-category outcomes.
 }
 \details{
 If \code{X} is given as the standard R object for design matrices (i.e., a numeric matrix), they are returned the same way unless \code{rational=TRUE}; then it is returned as a character matrix of rational numbers. If \code{X} is given in rational format, it is also returned as rational format even if rational is set to \code{FALSE}. This returned matrix is like \code{-struc_vec(y,X)}.

@@ -1,4 +1,4 @@
-#' Function to calculate the structure vector matrix X* for baseline-category outcomes.
+#' Function to calculate the negative structure vector matrix X* for baseline-category outcomes.
 #'
 #' @param y a nominal or binary outcome variable. Works best if it is a factor but can also be numeric, boolean or character.
 #' @param X a design matrix, e.g. generated via a call to \code{model.matrix} or via the function \code{make_yx}. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
@@ -7,7 +7,7 @@
 #'
 #' @details If \code{X} is given as the standard R object for design matrices (i.e., a numeric matrix), they are returned the same way unless \code{rational=TRUE}; then it is returned as a character matrix of rational numbers. If \code{X} is given in rational format, it is also returned as rational format even if rational is set to \code{FALSE}. This returned matrix is like \code{-struc_vec(y,X)}.
 #'
-#' @return a matrix of structure vectors with or without labels. 
+#' @return a matrix of negative structure vectors with or without labels. 
 #' @export
 bcl_Xstar <- function(y, X, label=TRUE, rational=FALSE){
    X <- as.matrix(X)
