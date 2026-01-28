@@ -46,7 +46,7 @@ reccone <- function(y,X,rational=FALSE,model=c("b","bcl","acl","sl","osm"))
     }
     out <- list(cone=-cone, reccdim=reccdim, index=ind)
     #TODO: So we return rows the negative of the rows in Xstar that are not linearities and the row index. If we have complete separation, then lout is integer(0) and we return all X (as all are not linearities) and the full index vector. In overlap we return an empty X and index. Maye we should return nothing for overlap?
-    if(reccdim>length(ind)) warning("The dimension of the recession cone is higher due to X not having full rank.")
+    if(reccdim>length(ind)) warning("The dimension of the recession cone is artificially higher due to X not having full rank.")
     return(out)
 }
 
@@ -85,7 +85,7 @@ reccone_bcl<- function(y,X,rational=FALSE)
         cone <- Xstar[ind,,drop=FALSE]
     }
     out <- list(cone=-cone, reccdim=reccdim, index=ind)
-    if(reccdim>length(ind)) warning("The dimension of the recession cone is higher due to X not having full rank.")
+    if(reccdim>length(ind)) warning("The dimension of the recession cone is artificially higher due to X not having full rank.")
     return(out)
 }
 
@@ -127,7 +127,7 @@ reccone_cl<- function(y,X,rational=FALSE)
         cone <- Xstar[ind,,drop=FALSE]
     }
     out <- list(cone=-cone, reccdim=reccdim, index=ind)
-    if(reccdim>length(ind)) warning("The dimension of the recession cone is higher due to X not having full rank.")
+    if(reccdim>length(ind)) warning("The dimension of the recession cone is artificially higher due to X not having full rank.")
     return(out)
 }
 
@@ -165,7 +165,7 @@ reccone_acl<- function(y,X,rational=FALSE)
         cone <- Xstar[ind,,drop=FALSE]
     }
     out <- list(cone=-cone, reccdim=reccdim, index=ind)
-    if(reccdim>length(ind)) warning("The dimension of the recession cone is higher due to X not having full rank.")
+    if(reccdim>length(ind)) warning("The dimension of the recession cone is artificially higher due to X not having full rank.")
     return(out)
 }
 
@@ -203,7 +203,7 @@ reccone_osm<- function(y,X,rational=FALSE)
         cone <- Xstar[ind,,drop=FALSE]
     }
     out <- list(cone=-cone, reccdim=reccdim, index=ind)
-    if(reccdim>length(ind)) warning("The dimension of the recession cone is higher due to X not having full rank.")
+    if(reccdim>length(ind)) warning("The dimension of the recession cone is artificially higher due to X not having full rank.")
     return(out)
 }
 
