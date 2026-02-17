@@ -30,7 +30,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 </table>
 -->
 
-<table border="0" width="100%" cellspacing="0" cellpadding="0">
+<table border="0" width="25%" cellspacing="0" cellpadding="0">
 <tr><td>
 <img src="divoRce_hex.png" border="0" alt="divoRce Logo"/>
 </td> </tr>
