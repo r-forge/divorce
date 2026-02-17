@@ -32,7 +32,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 
 <table border="0" width="100%" cellspacing="0" cellpadding="0">
 <tr><td>
-<img src="divoRce_hex.png" width="500" height="500" border="0" alt="divoRce Logo"/>
+<img src="divoRce_hex.png" width="10" height="10" border="0" alt="divoRce Logo"/>
 </td> </tr>
 </table>
 
