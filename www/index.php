@@ -23,11 +23,20 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 
 <body>
 
-<!-- R-Forge Logo -->
+<!-- R-Forge Logo 
 <table border="0" width="100%" cellspacing="0" cellpadding="0">
 <tr><td>
 <a href="http://r-forge.r-project.org/"><img src="http://<?php echo $themeroot; ?>/imagesrf/logo.png" border="0" alt="R-Forge Logo" /> </a> </td> </tr>
 </table>
+-->
+
+<table border="0" width="100%" cellspacing="0" cellpadding="0">
+<tr><td>
+<img src="divoRce_hex.png" border="0" alt="divoRce Logo"/>
+</td> </tr>
+</table>
+
+
 
 
 <!-- get project title  -->
@@ -77,13 +86,14 @@ The most recent build is available for Windows and Linux here: <a href="https://
 
 <h3>People:</h3>
 <dl>
-<li><a href="http://www.wu.ac.at/statmath/en/faculty_staff/faculty/khornik">Kurt Hornik</a></li> 
+<li><a href="https://www.wu.ac.at/en/statmath/faculty-staff/faculty/khornik">Kurt Hornik</a></li> 
 <li><a href="https://www.wu.ac.at/en/competence-center-for-empirical-research-methods/team/dr-thomas-rusch">Thomas Rusch</a></li> 
-<li><a href="http://www.wu.ac.at/statmath/en/faculty_staff/faculty/lukas-sablica">Lukas Sablica</a></li> 
+<li><a href="https://www.wu.ac.at/en/statmath/faculty-staff/faculty/lukas-sablica">Lukas Sablica</a></li> 
 </dl>
 
 
 </body>
 </html>
+
 
 
