@@ -6,7 +6,7 @@ Authors@R: c(
     person(given="Lukas",family="Sablica", role = c("aut")),
     person(given="Kurt",family="Hornik", role = "aut"))
 Maintainer: Thomas Rusch <thomas.rusch@wu.ac.at>
-Description: Utilities for checking and diagnosing separation phenomena (complete separation, quasi-complete separation, overlap) for binary, nominal and ordinal data models with link construction as baseline-category, adjacent-category, cumulative, sequential (continuation-ratio), ordered stereotype and arbitrary link error distribution (including logit, probit, cauchit, cloglog, loglog, log, ...). The package functionality includes a check for overlap with a linear program, a quick check for overlap, detailed separation diagnostics such as identification of columns in the design matrix that leads to separation, identification of observations that lead to separation, the dimension of the recession cone and the structure vectors that are linearities. 
+Description: Utilities for checking and diagnosing separation phenomena (complete separation, quasi-complete separation, overlap) for binary, nominal and ordinal data models with link construction as baseline-category, adjacent-category, cumulative, sequential (continuation-ratio), ordered stereotype and arbitrary link error distribution (including logit, probit, cauchit, cloglog, loglog, log amonst others). The package functionality includes a check for overlap with a linear program, a quick check for overlap, detailed separation diagnostics such as identification of columns in the design matrix that lead to separation, identification of data rows that lead to separation, the dimension of the recession cone and the structure vectors that are linearities. 
 Depends:
     R (>= 3.5.0)
 Imports:
