@@ -2,7 +2,7 @@
 % Please edit documentation in R/check_sep.R
 \name{check_sep}
 \alias{check_sep}
-\title{General separation check. This calls to the appropriate low-level function.}
+\title{General separation check.}
 \usage{
 check_sep(
   y,
@@ -21,13 +21,13 @@ check_sep(
 
 \item{rational}{should rational arithmetic be used}
 
-\item{model}{what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else.}
+\item{model}{what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing or NULL it defaults to cumulative link for ordinal y and baseline-category for everything else.}
 }
 \value{
 a Boolean; either 'TRUE' if we detected separation or 'FALSE' if not.
 }
 \description{
-This function checks for (quasi-) complete separation.
+This function checks for (quasi-) complete separation by calling the appropriate low-level functions.
 }
 \details{
 The function uses either a response vector y and a design matrix X or a structure vector matrix S. If S is given, y and X and model are ignored.

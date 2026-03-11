@@ -4,20 +4,31 @@
 \alias{check_ovl}
 \title{General overlap check.}
 \usage{
-check_ovl(y, X, rational = FALSE, model = c("bcl", "cl", "acl", "sl", "osm"))
+check_ovl(
+  y,
+  X,
+  S,
+  rational = FALSE,
+  model = c("bcl", "cl", "acl", "sl", "osm")
+)
 }
 \arguments{
-\item{y}{outcome vector.}
+\item{y}{outcome vector}
 
-\item{X}{design matrix.}
+\item{X}{design matrix}
+
+\item{S}{structure vector matrix}
 
 \item{rational}{should rational arithmetic be used.}
 
-\item{model}{what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else.}
+\item{model}{what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing or NULL it defaults to cumulative link for ordinal y and baseline-category for everything else.}
 }
 \value{
 a Boolean; either 'TRUE' if there is overlap or 'FALSE' if not.
 }
 \description{
-This function checks for overlap. It is a low-level function for a response vector y and a design matrix X.
+This function checks for overlap by calling the appropriate low-level functions.
+}
+\details{
+The function uses either a response vector y and a design matrix X or a structure vector matrix S. If S is given, y and X and model are ignored.
 }
