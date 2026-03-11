@@ -68,7 +68,7 @@ BIC(m02,m2) #BIC comparison
 
 ### Removing observations that cause separation in the c-loglog cumulative link model (but keeping all the design matrix columns)
 ## identification of observations
-offobs <- sepobs_cl(y,X2)
+offobs <- seprows_cl(y,X2)
 offobs
 
 ## removing the observations
