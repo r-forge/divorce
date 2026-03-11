@@ -16,16 +16,16 @@ diagsep_b(y, X, rational = FALSE)
 \value{
 an object of class 'sepmod' that is a list with the components:
 \itemize{
-\item separation boolean whetehr there is separation ('TRUE' means separation)
+\item separation boolean whether there is separation ('TRUE' means separation)
 \item septype which type of separation (or not). A string of either "Overlap", "Quasi-Complete Separation" or "Complete Separation".
 \item reccdim dimension of recession cone
-\item offobs offending observations 
+\item offrows offending rows in X
 \item nr.offcols number of columns of X that have separation
 \item offcols columns of X that have separation
 }
 }
 \description{
-This function checks whether there is (quasi-) complete separation, which type if any, gives the dimension of the recession cone, lists the number of columns in the design matrix that give rise to the separation as well as the columns names and lists the observations for which we have separation.
+This function checks whether there is (quasi-) complete separation, which type if any, gives the dimension of the recession cone, lists the number of columns in the design matrix that give rise to the separation as well as the columns names and lists the rows in X for which we have separation.
 }
 \examples{
 data(csepdat1)

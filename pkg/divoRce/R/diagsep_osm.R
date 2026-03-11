@@ -1,6 +1,6 @@
 #' Detailed separation diagnostic for ordered stereotype models.
 #'
-#' This function checks whether there is (quasi-) complete separation, which type if any, gives the dimension of the recession cone, lists the number of columns in the design matrix that give rise to the separation as well as the columns names and lists the observations for which we have separation. 
+#' This function checks whether there is (quasi-) complete separation, which type if any, gives the dimension of the recession cone, lists the number of columns in the design matrix that give rise to the separation as well as the columns names and lists the rows in X for which we have separation. 
 #'
 #' 
 #' @param y the ordinal outcome variable. Works best if it is an ordered factor but can also be numeric, boolean or character. In the latter case we coerce to ordered factor interpret the ordering as alphanumerically increasing (just like 'as.ordered' is doing).
@@ -13,7 +13,7 @@
 #' \item separation boolean whether there is separation ('TRUE' means separation)
 #' \item septype which type of separation (or not). A string of either "Overlap", "Quasi-Complete Separation" or "Complete Separation".
 #' \item reccdim dimension of recession cone
-#' \item offobs offending observations, the ones which are not linearities  (note that individual observations can be duplicated in the cone as they may lie on the boundary) 
+#' \item offrows offending rows in X, the ones which are not linearities  (note that individual observations can be duplicated in the cone as they may lie on the boundary) 
 #' \item nr.offcols number of columns of the design matrix that have separation
 #' \item offcols columns of the design matrix that have separation. It is given as category::effect.  
 #' }
@@ -35,18 +35,18 @@ diagsep_osm<-function(y,X,rational=FALSE)
   Xstar <- osm_Xstar(y,X,label=TRUE,rational=rational) #ordinal
   lout <- linearities_osm(y,X,rational=rational)$index
 #  if (length(lout)==0){
-#      offobs <-  X
-#      attr(offobs,"assign") <- NULL
+#      offrows <-  X
+#      attr(offrows,"assign") <- NULL
 #  } else {
 #      lis <- unique(rownames(Xstar)[-lout])
-#      offobs <- X[lis,,drop=FALSE]
-#      attr(offobs,"assign") <- NULL
+#      offrows <- X[lis,,drop=FALSE]
+#      attr(offrows,"assign") <- NULL
                                         #    }
-  offobs <- sepobs_osm(y,X,rational=rational)$offobs
+  offrows <- seprows_osm(y,X,rational=rational)$offrows
   typ<-ifelse(length(lout)>0,ifelse(length(lout)==dim(Xstar)[1],"Overlap","Quasi-Complete Separation"),"Complete Separation") 
   reccdim <-  reccone_osm(y,X,rational=rational)$reccdim
   offcols <- detect_sepcols_osm(y,X,rational=rational)$offcols 
-  out <- list(separation=(typ!="Overlap"),septype=typ,nr.offobs=dim(offobs)[1],reccdim=reccdim,offobs=offobs,nr.offcols=length(offcols),offcols=offcols)
+  out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols)
   class(out) <- out$class <- "sepmod"
   out
 }

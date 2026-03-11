@@ -1,16 +1,23 @@
-#' General separation check. This calls to the appropriate low-level function. 
+#' General separation check.  
 #'
-#' This function checks for (quasi-) complete separation. It is a low-level function for a response vector y and a design matrix X.  
+#' This function checks for (quasi-) complete separation by calling the appropriate low-level functions.
 #'
-#' @param y outcome vector. 
-#' @param X design matrix.
-#' @param rational should rational arithmetic be used.
-#' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else.  
+#' The function uses either a response vector y and a design matrix X or a structure vector matrix S. If S is given, y and X and model are ignored. 
+#'
+#' 
+#'
+#' @param y an outcome vector 
+#' @param X a design matrix 
+#' @param S a matrix of structure vectors
+#' @param rational should rational arithmetic be used
+#' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing or NULL it defaults to cumulative link for ordinal y and baseline-category for everything else.  
 #'
 #' @return a Boolean; either 'TRUE' if we detected separation or 'FALSE' if not.
 #'
 #' @export
-check_sep <- function(y, X, rational=FALSE, model=c("bcl","cl","acl","sl","osm")){
+check_sep <- function(y, X, S, rational=FALSE, model=c("bcl","cl","acl","sl","osm")){
+    if(missing(S))
+    {
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
@@ -34,6 +41,41 @@ check_sep <- function(y, X, rational=FALSE, model=c("bcl","cl","acl","sl","osm")
            sl=check_sep_sl(y,X,rational=rational),
            osm=check_sep_osm(y,X,rational=rational)
            )
+    } else {
+        # for S given
+        if(!is.matrix(S)) stop("S must be a matrix.")
+        ratcols <- rat_cols(S)
+        if(ratcols) rational <- TRUE
+        if(ratcols) {
+            # to turn a rational S into a rational Xstar we need to convert to floating and multiply with -1
+            Stmp <- rcdd::q2d(S) 
+            Xstar <- -1*Stmp
+            Xstar <- rcdd::d2q(Xstar)
+            #row.names(Xstar) <- row.names(S)
+            #colnames(Xstar) <- colnames(S)
+        } else {
+            Xstar <- -1*S
+        }
+        a1 <- rbind(cbind(-diag(nrow(Xstar)),-1), c(rep(0,nrow(Xstar)),-1))
+        if(rational) a1 <- rcdd::d2q(a1)
+        b1 <- c(rep(-1 ,each=nrow(Xstar)),0)
+        if(rational) b1 <- rcdd::d2q(b1)
+        a2 <- cbind(t(Xstar),0)
+        if(rational && !rat_cols(Xstar)) a2 <- rcdd::d2q(a2) #here we need to check also if Xstar is rational, because t(Xstar) uses Xstar as character if it is.  
+        b2 <- rep(0,ncol(Xstar))
+        if(rational) b2 <- rcdd::d2q(b2)
+        objgrd <- c(rep(0,nrow(Xstar)),1)
+        if(rational) objgrd <- rcdd::d2q(objgrd)
+        cal <- rcdd::lpcdd(rcdd::makeH(a1 = a1,
+                     b1 = b1,
+                     a2 = a2,
+                     b2 = b2),
+                     objgrd=objgrd,
+                     minimize = TRUE)$optimal.value
+        if(rational) cal <- rcdd::q2d(cal)
+        out <- ifelse(isTRUE(all.equal(cal,1)),TRUE,FALSE)
+        return(out)
+     }
 }
 
 
@@ -329,18 +371,21 @@ check_sep_osm<- function(y, X, rational=FALSE){
     
 #' General overlap check.
 #'
-#' This function checks for overlap. It is a low-level function for a response vector y and a design matrix X.  
+#' This function checks for overlap by calling the appropriate low-level functions.
 #'
-#' @param y outcome vector. 
-#' @param X design matrix.
+#' The function uses either a response vector y and a design matrix X or a structure vector matrix S. If S is given, y and X and model are ignored.
+#'
+#' @param y outcome vector 
+#' @param X design matrix
+#' @param S structure vector matrix
 #' @param rational should rational arithmetic be used.
-#' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else.  
+#' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing or NULL it defaults to cumulative link for ordinal y and baseline-category for everything else.  
 #' @return a Boolean; either 'TRUE' if there is overlap or 'FALSE' if not.
 #'
 #' @export
-check_ovl <- function(y, X, rational=FALSE, model=c("bcl","cl","acl","sl","osm")){
+check_ovl <- function(y, X, S, rational=FALSE, model=c("bcl","cl","acl","sl","osm")){
   if(missing(model)) model <- NULL
-  !isTRUE(check_sep(y, X, rational=rational, model = model))
+  if(missing(S)) !isTRUE(check_sep(y, X, rational=rational, model = model)) else !isTRUE(check_sep(S=S, rational=rational)) 
 }
 
 

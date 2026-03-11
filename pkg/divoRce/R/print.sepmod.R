@@ -17,8 +17,8 @@ print.sepmod <- function(x, info = c("minimal","full"),...)
      {    
      cat("Dimension of Recession Cone:", obj$reccdim,"\n")
      cat("\n")
-     cat("Number of Offending Design Matrix Columns:", length(obj$offcols),"\n")
-     cat("Number of Offending Observations:", obj$nr.offobs,"\n")
+     cat("Number of Offending Columns:", length(obj$offcols),"\n")
+     cat("Number of Offending Rows:", obj$nr.offrows,"\n")
      }
 }
 
@@ -45,8 +45,8 @@ print.sepmod_sl<- function(x, info = c("minimal","full"),...)
      {    
      cat("Dimension of Recession Cone:", obj[[i]]$reccdim,"\n")
      cat("\n")
-     cat("Number of Offending Design Matrix Columns:", length(obj[[i]]$offcols),"\n")
-     cat("Number of Offending Observations:", obj[[i]]$nr.offobs,"\n")
+     cat("Number of Offending Columns:", length(obj[[i]]$offcols),"\n")
+     cat("Number of Offending Rows:", obj[[i]]$nr.offobs,"\n")
      }    
     }
 }

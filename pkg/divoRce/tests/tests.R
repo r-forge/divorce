@@ -21,14 +21,36 @@ endo_glm <- glm(HG ~ NV + PI + EH, family = binomial(), data = endometrial)
 yqcs <- endometrial$HG
 Xqcs <- model.matrix(endo_glm)
 
+
+Sqcs <- Xqcs
+Sqcs[yqcs==0,] <- -1 * Sqcs[yqcs==0,]
+Sqcs
+
+bcl_Xstar(yqcs,Xqcs)
+
+Sqcs2 <- -1*bcl_Xstar(yqcs,Xqcs)
+SqcsR <- rcdd::d2q(Sqcs)
+
 ##rational
 if(rational) Xqcs <- rcdd::d2q(Xqcs)
 
 ## check_sep
+# via y, X interface
 check_sep(yqcs,Xqcs,rational=rational) #works
 
+#via S interface
+check_sep(S=Sqcs, rational=rational) #works
+
+check_sep(S=SqcsR, rational=rational) #works not
+
 ##check_clvl
-check_ovl(yqcs,Xqcs,rational=rational) #works
+check_ovl(yqcs,Xqcs,rational=rational,model="bcl") #works
+
+check_ovl(S=Sqcs,rational=rational) #works
+
+check_ovl(S=SqcsR,rational=rational) #works
+
+
 
 
 ##### detect_sepcols_b
@@ -51,8 +73,8 @@ diagsep(yqcs,Xqcs,rational=rational) #TODO Diagsep returns Xstra rows and _x ret
 print.sepmod(diagsep_b(yqcs,Xqcs,rational=rational))
 print.sepmod(diagsep_b(yqcs,Xqcs,rational=rational),"full")
 
-##sepobs_b
-sepobs_b(yqcs,Xqcs)
+##seprows_b
+seprows_b(yqcs,Xqcs)
 
 ##quasi complete separation --- CHECKS OUT
 load("./Data/Silvapulle.rda")
@@ -299,7 +321,7 @@ diagsep_bcl(ycs,Xcs,rational=rational) # works
 diagsep(ycs,Xcs,rational=rational) # works
 
 ###
-sepobs_bcl(ycs,Xcs)
+seprows_bcl(ycs,Xcs)
 
 y <- yqcs
 X <- Xqcs
@@ -345,8 +367,8 @@ rec_cone(yqcs,Xqcs,rational=rational)
 diagsep_bcl(yqcs,Xqcs,rational=rational) # works
 diagsep(yqcs,Xqcs,rational=rational)
 
-## sepobs
-sepobs_bcl(yqcs,Xqcs)
+## seprows
+seprows_bcl(yqcs,Xqcs)
 bcl_Xstar(yqcs,Xqcs)
 
 ## overlap separation
@@ -385,7 +407,7 @@ diagsep_bcl(yol,Xol,rational=rational) # works yet
 diagsep(yol,Xol,rational=rational) # works yet
 
 ## 
-sepobs_bcl(yol,Xol)
+seprows_bcl(yol,Xol)
 
 ## Alligator Data - Overlap
 load("./Data/Alligators2.rda")
@@ -495,7 +517,7 @@ X <- model.matrix(mAllig)
 ## linearities are the observations that are separated. So in overlap all are linearities. In complete separation, there are no linearities. In QC sep we have linearities between 0 and n.   
 xst <- bcl_Xstar(y,X)
 lis <- linearities_bcl(y,X,rational=rational) 
-sepobs_bcl(y,X)
+seprows_bcl(y,X)
 
 ## y <- allgm3$foodchoice
 ## X <- model.matrix(allgm3)
@@ -626,8 +648,8 @@ rec_cone(y,X,rational=rational)   #works
 diagsep_cl(y,X,rational=rational) ##
 diagsep(y,X,rational=rational) ##
 
-### sepobs_cl
-sepobs_cl(y,X)
+### seprows_cl
+seprows_cl(y,X)
 
 ## quasi complete separation
 load("./Data/qcsepdato.rda")
@@ -672,8 +694,8 @@ rec_cone(y,X,rational=rational)
 diagsep_cl(y,X,rational=rational)
 diagsep(y,X,rational=rational)  
 
-### sepobs_cl
-sepobs_cl(y,X)
+### seprows_cl
+seprows_cl(y,X)
 rownames(X) <- NULL
 
 
@@ -721,8 +743,8 @@ rec_cone(y,X,rational=rational)
 diagsep_cl(y,X,rational=rational)  #
 diagsep(y,X,rational=rational)
 
-### sepobs_cl
-sepobs_cl(y,X)
+### seprows_cl
+seprows_cl(y,X)
 
 ##############
 ########################REVEALED AND STATED PREFERENCES FOR HEALTH DATA SHARING##########################################
@@ -1094,8 +1116,8 @@ csep_m
 acl_Xstar(ycs,Xcs)
 
 
-## sepobs
-sepobs_acl(ycs,Xcs) #checks out
+## seprows
+seprows_acl(ycs,Xcs) #checks out
 
 ## quasi complete separation
 load("./Data/qcsepdatm.rda")

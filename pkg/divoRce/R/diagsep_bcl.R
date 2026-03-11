@@ -1,6 +1,6 @@
 #' Detailed separation diagnostic for baseline-category link models. 
 #'
-#' This function checks whether there is (quasi-) complete separation, which type if any, gives the dimension of the recession cone, lists the number of columns in the design matrix that give rise to the separation as well as the columns names and lists the observations for which we have separation.   
+#' This function checks whether there is (quasi-) complete separation, which type if any, gives the dimension of the recession cone, lists the number of columns in the design matrix that give rise to the separation as well as the columns names and lists the rows in X for which we have separation.   
 #'
 #' 
 #' @param y the nominal outcome variable. Works best if it is a factor but can also be numeric, boolean or character. In the case of the latter we coerce to factor and the lowest alphanumeric entry is used as reference (just as 'as.ordered' is doing).
@@ -12,7 +12,7 @@
 #' \item separation boolean whether there is separation ('TRUE' means separation)
 #' \item septype which type of separation (or not). A string of either "Overlap", "Quasi-Complete Separation" or "Complete Separation".
 #' \item reccdim dimension of recession cone
-#' \item offobs offending observations 
+#' \item offrows offending rows in X 
 #' \item nr.offcols number of columns of the design matrix that have separation
 #' \item offcols columns of the design matrix that have separation. It is given as category::effect.  
 #' }
@@ -36,17 +36,17 @@ diagsep_bcl<-function(y,X,rational=FALSE)
   lout <- linearities_bcl(y,X,rational=rational)$index
   #if(ratcols) Xstar <- rcdd::q2d(Xstar)
   #if (length(lout)==0){
-  #    offobs <-  Xstar
-  #    attr(offobs,"assign") <- NULL
+  #    offrows <-  Xstar
+  #    attr(offrows,"assign") <- NULL
   #  } else {
-  #    offobs <- Xstar[-lout,,drop=FALSE]
-  #    attr(offobs,"assign") <- NULL
+  #    offrows <- Xstar[-lout,,drop=FALSE]
+  #    attr(offrows,"assign") <- NULL
                                         #  }
-  offobs <- sepobs_bcl(y,X,rational=rational)$offobs
+  offrows <- seprows_bcl(y,X,rational=rational)$offrows
   typ<-ifelse(length(lout)>0,ifelse(length(lout)==dim(Xstar)[1],"Overlap","Quasi-Complete Separation"),"Complete Separation")
   reccdim <- reccone_bcl(y,X,rational=rational)$reccdim
   offcols <- detect_sepcols_bcl(y,X,rational=rational)$offcols 
-  out <- list(separation=(typ!="Overlap"),septype=typ,nr.offobs=dim(offobs)[1],reccdim=reccdim,offobs=offobs,nr.offcols=length(offcols),offcols=offcols)
+  out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols)
   class(out) <- out$class <- "sepmod"
   out
 }

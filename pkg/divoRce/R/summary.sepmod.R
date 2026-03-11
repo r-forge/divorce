@@ -16,20 +16,20 @@ summary.sepmodb <- function(object,...)
      #{    
      cat("Dimension of Recession Cone:", obj$reccdim,"\n")
      cat("\n")
-     cat("Number of Offending Variables:", length(obj$offvars),"\n")
-     cat("Number of Offending Observations:", obj$nr.offobs,"\n")
+     cat("Number of Offending Columns:", length(obj$offcols),"\n")
+     cat("Number of Offending Rows:", obj$nr.offrows,"\n")
      #}
      #if(info=="full")
      #{    
      cat("Dimension of Recession Cone:", obj$reccdim,"\n")
      cat("\n")
-     cat("Number of Offending Variables:", length(obj$offvars),"\n")
-     cat("Offending Variables:","\n") 
-     print(obj$offvars)
+     cat("Number of Offending Columns:", length(obj$offcols),"\n")
+     cat("Offending Columns:","\n") 
+     print(obj$offcols)
      cat("\n")
-     cat("Number of Offending Observations:", obj$nr.offobs,"\n")
-     cat("Offending Observations:","\n")
-     print(obj$offobs)
+     cat("Number of Offending Rows:", obj$nr.offrows,"\n")
+     cat("Offending Rows:","\n")
+     print(obj$offrows)
      #}
      }
 

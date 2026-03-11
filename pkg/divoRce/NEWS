@@ -1,3 +1,6 @@
+Version 0.2-0
+	- Renamed all $offobs and sepobs to $offrows and $seprows. Changed the summary and print to also reflect that. Added optional argument S to high-level function check_sep to allow for supplying a structure vector matrix.
+
 Version 0.1-2
 	- Start of development version on R forge.
 

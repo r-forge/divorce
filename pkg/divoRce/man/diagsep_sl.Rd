@@ -19,13 +19,13 @@ an object of class 'sepmod_sl'. It is a list with the elements corresponding to 
 \item separation boolean whether there is separation ('TRUE' means separation)
 \item septype which type of separation (or not). A string of either "Overlap", "Quasi-Complete Separation" or "Complete Separation".
 \item reccdim dimension of recession cone
-\item offobs offending observations, the ones which are not linearities  (note that individual observations can be duplicated in the cone as they may lie on the boundary) 
+\item offrows offending rows in X, the ones which are not linearities  (note that individual rows can be duplicated in the cone as they may lie on the boundary) 
 \item nr.offcols number of columns of the design matrix that have separation
 \item offcols columns of the design matrix that have separation. It is given as category::effect.  
 }
 }
 \description{
-This function checks whether there is (quasi-) complete separation, which type if any, gives the dimension of the recession cone, lists the number of columns in the design matrix that give rise to the separation as well as the columns names and lists the observations for which we have separation.
+This function checks whether there is (quasi-) complete separation, which type if any, gives the dimension of the recession cone, lists the number of columns in the design matrix that give rise to the separation as well as the columns names and lists the rows in X for which we have separation.
 }
 \examples{
 data(qcsepdato)

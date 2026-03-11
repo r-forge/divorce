@@ -1,6 +1,6 @@
 #' Detailed separation diagnostic for all categorical outcomes. 
 #'
-#' This function checks whether there is (quasi-) complete separation, which type if any, gives the dimension of the recession cone, lists the number of columns in the design matrix that give rise to the separation as well as the columns names and lists the observations for which we have separation.   
+#' This function checks whether there is (quasi-) complete separation, which type if any, gives the dimension of the recession cone, lists the number of columns in the design matrix that give rise to the separation as well as the columns names and lists the rows in X for which we have separation.   
 #'
 #' 
 #' @param y the outcome variable. Can be binary, categorial or ordinal. Works best if it is an ordered or unordered factor but can also be numeric, boolean or character. If y is not a factor, it is treated as a nominal (categorical) outcome. 
@@ -13,7 +13,7 @@
 #' \item separation boolean whether there is separation ('TRUE' means separation)
 #' \item septype which type of separation (or not). A string of either "Overlap", "Quasi-Complete Separation" or "Complete Separation".
 #' \item reccdim dimension of recession cone
-#' \item offobs offending observations 
+#' \item offrows offending rows in X 
 #' \item nr.offcols number of columns of the design matrix that have separation
 #' \item offcols columns of the design matrix that have separation. It is given as category::effect.  
 #' }

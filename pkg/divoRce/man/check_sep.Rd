@@ -4,14 +4,22 @@
 \alias{check_sep}
 \title{General separation check. This calls to the appropriate low-level function.}
 \usage{
-check_sep(y, X, rational = FALSE, model = c("bcl", "cl", "acl", "sl", "osm"))
+check_sep(
+  y,
+  X,
+  S,
+  rational = FALSE,
+  model = c("bcl", "cl", "acl", "sl", "osm")
+)
 }
 \arguments{
-\item{y}{outcome vector.}
+\item{y}{an outcome vector}
 
-\item{X}{design matrix.}
+\item{X}{a design matrix}
 
-\item{rational}{should rational arithmetic be used.}
+\item{S}{a matrix of structure vectors}
+
+\item{rational}{should rational arithmetic be used}
 
 \item{model}{what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else.}
 }
@@ -19,5 +27,8 @@ check_sep(y, X, rational = FALSE, model = c("bcl", "cl", "acl", "sl", "osm"))
 a Boolean; either 'TRUE' if we detected separation or 'FALSE' if not.
 }
 \description{
-This function checks for (quasi-) complete separation. It is a low-level function for a response vector y and a design matrix X.
+This function checks for (quasi-) complete separation.
+}
+\details{
+The function uses either a response vector y and a design matrix X or a structure vector matrix S. If S is given, y and X and model are ignored.
 }
