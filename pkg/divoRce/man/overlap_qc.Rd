@@ -7,6 +7,7 @@
 overlap_qc(
   y,
   X,
+  S,
   rational = FALSE,
   model = c("b", "bcl", "cl", "acl", "sl", "osm")
 )
@@ -15,6 +16,8 @@ overlap_qc(
 \item{y}{outcome vector.}
 
 \item{X}{design matrix.}
+
+\item{S}{structure vector matrix}
 
 \item{rational}{should rational arithmetic be used?}
 

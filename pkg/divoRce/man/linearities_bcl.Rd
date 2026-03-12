@@ -3,7 +3,7 @@
 \name{linearities_bcl}
 \alias{linearities_bcl}
 \alias{linearities_b}
-\title{This function calculates the linearities in the data for a baseline-category link model, so the row vectors for which there is no separation. If this is an empty set or of length 0, then we have overlap.}
+\title{This function calculates the linearities in the negative structure vector matrix X* for a baseline-category link model, so the row vectors for which there is no separation. If this is an empty set or of length 0, then we have overlap.}
 \usage{
 linearities_bcl(y, X, rational = FALSE)
 
@@ -17,8 +17,8 @@ linearities_b(y, X, rational = FALSE)
 \item{rational}{boolean flag whether rational arithmetic should be used. Default is FALSE.}
 }
 \value{
-a list with elements $linX which lists the rows vectors that are linearities for any category and $index which gives the row index of the linearities. If there is complete separation they are both empty set. If their length/row dimension is number of categories*dim(X)[1], there is overlap. Anything in between is quasi-complete separation.
+a list with elements $lins which lists the rows vectors that are linearities for any category and $index which gives the row index of the linearities. If there is complete separation they are both empty set. If their length/row dimension is number of categories*dim(X)[1], there is overlap. Anything in between is quasi-complete separation.
 }
 \description{
-This function calculates the linearities in the data for a baseline-category link model, so the row vectors for which there is no separation. If this is an empty set or of length 0, then we have overlap.
+This function calculates the linearities in the negative structure vector matrix X* for a baseline-category link model, so the row vectors for which there is no separation. If this is an empty set or of length 0, then we have overlap.
 }

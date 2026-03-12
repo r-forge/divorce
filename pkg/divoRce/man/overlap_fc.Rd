@@ -7,6 +7,7 @@
 overlap_fc(
   y,
   X,
+  S,
   frac = 10L,
   verbose = FALSE,
   rational = FALSE,
@@ -17,6 +18,8 @@ overlap_fc(
 \item{y}{outcome vector.}
 
 \item{X}{design matrix.}
+
+\item{S}{structure vector matrix}
 
 \item{frac}{the fraction of the data to use for checking (uses n/frac data). Defaults to 10. If frac is below 1 or n, it uses frac=1. Using frac=1 is the same as using check_ovl.}
 
@@ -33,7 +36,7 @@ a Boolean; either 'TRUE' if we detect overlap or 'FALSE' if we do not (so the da
 Intended for data where one suspects overlap, this function checks for overlap on an ever growing subset of the data. It is a low-level function for a response vector y and a design matrix X.
 }
 \details{
-The function samples a fraction of observations form the data and checks for overlap. If overlap exists in a subset, then overlap exists in the overal data (Corollary in Sablica et al,. (2025)). If no overlap is found, it takes a larger sample and checks again until all data are tested. If no overlap is found even for all data, it concludes there is separation.
+The function samples a fraction of observations form the data and checks for overlap. If overlap exists in a subset, then overlap exists in the overal data (Sablica et al,. 2026). If no overlap is found, it takes a larger sample and checks again until all data are tested. If no overlap is found even for all data, it concludes there is separation.
 
 Since solving the exact linear program on the full data via \link{check_ovl} can take a long time for large data, this check can be quicker in case of overlap (especially if the overlapping categories are not rare). However, if there is separation this function usually takes longer.
 }

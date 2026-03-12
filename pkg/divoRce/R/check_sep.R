@@ -2,12 +2,12 @@
 #'
 #' This function checks for (quasi-) complete separation by calling the appropriate low-level functions.
 #'
-#' The function uses either a response vector y and a design matrix X or a structure vector matrix S. If S is given, y and X and model are ignored. 
+#' The function uses either a response vector y and a design matrix X, or a structure vector matrix S. If S is given, y and X and model are ignored. 
 #'
 #' 
 #'
-#' @param y an outcome vector 
-#' @param X a design matrix 
+#' @param y a categorical outcome vector 
+#' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynominals). 
 #' @param S a matrix of structure vectors
 #' @param rational should rational arithmetic be used
 #' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing or NULL it defaults to cumulative link for ordinal y and baseline-category for everything else.  
@@ -18,28 +18,28 @@
 check_sep <- function(y, X, S, rational=FALSE, model=c("bcl","cl","acl","sl","osm")){
     if(missing(S))
     {
+    if(length(unique(y))<2) stop("There is only one value in y.")
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
-    if(length(unique(y))<2) stop("There is only one value in y.") 
     if(missing(model)) model <- NULL
     if(is.null(model))
     {
         warning("I'm not sure which model you want to fit, so I default to the most common ones.","\n")
         if(is.ordered(y) & length(unique(y))>2)
         {
-            check_sep_cl(y,X,rational=rational)
+            check_sep_cl(y=y,X=X,rational=rational)
         } else {
-            check_sep_bcl(y,X,rational=rational)
+            check_sep_bcl(y=y,X=X,rational=rational)
         }
     }
     model <- match.arg(model,several.ok=FALSE)
     switch(model,
-           bcl= check_sep_bcl(y,X,rational=rational),
-           cl= check_sep_cl(y,X,rational=rational),
-           acl= check_sep_acl(y,X,rational=rational),       
-           sl=check_sep_sl(y,X,rational=rational),
-           osm=check_sep_osm(y,X,rational=rational)
+           bcl= check_sep_bcl(y=y,X=X,rational=rational),
+           cl= check_sep_cl(y=y,X=X,rational=rational),
+           acl= check_sep_acl(y=y,X=X,rational=rational),       
+           sl=check_sep_sl(y=y,X=X,rational=rational),
+           osm=check_sep_osm(y=y,X=X,rational=rational)
            )
     } else {
         # for S given
@@ -96,7 +96,7 @@ check_sep_cl<- function(y, X, rational=FALSE){
    ratcols <- rat_cols(X)
    if(ratcols) rational <- TRUE 
    if(length(unique(y))>2) { 
-       Xstar <- cl_Xstar(y, X, label=FALSE, rational = rational)
+       Xstar <- cl_Xstar(y=y, X=X, label=FALSE, rational = rational)
    } else stop("For 2 categories, please use check_sep_b.")    
    ## we distiguish the following cases.
    ## Xstar numeric, rational FALSE: all is done with numeric
@@ -140,7 +140,7 @@ check_sep_osm<- function(y, X, rational=FALSE){
    ratcols <- rat_cols(X)
    if(ratcols) rational <- TRUE 
    if(length(unique(y))>2) { 
-       Xstar <- osm_Xstar(y, X, label=FALSE, rational = rational)
+       Xstar <- osm_Xstar(y=y, X=X, label=FALSE, rational = rational)
    } else stop("For 2 categories, please use check_sep_b.")    
    ## we distiguish the following cases.
    ## Xstar numeric, rational FALSE: all is done with numeric
@@ -183,7 +183,7 @@ check_sep_bcl<- function(y, X, rational=FALSE){
    ratcols <- rat_cols(X)
    if(ratcols) rational <- TRUE 
    if(is.ordered(y) & length(unique(y))>2) stop("This function is for unordered y. For ordered y, please use the appropriate check_sep function.") 
-        Xstar <- bcl_Xstar(y, X, label=FALSE, rational = rational) #for all nominal and binary
+        Xstar <- bcl_Xstar(y=y, X=X, label=FALSE, rational = rational) #for all nominal and binary
    ## we distiguish the following cases.
    ## Xstar numeric, rational FALSE: all is done with numeric
    ## Xstar numeric, rational TRUE: Matrices are built numeric and d2q is called for rational before linear program
@@ -241,8 +241,8 @@ check_sep_sl<- function(y, X, rational=FALSE){
    ratcols <- rat_cols(X)
    if(ratcols) rational <- TRUE 
    y <- as.ordered(y)
-   splitdat <- create_bseq(y,X)
-   seqout <- sapply(splitdat,function(l) check_sep_b(l$y,l$X,rational=rational))
+   splitdat <- create_bseq(y=y,X=X)
+   seqout <- sapply(splitdat,function(l) check_sep_b(y=l$y,X=l$X,rational=rational))
    any(seqout)
 }
 
@@ -262,7 +262,7 @@ check_sep_acl<- function(y, X, rational=FALSE){
    ratcols <- rat_cols(X)
    if(ratcols) rational <- TRUE 
    if(length(unique(y))>2) { 
-       Xstar <- acl_Xstar(y, X, label=FALSE, rational = rational)
+       Xstar <- acl_Xstar(y=y, X=X, label=FALSE, rational = rational)
    } else stop("For 2 categories, please use check_sep_b.")    
    ## we distiguish the following cases.
    ## Xstar numeric, rational FALSE: all is done with numeric
@@ -306,7 +306,7 @@ check_sep_osm<- function(y, X, rational=FALSE){
     ratcols <- rat_cols(X)
    if(ratcols) rational <- TRUE 
    if(length(unique(y))>2) { 
-       Xstar <- osm_Xstar(y, X, label=FALSE, rational = rational)
+       Xstar <- osm_Xstar(y=y, X=X, label=FALSE, rational = rational)
    } else stop("For 2 categories, please use check_sep_b.")    
    ## we distiguish the following cases.
    ## Xstar numeric, rational FALSE: all is done with numeric
@@ -385,7 +385,7 @@ check_sep_osm<- function(y, X, rational=FALSE){
 #' @export
 check_ovl <- function(y, X, S, rational=FALSE, model=c("bcl","cl","acl","sl","osm")){
   if(missing(model)) model <- NULL
-  if(missing(S)) !isTRUE(check_sep(y, X, rational=rational, model = model)) else !isTRUE(check_sep(S=S, rational=rational)) 
+  if(missing(S)) !isTRUE(check_sep(y=y, X=X, rational=rational, model = model)) else !isTRUE(check_sep(S=S, rational=rational)) 
 }
 
 

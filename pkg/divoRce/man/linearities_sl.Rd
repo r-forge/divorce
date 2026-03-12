@@ -2,7 +2,7 @@
 % Please edit documentation in R/linearities.R
 \name{linearities_sl}
 \alias{linearities_sl}
-\title{This function calculates the linearities in the data for an sequential link model, so the row vectors for which there is no separation. If this is an empty set or of length 0, then we have overlap.}
+\title{This function calculates the linearities in the negative structure vector matrix X* for an sequential link model, so the row vectors for which there is no separation. If this is an empty set or of length 0, then we have overlap.}
 \usage{
 linearities_sl(y, X, rational = FALSE, reduced = TRUE)
 }
@@ -16,8 +16,8 @@ linearities_sl(y, X, rational = FALSE, reduced = TRUE)
 \item{reduced}{If TRUE (default) the per category results are merged into one objct and duplicates removed. If FALSE, the result is given for each category separately.}
 }
 \value{
-a list with elements $linX which lists the rows vectors that are linearities for any category (reduced=TRUE) or by category (reduced=FALSE), and $index which gives the row index of the linearities for any or by category. If there is complete separation they are both empty set. If their length/row dimension is number of categories*dim(X)[1], there is overlap. Anything in between is quasi-complete separation.
+a list with elements $lins which lists the rows vectors that are linearities for any category (reduced=TRUE) or by category (reduced=FALSE), and $index which gives the row index of the linearities for any or by category. If there is complete separation they are both empty set. If their length/row dimension is number of categories*dim(X)[1], there is overlap. Anything in between is quasi-complete separation.
 }
 \description{
-This function calculates the linearities in the data for an sequential link model, so the row vectors for which there is no separation. If this is an empty set or of length 0, then we have overlap.
+This function calculates the linearities in the negative structure vector matrix X* for an sequential link model, so the row vectors for which there is no separation. If this is an empty set or of length 0, then we have overlap.
 }

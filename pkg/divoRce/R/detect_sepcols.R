@@ -1,19 +1,25 @@
-#' This function identifies the columns in a design matrix that are responsible for separation. It calls lower level functions if given an argument or chooses based on the response type. 
+#' This function identifies the columns in a design matrix/structure vector matrix that are responsible for separation. It calls lower level functions if given an argument or chooses based on the response type.
+#'
+#' The function uses either a response vector y and a design matrix X, or a structure vector matrix S. If S is given, y and X and model are ignored. 
 #'
 #' @details We solve a linear program in this function that operates only on y and X, so without a specific model. This program corresponds to detecting which columns in the design matrix leads to infinite MLE for some link functions, but it is more general as there are links that can still give finite estimates even though there is separation. Hence this function detects separation even in the case of (seemingly) finite estimates or if there is no warning. The prime example is using the log link in logistic regression.
 #'
 #' This function assumes that either a baseline-category link model for categorical outcomes (incl. binary )is wanted, or a cumulative link model for ordinal outcomes. For adjacent-category link, sequential link or ordered stereotypes models use the subfunctions detect_sepcols_acl, detect_sepcols_sl and detect_sepcols_os respectively.  
 #' 
-#' @param y the dependent variable.  
+#' @param y a categorical outcome vector.  Can be binary, categorial or ordinal. Works best if it is an ordered or unordered factor but can also be numeric, boolean or character. If y is not a factor, it is treated as a nominal (categorical) outcome.   
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynominals).
+#' @param S a matrix of structure vectors
 #' @param rational Should rational arithmetic be used? 
-#' @param model the model type. If not given, we default to cumulativie link for ordered factors and baseline-category for everything else. 
+#' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else.  
 #' 
 #' @export
 #'
 #'
 #'
-detect_sepcols<- function(y,X, rational=FALSE, model=c("bcl","cl","acl","sl","osm")){
+detect_sepcols<- function(y, X, S, rational=FALSE, model=c("b","bcl","cl","acl","sl","osm"))
+{
+    if(missing(S))
+    {
     if(length(unique(y))<2) stop("There is only one value in y.")
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
     ratcols <- rat_cols(X)
@@ -21,23 +27,67 @@ detect_sepcols<- function(y,X, rational=FALSE, model=c("bcl","cl","acl","sl","os
     if(missing(model)) model <- NULL
     if(is.null(model))
     {
-       # cat("I'm not sure which model you want to fit, so I default to the most common ones.","\n")
-        if(is.ordered(y) & length(unique(y))>2)
+       warning("I'm not sure which model you want to fit, so I default to the most common ones.","\n")
+       if(is.ordered(y) & length(unique(y))>2)
         {
-            detect_sepcols_cl(y,X,rational=rational)
+            detect_sepcols_cl(y=y,X=X,rational=rational)
         } else {
-            detect_sepcols_bcl(y,X,rational=rational)
+            detect_sepcols_bcl(y=y,X=X,rational=rational)
         }
     }
     model <- match.arg(model,several.ok=FALSE)
     switch(model,
-           bcl= detect_sepcols_bcl(y,X,rational=rational),
-           cl= detect_sepcols_cl(y,X,rational=rational),
-           acl= detect_sepcols_acl(y,X,rational=rational),       
-           sl=detect_sepcols_sl(y,X,rational=rational),
-           osm=detect_sepcols_osm(y,X,rational=rational)
+           b = detect_sepcols_bcl(y=y,X=X,rational=rational),
+           bcl= detect_sepcols_bcl(y=y,X=X,rational=rational),
+           cl= detect_sepcols_cl(y=y,X=X,rational=rational),
+           acl= detect_sepcols_acl(y=y,X=X,rational=rational),       
+           sl=detect_sepcols_sl(y=y,X=X,rational=rational),
+           osm=detect_sepcols_osm(y=y,X=X,rational=rational)
            )
-}
+    } else {
+        # for S given
+        if(!is.matrix(S)) stop("S must be a matrix.")
+        ratcols <- rat_cols(S)
+        if(ratcols) rational <- TRUE
+        if(ratcols) {
+            # to turn a rational S into a rational Xstar we need to convert to floating and multiply with -1
+            Stmp <- rcdd::q2d(S) 
+            Xstar <- -1*Stmp
+            Xstar <- rcdd::d2q(Xstar)
+            #row.names(Xstar) <- row.names(S)
+            #colnames(Xstar) <- colnames(S)
+        } else {
+            Xstar <- -1*S
+        }
+     ## matrix of constraints for \code{lpcdd} must be of the form A1 * \beta \leq b1. We combine the constraints into one big A1 for the left hand side and a vector b1 of the right hand side scalars.
+    ## left hand side just inequalities to folow the linear program in the apper
+    A1<- rbind(-Xstar,              # the first ineqs -Xstar*beta <=0           
+               - diag(ncol(Xstar)), # lower bounds -beta <= 1
+                 diag(ncol(Xstar))) # upper bounds beta <= 1
+    ## the right hand side are scalars 
+    b1<- c(rep(0,dim(Xstar)[1]), #the right hand side is 0
+           rep(1,ncol(Xstar)),   #the right hand side is 1
+           rep(1,ncol(Xstar))    #the right hand side is 1
+           )
+    if(rational){
+        A1 <- rcdd::d2q(A1)
+        b1 <- rcdd::d2q(b1)
+    }
+    ## making the H rep 
+    hrep<-rcdd::makeH(a1=A1,b1=b1)
+    ## objective function
+   a<-t(rep(1,dim(Xstar)[1]))%*%Xstar
+   a <- as.numeric(a)
+   if(rational) a <- rcdd::d2q(a)
+   ## maximization with lpcdd
+   lso <- rcdd::lpcdd(hrep,a,minimize=FALSE)$primal.solution
+   if(rational) lso <- rcdd::q2d(lso) 
+   offflag <- sapply(lso,function(x) !isTRUE(all.equal(x,0)))
+   offcols <- colnames(Xstar)[offflag]
+   out <- list(ls=lso,offcols=offcols,colnrs=which(offflag),separated=offflag)
+   return(out)    
+   }
+ }
 
 #' @rdname detect_sepcols
 #' @export
@@ -102,7 +152,7 @@ detect_sepcols_b<- function(y,X,rational=FALSE) {
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
-    Xstar <- bcl_Xstar(y, X, label=TRUE, rational=rational)
+    Xstar <- bcl_Xstar(y=y, X=X, label=TRUE, rational=rational)
     ##here we check whether X has full column rank otherwise this check won't work properly.
     if(ratcols) X <- rcdd::q2d(X)
     if(qr(X)$rank<dim(X)[2]) warning("X doesn't have full column rank. Results of this check are unreliable.")     
@@ -155,8 +205,8 @@ detect_sepcols_sl <- function(y,X,rational=FALSE)
   ratcols <- rat_cols(X)
   if(ratcols) rational <- TRUE
   y <- as.ordered(y)
-  splitdat <- create_bseq(y,X)
-  seqout <- lapply(splitdat,function(l) detect_sepcols_b(l$y,l$X))
+  splitdat <- create_bseq(y=y,X=X)
+  seqout <- lapply(splitdat,function(l) detect_sepcols_b(y=l$y,X=l$X,rational=rational))
   seqout
 }
 
@@ -222,7 +272,7 @@ detect_sepcols_bcl<- function(y,X,rational=FALSE) {
      if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
-    Xstar <- bcl_Xstar(y,X,label=TRUE,rational=rational)
+    Xstar <- bcl_Xstar(y=y,X=X,label=TRUE,rational=rational)
     ##here we check whether X has full column rank otherwise this check won't work properly.
     if(ratcols) X <- rcdd::q2d(X)
     if(qr(X)$rank<dim(X)[2]) warning("X doesn't have full column rank. Results of this check are unreliable.")      
@@ -310,7 +360,7 @@ detect_sepcols_cl<- function(y,X,rational=FALSE) {
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
-    Xstar <- cl_Xstar(y,X,label=TRUE,rational=rational)
+    Xstar <- cl_Xstar(y=y,X=X,label=TRUE,rational=rational)
     if(ratcols) X <- rcdd::q2d(X)
     if(qr(X)$rank<dim(X)[2]) warning("X doesn't have full column rank. Results of this check are unreliable.")    
     #ncat <- length(unique(y)) # we need this as in the ordin_Xstar all thresholds are always inf (because redundancy)
@@ -398,7 +448,7 @@ detect_sepcols_acl <- function(y,X,rational=FALSE)
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
-    Xstar <- acl_Xstar(y,X,label=TRUE,rational=rational)
+    Xstar <- acl_Xstar(y=y,X=X,label=TRUE,rational=rational)
     if(ratcols) X <- rcdd::q2d(X)
     if(qr(X)$rank<dim(X)[2]) warning("X doesn't have full column rank. Results of this check are unreliable.")    
     #ncat <- length(unique(y)) # we need this as in the ordin_Xstar all thresholds are always inf (because redundancy)
@@ -450,7 +500,7 @@ detect_sepcols_osm <- function(y,X,rational=FALSE)
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
-    Xstar <- osm_Xstar(y,X,label=TRUE,rational=rational)
+    Xstar <- osm_Xstar(y=y,X=X,label=TRUE,rational=rational)
     if(ratcols) X <- rcdd::q2d(X)
     if(qr(X)$rank<dim(X)[2]) warning("X doesn't have full column rank. Results of this check are unreliable.")    
     #ncat <- length(unique(y)) # we need this as in the ordin_Xstar all thresholds are always inf (because redundancy)

@@ -2,22 +2,31 @@
 % Please edit documentation in R/linearities.R
 \name{linearities}
 \alias{linearities}
-\title{This function calculates the linearities in the data, so the row vectors for which there is no separation. 
+\title{This function calculates the linearities in the negative structure vector matrix X*, so the row vectors for which there is no separation. 
 If this is an empty set or of length 0, then we have overlap.}
 \usage{
-linearities(y, X, rational = FALSE)
+linearities(
+  y,
+  X,
+  S,
+  rational = FALSE,
+  model = c("b", "bcl", "acl", "cl", "sl", "osm")
+)
 }
 \arguments{
 \item{y}{the outcome variable. Can be factor, ordered, numeric, character or boolean. Works best if it is a factor or ordered factor. If it is not an (ordered) factor, we treat the outcome as nominal.}
 
 \item{X}{a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).}
 
+\item{S}{a matrix of structure vectors}
+
 \item{rational}{boolean flag whether rational arithmetic should be used. Default is FALSE.}
+
+\item{model}{what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing or NULL it defaults to cumulative link for ordinal y and baseline-category for everything else.}
 }
 \value{
-a list with elements $linX which lists the rows vectors that are linearities for any category and $index which gives the row index of the linearities. If there is complete separation they are both empty set. If their length/row dimension is number of categories*dim(X)[1], there is overlap. Anything in between is quasi-complete separation.
+a list with elements $lins which lists the row vectors that are linearities for any category and $index which gives the row index of the linearities. If there is complete separation they are both empty set. If their length/row dimension is number of categories*dim(X)[1], there is overlap. Anything in between is quasi-complete separation.
 }
 \description{
-This function calculates the linearities in the data, so the row vectors for which there is no separation. 
-If this is an empty set or of length 0, then we have overlap.
+The function uses either a response vector y and a design matrix X, or a structure vector matrix S. If S is given, y and X and model are ignored.
 }

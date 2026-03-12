@@ -4,12 +4,20 @@
 \alias{diagsep}
 \title{Detailed separation diagnostic for all categorical outcomes.}
 \usage{
-diagsep(y, X, rational = FALSE, model = c("bcl", "cl", "acl", "sl", "osm"))
+diagsep(
+  y,
+  X,
+  S,
+  rational = FALSE,
+  model = c("b", "bcl", "cl", "acl", "sl", "osm")
+)
 }
 \arguments{
 \item{y}{the outcome variable. Can be binary, categorial or ordinal. Works best if it is an ordered or unordered factor but can also be numeric, boolean or character. If y is not a factor, it is treated as a nominal (categorical) outcome.}
 
 \item{X}{a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).}
+
+\item{S}{a matrix of structure vectors}
 
 \item{rational}{should rational arithmetic be used?}
 
@@ -27,7 +35,10 @@ an object of class 'sepmod' that is a list with the components:
 }
 }
 \description{
-This function checks whether there is (quasi-) complete separation, which type if any, gives the dimension of the recession cone, lists the number of columns in the design matrix that give rise to the separation as well as the columns names and lists the rows in X for which we have separation.
+This function checks whether there is (quasi-) complete separation, which type if any, gives the dimension of the recession cone, lists the number of columns in the design matrix that give rise to the separation as well as the columns names and lists the rows in X/S for which we have separation.
+}
+\details{
+The function uses either a response vector y and a design matrix X, or a structure vector matrix S. If S is given, y and X and model are ignored.
 }
 \examples{
 data(qcsepdatm)

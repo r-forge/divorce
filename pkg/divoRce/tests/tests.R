@@ -9,7 +9,7 @@ load_all()
 ## * Test with rational input, set flag rational=TRUE. Tested till nominal.
 ## * Test with standard numeric but rational=TRUE
 
-rational <- TRUE
+rational <- FALSE
 
 ########################################################
 ############### Binary Data - BCL MODEL ################
@@ -20,19 +20,19 @@ data("endometrial", package = "detectseparation")
 endo_glm <- glm(HG ~ NV + PI + EH, family = binomial(), data = endometrial)
 yqcs <- endometrial$HG
 Xqcs <- model.matrix(endo_glm)
-
-
 Sqcs <- Xqcs
 Sqcs[yqcs==0,] <- -1 * Sqcs[yqcs==0,]
-Sqcs
+Sqcs #an S matrix
 
-bcl_Xstar(yqcs,Xqcs)
-
-Sqcs2 <- -1*bcl_Xstar(yqcs,Xqcs)
-SqcsR <- rcdd::d2q(Sqcs)
+#Sqcs2 <- -1*bcl_Xstar(yqcs,Xqcs)
+#SqcsR <- rcdd::d2q(Sqcs)  #for rational
 
 ##rational
-if(rational) Xqcs <- rcdd::d2q(Xqcs)
+if(rational)
+{
+    Xqcs <- rcdd::d2q(Xqcs)
+    Sqcs <- rcdd::d2q(Sqcs)  #for rational
+}
 
 ## check_sep
 # via y, X interface
@@ -41,15 +41,10 @@ check_sep(yqcs,Xqcs,rational=rational) #works
 #via S interface
 check_sep(S=Sqcs, rational=rational) #works
 
-check_sep(S=SqcsR, rational=rational) #works not
-
 ##check_clvl
 check_ovl(yqcs,Xqcs,rational=rational,model="bcl") #works
 
 check_ovl(S=Sqcs,rational=rational) #works
-
-check_ovl(S=SqcsR,rational=rational) #works
-
 
 
 
@@ -57,24 +52,40 @@ check_ovl(S=SqcsR,rational=rational) #works
 detect_sepcols_b(yqcs,Xqcs,rational=rational) #
 detect_sepcols(yqcs,Xqcs,rational=rational) #
 
+detect_sepcols(S=Sqcs,rational=rational) #works 
+
 ##### linearities
-lis <- linearities(yqcs,Xqcs,rational=rational) #
-lis
+linearities_b(yqcs,Xqcs,rational=rational) #
+linearities(yqcs,Xqcs,rational=rational,model="b") #works now 
+linearities(yqcs,Xqcs,rational=rational) #works now
+linearities(S=Sqcs,rational=rational) #
+
 
 ##### overlap_fc
 overlap_fc(yqcs,Xqcs,frac=10,verbose=1,rational=rational)
 
-##### rec_cone
-rec_cone(yqcs,Xqcs,rational=rational) 
+
+
+##### reccone
+reccone(yqcs,Xqcs,rational=rational) #works
+reccone(yqcs,Xqcs,rational=rational,model="b") #works 
+reccone_b(yqcs,Xqcs,rational=rational)
+reccone(S=Sqcs,rational=rational) 
 
 ##### diagsep_b
 diagsep_b(yqcs,Xqcs,rational=rational)
-diagsep(yqcs,Xqcs,rational=rational) #TODO Diagsep returns Xstra rows and _x returns X rows. Which one to take? 
+diagsep(yqcs,Xqcs,rational=rational) 
+diagsep(S=Sqcs,rational=rational)  #works
+
 print.sepmod(diagsep_b(yqcs,Xqcs,rational=rational))
 print.sepmod(diagsep_b(yqcs,Xqcs,rational=rational),"full")
+print.sepmod(diagsep(S=Sqcs,rational=rational),"full")
 
 ##seprows_b
-seprows_b(yqcs,Xqcs)
+seprows_b(yqcs,Xqcs,rational=rational)
+seprows(yqcs,Xqcs,rational=rational)
+seprows(S=Sqcs,rational=rational) #works
+
 
 ##quasi complete separation --- CHECKS OUT
 load("./Data/Silvapulle.rda")

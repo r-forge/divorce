@@ -4,20 +4,31 @@
 \alias{reccone}
 \title{Calculates recession cone for categorical data models.}
 \usage{
-reccone(y, X, rational = FALSE, model = c("b", "bcl", "acl", "sl", "osm"))
+reccone(
+  y,
+  X,
+  S,
+  rational = FALSE,
+  model = c("b", "bcl", "acl", "cl", "sl", "osm")
+)
 }
 \arguments{
 \item{y}{the outcome variable. Works best if it is a factor or ordered factor but can also be numeric, boolean or character.}
 
 \item{X}{a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).}
 
+\item{S}{a matrix of structure vectors}
+
 \item{rational}{boolean flag whether rational arithmetic should be used. Default is FALSE.}
 
-\item{model}{which model is the check for? One of bcl (baseline-category link), acl (adjacent-category link), b (binary), osm (ordered stereotype model), sl (sequential aka continuation-ratio link).}
+\item{model}{what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing or NULL it defaults to cumulative link for ordinal y and baseline-category for everything else.}
 }
 \value{
 a list with 'cone' being the recession cone, 'reccdim' being the dimensions of the recession cone, and 'index' the row index of the structure vectors that are not linearities. Note that in case of 'X' not having full column rank, the 'reccdim' value is the dimension of the recession cone due to separation plus the number of columns that are linear dependent.
 }
 \description{
-This function returns the structure vectors that are not linearities (comprising the recession cone), the recession cone dimension and the row index of the structure vectors that are not linearities (mnaking up the recession cone).
+This function returns the structure vectors that are not linearities (determining the recession cone), the recession cone dimension and the row index of the structure vectors that are not linearities (making up the recession cone).
+}
+\details{
+The function uses either a response vector y and a design matrix X, or a structure vector matrix S. If S is given, y and X and model are ignored.
 }

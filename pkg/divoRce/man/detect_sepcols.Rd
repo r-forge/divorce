@@ -3,28 +3,37 @@
 \name{detect_sepcols}
 \alias{detect_sepcols}
 \alias{sepcols}
-\title{This function identifies the columns in a design matrix that are responsible for separation. It calls lower level functions if given an argument or chooses based on the response type.}
+\title{This function identifies the columns in a design matrix/structure vector matrix that are responsible for separation. It calls lower level functions if given an argument or chooses based on the response type.}
 \usage{
 detect_sepcols(
   y,
   X,
+  S,
   rational = FALSE,
-  model = c("bcl", "cl", "acl", "sl", "osm")
+  model = c("b", "bcl", "cl", "acl", "sl", "osm")
 )
 
-sepcols(y, X, rational = FALSE, model = c("bcl", "cl", "acl", "sl", "osm"))
+sepcols(
+  y,
+  X,
+  S,
+  rational = FALSE,
+  model = c("b", "bcl", "cl", "acl", "sl", "osm")
+)
 }
 \arguments{
-\item{y}{the dependent variable.}
+\item{y}{a categorical outcome vector.  Can be binary, categorial or ordinal. Works best if it is an ordered or unordered factor but can also be numeric, boolean or character. If y is not a factor, it is treated as a nominal (categorical) outcome.}
 
 \item{X}{a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynominals).}
 
+\item{S}{a matrix of structure vectors}
+
 \item{rational}{Should rational arithmetic be used?}
 
-\item{model}{the model type. If not given, we default to cumulativie link for ordered factors and baseline-category for everything else.}
+\item{model}{what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else.}
 }
 \description{
-This function identifies the columns in a design matrix that are responsible for separation. It calls lower level functions if given an argument or chooses based on the response type.
+The function uses either a response vector y and a design matrix X, or a structure vector matrix S. If S is given, y and X and model are ignored.
 }
 \details{
 We solve a linear program in this function that operates only on y and X, so without a specific model. This program corresponds to detecting which columns in the design matrix leads to infinite MLE for some link functions, but it is more general as there are links that can still give finite estimates even though there is separation. Hence this function detects separation even in the case of (seemingly) finite estimates or if there is no warning. The prime example is using the log link in logistic regression.

@@ -13,9 +13,9 @@ check_sep(
 )
 }
 \arguments{
-\item{y}{an outcome vector}
+\item{y}{a categorical outcome vector}
 
-\item{X}{a design matrix}
+\item{X}{a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynominals).}
 
 \item{S}{a matrix of structure vectors}
 
@@ -30,5 +30,5 @@ a Boolean; either 'TRUE' if we detected separation or 'FALSE' if not.
 This function checks for (quasi-) complete separation by calling the appropriate low-level functions.
 }
 \details{
-The function uses either a response vector y and a design matrix X or a structure vector matrix S. If S is given, y and X and model are ignored.
+The function uses either a response vector y and a design matrix X, or a structure vector matrix S. If S is given, y and X and model are ignored.
 }
