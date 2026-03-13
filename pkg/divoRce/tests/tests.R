@@ -11,6 +11,11 @@ load_all()
 
 rational <- FALSE
 
+################################################################
+## Pre-fit stuff 
+################################################################
+
+
 ########################################################
 ############### Binary Data - BCL MODEL ################
 ########################################################
@@ -34,25 +39,21 @@ if(rational)
     Sqcs <- rcdd::d2q(Sqcs)  #for rational
 }
 
-## check_sep
+## checksep
 # via y, X interface
-check_sep(yqcs,Xqcs,rational=rational) #works
+checksep(yqcs,Xqcs,rational=rational) #works
 
 #via S interface
-check_sep(S=Sqcs, rational=rational) #works
+checksep(S=Sqcs, rational=rational) #works
 
 ##check_clvl
-check_ovl(yqcs,Xqcs,rational=rational,model="bcl") #works
-
-check_ovl(S=Sqcs,rational=rational) #works
-
-
+checkovl(yqcs,Xqcs,rational=rational,model="bcl") #works
+checkovl(S=Sqcs,rational=rational) #works
 
 ##### detect_sepcols_b
-detect_sepcols_b(yqcs,Xqcs,rational=rational) #
-detect_sepcols(yqcs,Xqcs,rational=rational) #
-
-detect_sepcols(S=Sqcs,rational=rational) #works 
+sepcols_b(yqcs,Xqcs,rational=rational) #
+sepcols(yqcs,Xqcs,rational=rational) #
+sepcols(S=Sqcs,rational=rational) #works 
 
 ##### linearities
 linearities_b(yqcs,Xqcs,rational=rational) #
@@ -60,11 +61,8 @@ linearities(yqcs,Xqcs,rational=rational,model="b") #works now
 linearities(yqcs,Xqcs,rational=rational) #works now
 linearities(S=Sqcs,rational=rational) #
 
-
 ##### overlap_fc
 overlap_fc(yqcs,Xqcs,frac=10,verbose=1,rational=rational)
-
-
 
 ##### reccone
 reccone(yqcs,Xqcs,rational=rational) #works
@@ -87,6 +85,18 @@ seprows(yqcs,Xqcs,rational=rational)
 seprows(S=Sqcs,rational=rational) #works
 
 
+## vectors 
+check_separation(yqcs,Xqcs,rational=rational,model="b")
+sloop::s3_dispatch(check_separation(yqcs))
+
+check_separation(factor(yqcs),Xqcs,rational=rational,model="b")
+sloop::s3_dispatch(check_separation(factor(yqcs)))
+
+## generics 
+check_separation(Sqcs,rational=rational)
+sloop::s3_dispatch(check_separation(Sqcs))
+sloop::s3_class(Sqcs)
+
 ##quasi complete separation --- CHECKS OUT
 load("./Data/Silvapulle.rda")
 silv_glm <- glm(case~sex+ghq+sex:ghq, family = binomial(), data = Silvapulle)
@@ -97,11 +107,11 @@ Xcs <- model.matrix(silv_glm)
 ##rational
 if(rational) Xcs <- rcdd::d2q(Xcs)
 
-## check_sep
-check_sep(ycs,Xcs,rational=rational) #works
+## checksep
+checksep(ycs,Xcs,rational=rational) #works
 
-##check_ovl
-check_ovl(ycs,Xcs,rational=rational) #works
+##checkovl
+checkovl(ycs,Xcs,rational=rational) #works
 
 ##### detect_sepcols_b
 detect_sepcols_b(ycs,Xcs,rational=rational)
@@ -136,11 +146,11 @@ Xqcs <- model.matrix(nsduh_glm)
 ##rational
 if(rational) Xqcs <- rcdd::d2q(Xqcs)
 
-## check_sep
-check_sep(yqcs,Xqcs,rational=rational) #works
+## checksep
+checksep(yqcs,Xqcs,rational=rational) #works
 
-##check_ovl
-check_ovl(yqcs,Xqcs,rational=rational) #works
+##checkovl
+checkovl(yqcs,Xqcs,rational=rational) #works
 
 ##### detect_sepcols_b
 detect_sepcols_b(yqcs,Xqcs,rational=rational) #works
@@ -175,11 +185,11 @@ Xcs <- model.matrix(tita_glm)
 ##rational 
 if(rational) Xcs <- rcdd::d2q(Xcs)
 
-## check_sep
-check_sep(ycs,Xcs,rational=rational) #works
+## checksep
+checksep(ycs,Xcs,rational=rational) #works
 
-##check_ovl
-check_ovl(ycs,Xcs,rational=rational) #works
+##checkovl
+checkovl(ycs,Xcs,rational=rational) #works
 
 ##### detect_sepcols_b
 detect_sepcols_b(ycs,Xcs,rational=rational) # TODO: not rational? Why
@@ -215,11 +225,11 @@ summary(aids_glm)
 ##rational
 if(rational) Xol1 <- rcdd::d2q(Xol1)
 
-## check_sep
-check_sep(yol1,Xol1,rational=rational) #works
+## checksep
+checksep(yol1,Xol1,rational=rational) #works
 
-##check_ovl
-check_ovl(yol1,Xol1,rational=rational) #works
+##checkovl
+checkovl(yol1,Xol1,rational=rational) #works
 
 ##### detect_sepcols_b
 detect_sepcols_b(yol1,Xol1,rational=rational) 
@@ -256,11 +266,11 @@ summary(ca_glm)
 ##rational
 if(rational) Xol2 <- rcdd::d2q(Xol2)
 
-## check_sep
-check_sep(yol2,Xol2,rational=rational) #works
+## checksep
+checksep(yol2,Xol2,rational=rational) #works
 
-##check_ovl
-check_ovl(yol2,Xol2,rational=rational) #works
+##checkovl
+checkovl(yol2,Xol2,rational=rational) #works
 
 ##### detect_sepcols_b
 detect_sepcols_b(yol2,Xol2,rational=rational) # TODO: check this out for aids data - says no separation but has infinite value of Intercept.
@@ -301,11 +311,11 @@ summary(csep_m) #note 1::x2 is also separated
 ##rational
 if(rational) Xcs <- rcdd::d2q(Xcs)
 
-## check_sep
-check_sep(ycs,Xcs,rational=rational) #works
+## checksep
+checksep(ycs,Xcs,rational=rational) #works
 
-##check_ovl
-check_ovl(ycs,Xcs,rational=rational) #works
+##checkovl
+checkovl(ycs,Xcs,rational=rational) #works
 
 ##### detect_sepcols_b
 detect_sepcols_bcl(ycs,Xcs,rational=rational) # works
@@ -350,11 +360,11 @@ summary(qcsep_bcl)
 ##rational
 if(rational) Xqcs <- rcdd::d2q(Xqcs)
 
-## check_sep
-check_sep(yqcs,Xqcs,rational=rational) #works
+## checksep
+checksep(yqcs,Xqcs,rational=rational) #works
 
-##check_ovl
-check_ovl(yqcs,Xqcs,rational=rational) #works
+##checkovl
+checkovl(yqcs,Xqcs,rational=rational) #works
 
 ##### detect_sepcols_b
 detect_sepcols_bcl(yqcs,Xqcs,rational=rational) # works
@@ -393,11 +403,11 @@ ovl_bcl
 ##rational
 if(rational) Xol <- rcdd::d2q(Xol)
 
-## check_sep
-check_sep(yol,Xol,rational=rational) #works
+## checksep
+checksep(yol,Xol,rational=rational) #works
 
-##check_ovl
-check_ovl(yol,Xol,rational=rational) #works
+##checkovl
+checkovl(yol,Xol,rational=rational) #works
 
 ##### detect_sepcols_b
 detect_sepcols_bcl(yol,Xol,rational=rational) # works
@@ -433,11 +443,11 @@ X <- model.matrix(allgm1)
 ##rational
 if(rational) X <- rcdd::d2q(X)
 
-## check_sep
-check_sep(y,X,rational=rational) #works
+## checksep
+checksep(y,X,rational=rational) #works
 
-##check_ovl
-check_ovl(y,X,rational=rational) #works
+##checkovl
+checkovl(y,X,rational=rational) #works
 
 ##### overlap_fc 
 overlap_fc(y,X,frac=1,verbose=1,rational=rational) #works
@@ -449,7 +459,7 @@ detect_sepcols(y,X,rational=rational) # works
 
 #TODO: interestingly it is much quicker to do; I made new quick checks
 system.time(any(isTRUE(detect_sepcols(y,X,rational=rational)$separated)))
-system.time(check_sep(y,X,rational=rational))
+system.time(checksep(y,X,rational=rational))
 
 
 ##### linearities
@@ -478,11 +488,11 @@ X <- model.matrix(allgm2)
 ##rational
 if(rational) X <- rcdd::d2q(X)
 
-## check_sep
-check_sep(y,X,rational=rational) #works
+## checksep
+checksep(y,X,rational=rational) #works
 
-##check_ovl
-check_ovl(y,X,rational=rational) #works
+##checkovl
+checkovl(y,X,rational=rational) #works
 
 ##### detect_sepcols_b
 detect_sepcols_bcl(y,X,rational=rational) # works
@@ -537,11 +547,11 @@ seprows_bcl(y,X)
 ## ##rational
 ## if(rational) X <- rcdd::d2q(X)
 
-## ## check_sep
-## check_sep(y,X) #works
+## ## checksep
+## checksep(y,X) #works
 
-## ##check_ovl
-## check_ovl(y,X) #works
+## ##checkovl
+## checkovl(y,X) #works
 
 ## ##### detect_sepcols_b
 ## detect_sepcols_bcl(y,X) # works
@@ -574,11 +584,11 @@ X <- model.matrix(allgm4)
 ##rational
 if(rational) X <- rcdd::d2q(X)
 
-## check_sep
-check_sep(y,X,rational=rational) #works
+## checksep
+checksep(y,X,rational=rational) #works
 
-##check_ovl
-check_ovl(y,X,rational=rational) #works
+##checkovl
+checkovl(y,X,rational=rational) #works
 
 ##### detect_sepcols_b
 detect_sepcols_bcl(y,X,rational=rational) 
@@ -622,11 +632,11 @@ X <- model.matrix(csep_cl)$X
 ##rational
 if(rational) X <- rcdd::d2q(X)
 
-## check_sep
-check_sep(y,X,rational=rational) #works
+## checksep
+checksep(y,X,rational=rational) #works
 
 ##check_clvl
-check_ovl(y,X,rational=rational) #works
+checkovl(y,X,rational=rational) #works
 
 ##
 rational <- FALSE
@@ -675,11 +685,11 @@ X <- model.matrix(qcsep_cl)$X
 ##rational
 if(rational) X <- rcdd::d2q(X)
 
-## check_sep
-check_sep(y,X,rational=rational) #works
+## checksep
+checksep(y,X,rational=rational) #works
 
-##check_ovl
-check_ovl(y,X,rational=rational) #works
+##checkovl
+checkovl(y,X,rational=rational) #works
 
 ##
 cl_Xstar(y,X,rational=rational)
@@ -722,11 +732,11 @@ X <- model.matrix(ovl_cl)$X
 ##rational
 if(rational) X <- rcdd::d2q(X)
 
-## check_sep
-check_sep(y,X,rational=rational) #works
+## checksep
+checksep(y,X,rational=rational) #works
 
 ##check_clvl
-check_ovl(y,X,rational=rational) #works
+checkovl(y,X,rational=rational) #works
 
 ##
 cl_Xstar(y,X,rational=rational)
@@ -816,11 +826,11 @@ nx <- cl_Xstar(y,X)
 ##rational
 if(rational) X <- rcdd::d2q(X)
 
-## check_sep 
-check_sep(y,X,rational=rational) #works
+## checksep 
+checksep(y,X,rational=rational) #works
 
-##check_ovl
-check_ovl(y,X,rational=rational) #works
+##checkovl
+checkovl(y,X,rational=rational) #works
 
 ##### overlap_fc 
 overlap_fc(y,X,frac=1,verbose=1,rational=rational) 
@@ -875,11 +885,11 @@ rational <- FALSE
 ##rational
 if(rational) X <- rcdd::d2q(X)
 
-## check_sep 
-check_sep(y,X,rational=rational) #works
+## checksep 
+checksep(y,X,rational=rational) #works
 
-##check_ovl
-check_ovl(y,X,rational=rational) #works
+##checkovl
+checkovl(y,X,rational=rational) #works
 
 ##### overlap_fc 
 overlap_fc(y,X,frac=1,verbose=1,rational=rational) 
@@ -928,11 +938,11 @@ rational <- TRUE
 ##rational
 if(rational) X <- rcdd::d2q(X)
 
-## check_sep 
-check_sep(y,X,rational=rational) #works
+## checksep 
+checksep(y,X,rational=rational) #works
 
-##check_ovl
-check_ovl(y,X,rational=rational) #works
+##checkovl
+checkovl(y,X,rational=rational) #works
 
 ##### overlap_fc 
 overlap_fc(y,X,frac=1,verbose=1,rational=rational) 
@@ -983,11 +993,11 @@ X <- model.matrix(csep_sl)$X
 ##rational
 if(rational) X <- rcdd::d2q(X)
 
-## check_sep
-check_sep(y,X,rational=rational) #works
+## checksep
+checksep(y,X,rational=rational) #works
 
 ##check_clvl
-check_ovl(y,X,rational=rational) #works
+checkovl(y,X,rational=rational) #works
 
 ##
 rational <- FALSE
@@ -1033,11 +1043,11 @@ X <- model.matrix(qcsep_cl)$X
 ##rational
 if(rational) X <- rcdd::d2q(X)
 
-## check_sep
-check_sep(y,X,rational=rational) #works
+## checksep
+checksep(y,X,rational=rational) #works
 
-##check_ovl
-check_ovl(y,X,rational=rational) #works
+##checkovl
+checkovl(y,X,rational=rational) #works
 
 ##
 cl_Xstar(y,X,rational=rational)
@@ -1076,11 +1086,11 @@ rational <- FALSE
 ##rational
 if(rational) X <- rcdd::d2q(X)
 
-## check_sep
-check_sep_sl(y,X,rational=rational) #works
+## checksep
+checksep_sl(y,X,rational=rational) #works
 
 ##check_clvl
-check_ovl(y,X,rational=rational) #not works
+checkovl(y,X,rational=rational) #not works
 
 ##### detect_sepcols
 detect_sepcols_sl(y,X,rational=rational) #

@@ -33,11 +33,11 @@ linearities <- function(y, X, S, rational=FALSE, model=c("b","bcl","acl","cl","s
     model <- match.arg(model,several.ok=FALSE)
     switch(model,
            b = linearities_b(y=y,X=X,rational=rational),
-           bcl= linearities_bcl(y=y,X=X,rational=rational),
-           cl= linearities_cl(y=y,X=X,rational=rational),
-           acl= linearities_acl(y=y,X=X,rational=rational),       
-           sl= linearities_sl(y=y,X=X,rational=rational),
-           osm= linearities_osm(y=y,X=X,rational=rational)
+           bcl = linearities_bcl(y=y,X=X,rational=rational),
+           cl = linearities_cl(y=y,X=X,rational=rational),
+           acl = linearities_acl(y=y,X=X,rational=rational),       
+           sl = linearities_sl(y=y,X=X,rational=rational),
+           osm = linearities_osm(y=y,X=X,rational=rational)
            )
     } else {
        # for S given

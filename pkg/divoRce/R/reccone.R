@@ -14,7 +14,7 @@
 #' @return a list with 'cone' being the recession cone, 'reccdim' being the dimensions of the recession cone, and 'index' the row index of the structure vectors that are not linearities. Note that in case of 'X' not having full column rank, the 'reccdim' value is the dimension of the recession cone due to separation plus the number of columns that are linear dependent.   
 #' 
 #' @export
-reccone <- function(y, X, S,rational=FALSE, model=c("b","bcl","acl","cl","sl","osm")){
+reccone <- function(y, X, S, rational=FALSE, model=c("b","bcl","acl","cl","sl","osm")){
     if(missing(S))
     {
     if(length(unique(y))<2) stop("There is only one value in y.")
@@ -34,11 +34,11 @@ reccone <- function(y, X, S,rational=FALSE, model=c("b","bcl","acl","cl","sl","o
     model <- match.arg(model,several.ok=FALSE)
     switch(model,
            b = reccone_b(y=y,X=X,rational=rational),
-           bcl= reccone_bcl(y=y,X=X,rational=rational),
-           cl= reccone_cl(y=y,X=X,rational=rational),
-           acl= reccone_acl(y=y,X=X,rational=rational),       
-           sl= reccone_sl(y=y,X=X,rational=rational),
-           osm= reccone_osm(y=y,X=X,rational=rational)
+           bcl = reccone_bcl(y=y,X=X,rational=rational),
+           cl = reccone_cl(y=y,X=X,rational=rational),
+           acl = reccone_acl(y=y,X=X,rational=rational),       
+           sl = reccone_sl(y=y,X=X,rational=rational),
+           osm = reccone_osm(y=y,X=X,rational=rational)
            )
     } else {
        # for S given

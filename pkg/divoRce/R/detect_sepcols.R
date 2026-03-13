@@ -38,11 +38,11 @@ detect_sepcols<- function(y, X, S, rational=FALSE, model=c("b","bcl","cl","acl",
     model <- match.arg(model,several.ok=FALSE)
     switch(model,
            b = detect_sepcols_bcl(y=y,X=X,rational=rational),
-           bcl= detect_sepcols_bcl(y=y,X=X,rational=rational),
-           cl= detect_sepcols_cl(y=y,X=X,rational=rational),
-           acl= detect_sepcols_acl(y=y,X=X,rational=rational),       
-           sl=detect_sepcols_sl(y=y,X=X,rational=rational),
-           osm=detect_sepcols_osm(y=y,X=X,rational=rational)
+           bcl = detect_sepcols_bcl(y=y,X=X,rational=rational),
+           cl = detect_sepcols_cl(y=y,X=X,rational=rational),
+           acl = detect_sepcols_acl(y=y,X=X,rational=rational),       
+           sl =detect_sepcols_sl(y=y,X=X,rational=rational),
+           osm =detect_sepcols_osm(y=y,X=X,rational=rational)
            )
     } else {
         # for S given

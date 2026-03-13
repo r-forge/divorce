@@ -4,13 +4,13 @@
 #'
 #' The function samples a fraction of observations form the data and checks for overlap. If overlap exists in a subset, then overlap exists in the overal data (Sablica et al,. 2026). If no overlap is found, it takes a larger sample and checks again until all data are tested. If no overlap is found even for all data, it concludes there is separation.
 #'
-#' Since solving the exact linear program on the full data via \link{check_ovl} can take a long time for large data, this check can be quicker in case of overlap (especially if the overlapping categories are not rare). However, if there is separation this function usually takes longer. 
+#' Since solving the exact linear program on the full data via \link{checkovl} can take a long time for large data, this check can be quicker in case of overlap (especially if the overlapping categories are not rare). However, if there is separation this function usually takes longer. 
 #'
 #' @param y outcome vector. 
 #' @param X design matrix.
 #' @param S structure vector matrix 
-#' @param frac the fraction of the data to use for checking (uses n/frac data). Defaults to 10. If frac is below 1 or n, it uses frac=1. Using frac=1 is the same as using check_ovl.  
-#' @param verbose should progress be reported. Defaults ot 'FALSE'.
+#' @param frac the fraction of the data to use for checking (uses n/frac data). Defaults to 10. If frac is below 1 or n, it uses frac=1. Using frac=1 is the same as using checkovl.  
+#' @param verbose should progress be reported. Defaults to 'FALSE'.
 #' @param rational should rational arithmetic be used?
 #' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else. 
 #' @return a Boolean; either 'TRUE' if we detect overlap or 'FALSE' if we do not (so the data show separation).
@@ -33,7 +33,7 @@ overlap_fc <- function(y, X, S, frac=10L, verbose=FALSE, rational=FALSE, model=c
  olcheck <- FALSE
  if(isTRUE(all.equal(length(unique(ys)),length(unique(y))))) #we skip evaluation if not all categories are in the subsample
  {
-     olcheck <- check_ovl(y=ys,X=Xs,rational=rational)
+     olcheck <- checkovl(y=ys,X=Xs,rational=rational)
      #olcheck <- overlap_qc(ys,Xs,rational=rational)
  }
  if(isTRUE(olcheck)) break()
@@ -52,7 +52,7 @@ overlap_fc <- function(y, X, S, frac=10L, verbose=FALSE, rational=FALSE, model=c
  if (verbose>0) cat("Checking ",nc,"rows.","\n")
  ind <- sample(1:n,nc,replace=FALSE)
  Ss <- S[ind,]
- olcheck <- check_ovl(S=Ss,rational=rational)
+ olcheck <- checkovl(S=Ss,rational=rational)
  if(isTRUE(olcheck)) break()
  if(nco >= n) break() 
  i <- i+1
@@ -77,9 +77,9 @@ overlap_qc <- function(y, X, S, rational=FALSE, model=c("b","bcl","cl","acl","sl
 {
 if(missing(S)) {
 if(missing(model)) model <- NULL
-return(!any(detect_sepcols(y=y,X=X,rational=rational,model=model)$separated))
+return(!any(sepcols(y=y,X=X,rational=rational,model=model)$separated))
         } else {
-return(!any(detect_sepcols(S=S,rational=rational)$separated))    
+return(!any(sepcols(S=S,rational=rational)$separated))    
         }
 }
 
@@ -99,8 +99,8 @@ separation_qc <- function(y, X, S, rational=FALSE,model=c("b","bcl","cl","acl","
 {
 if(missing(S)) {
 if(missing(model)) model <- NULL
-return(any(detect_sepcols(y=y,X=X,rational=rational,model=model)$separated))
+return(any(sepcols(y=y,X=X,rational=rational,model=model)$separated))
 } else {
-  return(any(detect_sepcols(S=S,rational=rational)$separated))  
+  return(any(sepcols(S=S,rational=rational)$separated))  
  }
 }
