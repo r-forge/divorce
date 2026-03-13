@@ -36,8 +36,8 @@ y<-HDSS$WTSSHI
 
 ### Checking for separation
 ## Linear program check
-check_sep_cl(y,X1) #check separation for cumulative link logistic model; separation confirmed
-check_sep_cl(y,X2) #check separation for cumulative link c-loglog model; separation confirmed
+checksep_cl(y,X1) #check separation for cumulative link logistic model; separation confirmed
+checksep_cl(y,X2) #check separation for cumulative link c-loglog model; separation confirmed
 
 ## More detailed diagnostics (same situation for both model types)
 sd1<-diagsep_cl(y,X1) 
