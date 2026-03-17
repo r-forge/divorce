@@ -2,13 +2,14 @@
 
 ##### check_separation
 #' @export
-check_separation.factor <- function(x, rational = FALSE, ... )
+#' @rdname checksep
+check_separation.default <- function(y, X, rational = FALSE, ... )
 {
-    checksep(y = x, rational=rational, ...)
+    checksep(y = y, X = X, rational=rational, ...)
 }
 
 #' @export
-check_separation.character <-  check_separation.factor
+check_separation.factor <-  check_separation.default
 #' @export
 check_separation.logical <- check_separation.factor
 #' @export
@@ -19,116 +20,415 @@ check_separation.integer <- check_separation.factor
 check_separation.numeric <- check_separation.factor 
 
 #' @export
-check_separation.matrix <- function(x, rational = FALSE, ... )
+#' @rdname checksep
+check_separation.matrix <- function(S, rational = FALSE, ... )
 {
-    checksep(S=x, rational=rational, ...)
+    checksep(S = S, rational=rational, ...)
 }
 
 ##### diagnose_separation
 #' @export
-diagnose_separation.factor <- function(x, rational = FALSE, ... )
+#' @rdname diagsep
+diagnose_separation.default <- function(y, X, rational = FALSE, ... )
 {
-    diagsep(y = x, rational=rational, ...)
+    diagsep(y = y, X=X, rational=rational, ...)
 }
 
 #' @export
-diagnose_separation.character <-  diagnose_separation.factor
-#' @export
-diagnose_separation.logical <- diagnose_separation.factor
-#' @export
-diagnose_separation.numeric <- diagnose_separation.factor
-#' @export
-diagnose_separation.integer <- diagnose_separation.factor
-#' @export
-diagnose_separation.numeric <- diagnose_separation.factor 
+#' @rdname diagsep 
+diagnose_separation.factor <-  diagnose_separation.default
+## #' @export
+## diagnose_separation.logical <- diagnose_separation.factor
+## #' @export
+## diagnose_separation.numeric <- diagnose_separation.factor
+## #' @export
+## diagnose_separation.integer <- diagnose_separation.factor
+## #' @export
+## diagnose_separation.numeric <- diagnose_separation.factor 
 
 #' @export
-diagnose_separation.matrix <- function(x, rational = FALSE, ... )
+#' @rdname diagsep
+diagnose_separation.matrix <- function(S, rational = FALSE, ... )
 {
-    diagsep(S=x, rational=rational, ...)
+    diagsep(S=S, rational=rational, ...)
 }
 
 ##### separation_columns
 #' @export
-separation_columns.factor <- function(x, rational = FALSE, ... )
+#' @rdname detect_sepcols
+separation_columns.factor <- function(y, X, rational = FALSE, ... )
 {
-    sepcols(y = x, rational=rational, ...)
+    sepcols(y = y, X=X, rational=rational, ...)
 }
 
 #' @export
-separation_columns.character <-  separation_columns.factor
-#' @export
-separation_columns.logical <- separation_columns.factor
-#' @export
-separation_columns.numeric <- separation_columns.factor
-#' @export
-separation_columns.integer <- separation_columns.factor
-#' @export
-separation_columns.numeric <- separation_columns.factor 
+#' @rdname detect_sepcols
+separation_columns.default <-  separation_columns.factor
+## #' @export
+## separation_columns.logical <- separation_columns.factor
+## #' @export
+## separation_columns.numeric <- separation_columns.factor
+## #' @export
+## separation_columns.integer <- separation_columns.factor
+## #' @export
+## separation_columns.numeric <- separation_columns.factor 
 
 #' @export
-separation_columns.matrix <- function(x, rational = FALSE, ... )
+#' @rdname detect_sepcols
+separation_columns.matrix <- function(S, rational = FALSE, ... )
 {
-    sepcols(S=x, rational=rational, ...)
+    sepcols(S=S, rational=rational, ...)
 }
 
 ##### separation_rows
 #' @export
-separation_rows.factor <- function(x, rational = FALSE, ... )
+#' @rdname seprows 
+separation_rows.factor <- function(y, X, rational = FALSE, ... )
 {
-    seprows(y = x, rational=rational, ...)
+    seprows(y = y, X = X, rational=rational, ...)
 }
 
 #' @export
-separation_rows.character <-  separation_rows.factor
+#' @rdname seprows 
+separation_rows.default <-  separation_rows.factor
 #' @export
-separation_rows.logical <- separation_rows.factor
-#' @export
-separation_rows.numeric <- separation_rows.factor
-#' @export
-separation_rows.integer <- separation_rows.factor
-#' @export
-separation_rows.numeric <- separation_rows.factor 
+## separation_rows.logical <- separation_rows.factor
+## #' @export
+## separation_rows.numeric <- separation_rows.factor
+## #' @export
+## separation_rows.integer <- separation_rows.factor
+## #' @export
+## separation_rows.numeric <- separation_rows.factor 
 
 #' @export
-separation_rows.matrix <- function(x, rational = FALSE, ... )
+#' @rdname seprows 
+separation_rows.matrix <- function(S, rational = FALSE, ... )
 {
-    seprows(S=x, rational=rational, ...)
+    seprows(S=S, rational=rational, ...)
 }
 
 ##### recession_cone
 #' @export
-recession_cone.factor <- function(x, rational = FALSE, ... )
+#' @rdname reccone
+recession_cone.default <- function(y, X, rational = FALSE, ... )
 {
-    reccone(y = x, rational=rational, ...)
+    reccone(y = y, X = X, rational=rational, ...)
 }
 
 #' @export
-recession_cone.character <-  recession_cone.factor
-#' @export
-recession_cone.logical <- recession_cone.factor
-#' @export
-recession_cone.numeric <- recession_cone.factor
-#' @export
-recession_cone.integer <- recession_cone.factor
-#' @export
-recession_cone.numeric <- recession_cone.factor 
+#' @rdname reccone 
+recession_cone.factor <-  recession_cone.default
+## #' @export
+## recession_cone.logical <- recession_cone.factor
+## #' @export
+## recession_cone.numeric <- recession_cone.factor
+## #' @export
+## recession_cone.integer <- recession_cone.factor
+## #' @export
+## recession_cone.numeric <- recession_cone.factor 
 
 #' @export
-recession_cone.matrix <- function(x, rational = FALSE, ... )
+#' @rdname reccone
+recession_cone.matrix <- function(S, rational = FALSE, ... )
 {
-    reccone(S=x, rational=rational, ...)
+    reccone(S = S, rational=rational, ...)
 }
 
 
 
 ############# POST FIT 
 
+### OSM 
 #' @export
 #' @importFrom stats model.frame model.matrix
-check_separation.osm <- function(x, rational = FALSE, ... )
+#' @rdname checksep
+#' @param object model obj́ect
+check_separation.osm <- function(object, rational = FALSE, ... )
 {
+    x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
     checksep_osm(y=y,X=X,rational=rational)
+}
+
+#' @export
+#' @rdname diagsep
+#' @param object model obj́ect
+diagnose_separation.osm <- function(object, rational = FALSE, ... )
+{
+    x <- object
+    y <- model.frame(x)[,1]
+    X <- model.matrix(x)
+    diagsep_osm(y=y,X=X,rational=rational)
+}
+
+#' @export
+#' @rdname detect_sepcols
+#' @param object model obj́ect
+separation_columns.osm <- function(object, rational = FALSE, ... )
+{
+    x <- object
+    y <- model.frame(x)[,1]
+    X <- model.matrix(x)
+    sepcols_osm(y=y,X=X,rational=rational)
+}
+
+#' @export
+#' @rdname seprows
+#' @param object model obj́ect
+separation_rows.osm <- function(object, rational = FALSE, ... )
+{
+    x <- object
+    y <- model.frame(x)[,1]
+    X <- model.matrix(x)
+    seprows_osm(y=y,X=X,rational=rational)
+}
+
+#' @export
+#' @rdname reccone
+#' @param object model obj́ect
+recession_cone.osm <- function(object, rational = FALSE, ... )
+{
+    x <- object
+    y <- model.frame(x)[,1]
+    X <- model.matrix(x)
+    reccone_osm(y=y,X=X,rational=rational)
+}
+
+#### CLM
+
+#' @export
+#' @importFrom stats model.frame model.matrix
+#' @rdname checksep
+#' @param object model obj́ect
+check_separation.clm <- function(object, rational = FALSE, ... )
+{
+    x <- object
+    y <- model.frame(x)[,1]
+    X <- model.matrix(x)$X
+    checksep_cl(y=y, X=X, rational=rational)
+}
+
+#' @export
+#' @rdname diagsep
+#' @param object model obj́ect
+diagnose_separation.clm <- function(object, rational = FALSE, ... )
+{
+    x <- object   
+    y <- model.frame(x)[,1]
+    X <- model.matrix(x)$X
+    diagsep_cl(y=y,X=X,rational=rational)
+}
+
+#' @export
+#' @rdname detect_sepcols
+#' @param object model obj́ect
+separation_columns.clm <- function(object, rational = FALSE, ... )
+{
+    x <- object
+    y <- model.frame(x)[,1]
+    X <- model.matrix(x)$X
+    sepcols_cl(y=y,X=X,rational=rational)
+}
+
+#' @export
+#' @rdname seprows
+#' @param object model obj́ect
+separation_rows.clm <- function(object, rational = FALSE, ... )
+{
+    x <- object
+    y <- model.frame(x)[,1]
+    X <- model.matrix(x)$X
+    seprows_cl(y=y,X=X,rational=rational)
+}
+
+#' @export
+#' @rdname reccone
+#' @param object model obj́ect
+recession_cone.clm <- function(object, rational = FALSE, ... )
+{
+    x <- object
+    y <- model.frame(x)[,1]
+    X <- model.matrix(x)$X
+    reccone_cl(y=y,X=X,rational=rational)
+}
+
+###  polr
+
+#' @export
+#' @rdname checksep
+#' @param object model obj́ect
+check_separation.polr <- function(object, rational = FALSE, ... )
+{
+    x <- object
+    y <- model.frame(x)[,1]
+    X <- model.matrix(x)
+    checksep_cl(y=y, X=X, rational=rational)
+}
+
+#' @export
+#' @rdname diagsep
+#' @param object model obj́ect
+diagnose_separation.polr <- function(object, rational = FALSE, ... )
+{
+    x <- object
+    y <- model.frame(x)[,1]
+    X <- model.matrix(x)
+    diagsep_cl(y=y,X=X,rational=rational)
+}
+
+#' @export
+#' @rdname detect_sepcols
+#' @param object model obj́ect
+separation_columns.polr <- function(object, rational = FALSE, ... )
+{
+    x <- object
+    y <- model.frame(x)[,1]
+    X <- model.matrix(x)
+    sepcols_cl(y=y,X=X,rational=rational)
+}
+
+#' @export
+#' @rdname seprows
+#' @param object model obj́ect
+separation_rows.polr <- function(object, rational = FALSE, ... )
+{
+    x <- object
+    y <- model.frame(x)[,1]
+    X <- model.matrix(x)
+    seprows_cl(y=y,X=X,rational=rational)
+}
+
+#' @export
+#' @rdname reccone
+#' @param object model obj́ect
+recession_cone.polr <- function(object, rational = FALSE, ... )
+{
+    x <- object
+    y <- model.frame(x)[,1]
+    X <- model.matrix(x)
+    reccone_cl(y=y,X=X,rational=rational)
+}
+
+#### multinom 
+
+#' @export
+#' @importFrom stats model.frame model.matrix
+#' @rdname checksep
+#' @param object model obj́ect
+check_separation.multinom <- function(object, rational = FALSE, ... )
+{
+    x <- object
+    y <- model.frame(x)[,1]
+    X <- model.matrix(x)
+    checksep_bcl(y=y,X=X,rational=rational)
+}
+
+#' @export
+#' @rdname diagsep
+#' @param object model obj́ect
+diagnose_separation.multinom <- function(object, rational = FALSE, ... )
+{
+    x <- object
+    y <- model.frame(x)[,1]
+    X <- model.matrix(x)
+    diagsep_bcl(y=y,X=X,rational=rational)
+}
+
+#' @export
+#' @rdname detect_sepcols
+#' @param object model obj́ect
+separation_columns.multinom <- function(object, rational = FALSE, ... )
+{
+    x <- object
+    y <- model.frame(x)[,1]
+    X <- model.matrix(x)
+    sepcols_bcl(y=y,X=X,rational=rational)
+}
+
+#' @export
+#' @rdname seprows
+#' @param object model obj́ect
+separation_rows.multinom <- function(object, rational = FALSE, ... )
+{
+    x <- object
+    y <- model.frame(x)[,1]
+    X <- model.matrix(x)
+    seprows_bcl(y=y,X=X,rational=rational)
+}
+
+#' @export
+#' @rdname reccone
+#' @param object model obj́ect
+recession_cone.multinom <- function(object, rational = FALSE, ... )
+{
+    x <- object
+    y <- model.frame(x)[,1]
+    X <- model.matrix(x)
+    reccone_bcl(y=y,X=X,rational=rational)
+}
+
+
+#####  GLM binary
+## TODO what for the aggregation interface?
+
+#' @export
+#' @importFrom stats model.matrix
+#' @rdname checksep
+#' @param object model obj́ect
+check_separation.glm <- function(object, rational = FALSE, ... )
+{
+    x <- object
+    if(!(x$family$family %in% "binomial")) stop("This is only implemented for the binomial family.")
+    y <- x$y
+    X <- model.matrix(x)
+    checksep_b(y=y,X=X,rational=rational)
+}
+
+#' @export
+#' @rdname diagsep
+#' @param object model obj́ect
+diagnose_separation.glm <- function(object, rational = FALSE, ... )
+{
+    x <- object
+    if(!(x$family$family %in% "binomial")) stop("This is only implemented for the binomial family.")
+    y <- x$y
+    X <- model.matrix(x)
+    diagsep_b(y=y,X=X,rational=rational)
+}
+
+#' @export
+#' @rdname detect_sepcols
+#' @param object model obj́ect
+separation_columns.glm <- function(object, rational = FALSE, ... )
+{
+    x <- object
+    if(!(x$family$family %in% "binomial")) stop("This is only implemented for the binomial family.")
+    y <- x$y
+    X <- model.matrix(x)
+    sepcols_b(y=y,X=X,rational=rational) 
+}
+
+#' @export
+#' @rdname seprows
+#' @param object model obj́ect
+separation_rows.glm <- function(object, rational = FALSE, ... )
+{
+    x <- object
+    if(!(x$family$family %in% "binomial")) stop("This is only implemented for the binomial family.")
+    y <- x$y
+    X <- model.matrix(x)
+    seprows_b(y=y,X=X,rational=rational) 
+}
+
+#' @export
+#' @rdname reccone
+#' @param object model obj́ect
+recession_cone.glm <- function(object, rational = FALSE, ... )
+{
+    x <- object
+    if(!(x$family$family %in% "binomial")) stop("This is only implemented for the binomial family.")
+    y <- x$y
+    X <- model.matrix(x)
+    reccone_b(y=y,X=X,rational=rational) 
 }

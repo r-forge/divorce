@@ -28,7 +28,7 @@
 #' X<-cbind(1,qcsepdatm[,2:ncol(qcsepdatm)])
 #' diagsep(y,X,model="bcl")
 #' 
-diagsep<-function(y, X, S, rational=FALSE, model=c("b","bcl","cl","acl","sl","osm"))
+diagsep<-function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","osm"))
 {
   if(missing(S))
   {
@@ -49,7 +49,7 @@ diagsep<-function(y, X, S, rational=FALSE, model=c("b","bcl","cl","acl","sl","os
     }
     model <- match.arg(model,several.ok=FALSE)
   switch(model,
-           b= diagsep_b(y=y,X=X,rational=rational),
+           b = diagsep_b(y=y,X=X,rational=rational),
            bcl= diagsep_bcl(y=y,X=X,rational=rational),
            cl= diagsep_cl(y=y,X=X,rational=rational),
            acl= diagsep_acl(y=y,X=X,rational=rational),       

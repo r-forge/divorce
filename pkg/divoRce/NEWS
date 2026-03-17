@@ -1,5 +1,11 @@
+Version 0.4-0
+	- Added S3 methods for post-fit functionality for classes glm, multinom, clm, polr, osm.  
+
+Version 0.3-0
+	- Added S3 generics and S3 methods for pre-fit functionality.  
+
 Version 0.2-1
-        - Added optional argument S to high-level functions to allow for supplying a structure vector matrix directly. Finished seprows, linearities and reccone high-level functions. Added generics and methods for pre- and post-fit functionality.  
+        - Added optional argument S to high-level functions to allow for supplying a structure vector matrix directly. Finished seprows, linearities and reccone high-level functions.
 
 Version 0.2-0
 	- Renamed all $offobs and sepobs to $offrows and $seprows. Changed the summary and print to also reflect that. Add a b_Xstar.

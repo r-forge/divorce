@@ -1,17 +1,16 @@
 #' Identify the rows in the design/structure vector matrix that cause separation.  It calls lower level functions if given an argument or chooses based on the response type.
 #'
 #' This function checks which rows in X/Xstar are responsible for separation on any category. The observations need not separate the same categories.
-#' 
-#' The function uses either a response vector y and a design matrix X, or a structure vector matrix S. If S is given, y and X and model are ignored. 
+#
 #' 
 #' @param y the categorical outcome variable. Can be binary, categorial or ordinal. Works best if it is an ordered or unordered factor but can also be numeric, boolean or character. If y is not a factor, it is treated as a nominal (categorical) outcome. 
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
-#' @param S a matrix of structure vectors
+#' @param S a matrix of structure vectors. If given, \code{y} and \code{X} and \code{model} are ignored. 
 #' @param rational should rational arithmetic be used?
 #' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else.  
 #'
 #' @export
-seprows<-function(y, X, S, rational=FALSE, model = c("b","bcl","cl","acl","sl","osm")){
+seprows<-function(y, X, S, rational=FALSE, model = c("bcl","b","cl","acl","sl","osm")){
  if(missing(S))
     {
     if(length(unique(y))<2) stop("There is only one value in y.")

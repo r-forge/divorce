@@ -1,62 +1,121 @@
-
-#' Generic for checking for separation
+#' @details \code{check_separation} is an S3 generic function. For developers: If a method should be provided for the generic, it is best to have that method create a matrix of structure vectors \code{S} and use the low-level function \code{checksep} with it.   
 #' 
-#' @param x an object. For pre-fit this can be a vector of type factor, character, logical, numeric or integer. This is the y argument of checksep. In this case we also need an X. It can alos be a matrix, in which case we treat it as the S argument to checksep. For post-fit this can currently be an object of class glm, polr, clm, osm or nnet. 
-#' @param rational should rational arithemtic be used
-#' @param ... other arguments
-#' @export
+#' @param ... arguments for the generic: For pre-fit \code{y}, \code{X} with \code{y} a vector of type factor, character, logical, numeric or integer. This is the \code{y} argument of \code{checksep}. In this case one also needs to supply the argument \code{X} and optional but recommended a \code{model}. One can also supply a matrix \code{S}, in which case we treat it as the \code{S} argument to \code{checksep}. For post-fit this can currently be an object of class \code{glm}, \code{polr}, \code{clm}, \code{osm} or \code{nnet}. 
+#' @param rational should rational arithmetic be used
 #' @rdname checksep
-check_separation<- function (x, rational, ... ) {
+#' @examples
+#' 
+#' data(csepdat1)
+#'
+#' # pre fit
+#' outc<-csepdat1$y
+#' desma<-cbind("(Intercept)"=1,csepdat1[,2:ncol(csepdat1)])
+#' check_separation(y = outc, X = desma) 
+#'
+#' # post fit
+#' m1 <- stats::glm(y~x1+x2,data=csepdat1,family=binomial())
+#' check_separation(m1)
+#' @export
+check_separation<- function (..., rational) {
     UseMethod("check_separation")
 }
 
 
-#' Generic for detailed separation diagnostics
+#' @details  \code{diagnose_separation} is S3 generic. For developers: If a method should be provided for the generic, it is best to have that method create a matrix of structure vectors \code{S} and use the low-level function \code{diagsep} with it.   
 #' 
-#'
-#' @param x an object based on which we dispatch
-#' @param rational should rational arithemtic be used
-#' @param ... other arguments
-#' @export
+#' @param ... arguments for the generic: For pre-fit \code{y}, \code{X} with \code{y} a vector of type factor, character, logical, numeric or integer. This is the \code{y} argument of \code{diagsep}. In this case one also needs to supply the argument \code{X} and optional but recommended a \code{model}. One can also supply a matrix \code{S}, in which case we treat it as the \code{S} argument to \code{diagsep}. For post-fit this can currently be an object of class \code{glm}, \code{polr}, \code{clm}, \code{osm} or \code{nnet}. 
+#' @param rational should rational arithmetic be used
 #' @rdname diagsep
-diagnose_separation <- function (x, rational, ...) {
+#' @examples
+#' data(qcsepdatm)
+#'
+#' #pre fit
+#' y<-as.factor(qcsepdatm$y)
+#' X<-cbind("(Intercept)"=1,qcsepdatm[,2:ncol(qcsepdatm)])
+#' diagnose_separation(y, X=X, model="bcl") 
+#'
+#' #post fit
+#' if (require('nnet')) {
+#' m1 <- nnet::multinom(y~x1+x2,data=qcsepdatm)
+#' diagnose_separation(m1)
+#' }
+#' @export
+diagnose_separation <- function (..., rational) {
     UseMethod("diagnose_separation")
 }
 
 
-#' Generic for detecting separation columns
+
+#' @details  \code{separation_columns} is S3 generic. For developers: If a method should be provided for the generic, it is best to have that method create a matrix of structure vectors \code{S} and use the low-level function \code{sepcols} with it.   
 #' 
-#' @param x an object based on which we dispatch
-#' @param rational should rational arithemtic be used
-#' @param ... other arguments
-#' @rdname sepcols
+#' @param ... arguments for the generic: For pre-fit \code{y}, \code{X} with \code{y} a vector of type factor, character, logical, numeric or integer. This is the \code{y} argument of \code{sepcols}. In this case one also needs to supply the argument \code{X} and optional but recommended a \code{model}. One can also supply a matrix \code{S}, in which case we treat it as the \code{S} argument to \code{sepcols}. For post-fit this can currently be an object of class \code{glm}, \code{polr}, \code{clm}, \code{osm} or \code{nnet}.
+#' @param rational should rational arithmetic be used
+#' @rdname detect_sepcols
+#' @examples
+#' data(qcsepdato)
+#'
+#' # pre fit
+#' y<-factor(qcsepdato$y, ordered=TRUE)
+#' X<-cbind("(Intercept)"=1,qcsepdato[,2:ncol(qcsepdato)])
+#' separation_columns(y=y, X=X) 
+#'
+#' # post fit
+#' if (require('clustord')) {
+#' m1 <- clustord::osm(y~x1+x2, data = qcsepdato)
+#' separation_columns(m1)
+#' }
 #' @export
-separation_columns<- function (x, rational, ...) {
+separation_columns<- function (..., rational) {
     UseMethod("separation_columns")
 }
 
-#' Generic for detecting separation rows 
+
+#' @details  \code{separation_rows} is S3 generic. For developers: If a method should be provided for the generic, it is best to have that method create a matrix of structure vectors \code{S} and use the low-level function \code{seprows} with it.   
 #' 
-#' @param x an object based on which we dispatch
-#' @param rational should rational arithemtic be used
-#' @param ... other arguments
+#' @param ... arguments for the generic: For pre-fit \code{y}, \code{X} with \code{y} a vector of type factor, character, logical, numeric or integer. This is the \code{y} argument of \code{seprows}. In this case one also needs to supply the argument \code{X} and optional but recommended a \code{model}. One can also supply a matrix \code{S}, in which case we treat it as the \code{S} argument to \code{seprows}. For post-fit this can currently be an object of class \code{glm}, \code{polr}, \code{clm}, \code{osm} or \code{nnet}. 
+#' @param rational should rational arithmetic be used
+#' 
 #' @rdname seprows
+#' @examples
+#' data(qcsepdato)
+#'
+#' # pre fit
+#' y<-factor(qcsepdato$y,ordered=TRUE)
+#' X<-cbind("(Intercept)"=1,qcsepdato[,2:ncol(qcsepdato)])
+#' separation_rows(y=y,X=X) 
+#'
+#' 
+#' # post fit
+#' if (require('MASS')) {
+#' m1 <- MASS::polr(y~x1+x2, data = qcsepdato)
+#' separation_rows(m1)
+#' }
 #' @export
-separation_rows <- function (x, rational, ...) {
+separation_rows <- function (..., rational) {
     UseMethod("separation_rows")
 }
 
-
-
-#' Generic for calculating the recession cone
+#' @details  \code{recession_cone} is S3 generic. For developers: If a method should be provided for the generic, it is best to have that method create a matrix of structure vectors \code{S} and use the low-level function \code{reccone} with it.   
 #' 
-#'
-#' @param x an object based on which we dispatch
-#' @param rational should rational arithemtic be used
+#' @param ... arguments for the generic: For pre-fit \code{y}, \code{X} with \code{y} a vector of type factor, character, logical, numeric or integer. This is the \code{y} argument of \code{reccone}. In this case one also needs to supply the argument \code{X} and optional but recommended a \code{model}. One can also supply a matrix \code{S}, in which case we treat it as the \code{S} argument to \code{reccone}. For post-fit this can currently be an object of class \code{glm}, \code{polr}, \code{clm}, \code{osm} or \code{nnet}.
+#' @param rational should rational arithmetic be used
 #' @param ... other arguments
 #' @rdname reccone
+#' @examples
+#' data(csepdat1)
+#'
+#' # pre fit
+#' y <- factor(qcsepdato$y, ordered=TRUE)
+#' X <- cbind("(Intercept)"=1,qcsepdato[,2:ncol(qcsepdato)])
+#' recession_cone(y=y,X=X) 
+#'
+#' # post fit
+#' if (require('ordinal')) {
+#' m1 <- ordinal::clm(y~x1+x2, data = qcsepdato)
+#' recession_cone(m1)
+#' }
 #' @export
-recession_cone <- function (x, rational, ...) {
+recession_cone <- function (..., rational) {
     UseMethod("recession_cone")
 }
 

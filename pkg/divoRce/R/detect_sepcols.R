@@ -1,14 +1,11 @@
+#' Identify separation columns
+#' 
 #' This function identifies the columns in a design matrix/structure vector matrix that are responsible for separation. It calls lower level functions if given an argument or chooses based on the response type.
 #'
-#' The function uses either a response vector y and a design matrix X, or a structure vector matrix S. If S is given, y and X and model are ignored. 
-#'
-#' @details We solve a linear program in this function that operates only on y and X, so without a specific model. This program corresponds to detecting which columns in the design matrix leads to infinite MLE for some link functions, but it is more general as there are links that can still give finite estimates even though there is separation. Hence this function detects separation even in the case of (seemingly) finite estimates or if there is no warning. The prime example is using the log link in logistic regression.
-#'
-#' This function assumes that either a baseline-category link model for categorical outcomes (incl. binary )is wanted, or a cumulative link model for ordinal outcomes. For adjacent-category link, sequential link or ordered stereotypes models use the subfunctions detect_sepcols_acl, detect_sepcols_sl and detect_sepcols_os respectively.  
 #' 
-#' @param y a categorical outcome vector.  Can be binary, categorial or ordinal. Works best if it is an ordered or unordered factor but can also be numeric, boolean or character. If y is not a factor, it is treated as a nominal (categorical) outcome.   
-#' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynominals).
-#' @param S a matrix of structure vectors
+#' @param y a categorical outcome vector.  Can be binary, categorial or ordinal. Works best if it is an ordered or unordered factor but can also be numeric, boolean or character. If \code{y} is not a factor, it is treated as a nominal (categorical) outcome.   
+#' @param X a design matrix, e.g. generated via a call to \code{model.matrix}. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynominals).
+#' @param S a matrix of structure vectors. If given \code{y}, \code{X} and \code{model} are ignored.
 #' @param rational Should rational arithmetic be used? 
 #' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else.  
 #' 
@@ -16,7 +13,7 @@
 #'
 #'
 #'
-detect_sepcols<- function(y, X, S, rational=FALSE, model=c("b","bcl","cl","acl","sl","osm"))
+detect_sepcols<- function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","osm"))
 {
     if(missing(S))
     {
@@ -37,7 +34,7 @@ detect_sepcols<- function(y, X, S, rational=FALSE, model=c("b","bcl","cl","acl",
     }
     model <- match.arg(model,several.ok=FALSE)
     switch(model,
-           b = detect_sepcols_bcl(y=y,X=X,rational=rational),
+           b = detect_sepcols_b(y=y,X=X,rational=rational),
            bcl = detect_sepcols_bcl(y=y,X=X,rational=rational),
            cl = detect_sepcols_cl(y=y,X=X,rational=rational),
            acl = detect_sepcols_acl(y=y,X=X,rational=rational),       
