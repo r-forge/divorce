@@ -23,9 +23,9 @@ seprows<-function(y, X, S, rational=FALSE, model = c("bcl","b","cl","acl","sl","
        warning("I'm not sure which model you want to fit, so I default to the most common ones.","\n")
        if(is.ordered(y) & length(unique(y))>2)
         {
-            seprows_cl(y=y,X=X,rational=rational)
+            return(seprows_cl(y=y,X=X,rational=rational))
         } else {
-            seprows_bcl(y=y,X=X,rational=rational)
+            return(seprows_bcl(y=y,X=X,rational=rational))
         }
     }
     model <- match.arg(model,several.ok=FALSE)

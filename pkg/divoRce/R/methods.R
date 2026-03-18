@@ -142,7 +142,7 @@ recession_cone.matrix <- function(S, rational = FALSE, ... )
 #' @export
 #' @importFrom stats model.frame model.matrix
 #' @rdname checksep
-#' @param object model obj́ect
+#' @param object model object
 check_separation.osm <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -153,7 +153,7 @@ check_separation.osm <- function(object, rational = FALSE, ... )
 
 #' @export
 #' @rdname diagsep
-#' @param object model obj́ect
+#' @param object model object
 diagnose_separation.osm <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -164,7 +164,7 @@ diagnose_separation.osm <- function(object, rational = FALSE, ... )
 
 #' @export
 #' @rdname detect_sepcols
-#' @param object model obj́ect
+#' @param object model object
 separation_columns.osm <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -175,7 +175,7 @@ separation_columns.osm <- function(object, rational = FALSE, ... )
 
 #' @export
 #' @rdname seprows
-#' @param object model obj́ect
+#' @param object model object
 separation_rows.osm <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -186,7 +186,7 @@ separation_rows.osm <- function(object, rational = FALSE, ... )
 
 #' @export
 #' @rdname reccone
-#' @param object model obj́ect
+#' @param object model object
 recession_cone.osm <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -200,7 +200,7 @@ recession_cone.osm <- function(object, rational = FALSE, ... )
 #' @export
 #' @importFrom stats model.frame model.matrix
 #' @rdname checksep
-#' @param object model obj́ect
+#' @param object model object
 check_separation.clm <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -211,7 +211,7 @@ check_separation.clm <- function(object, rational = FALSE, ... )
 
 #' @export
 #' @rdname diagsep
-#' @param object model obj́ect
+#' @param object model object
 diagnose_separation.clm <- function(object, rational = FALSE, ... )
 {
     x <- object   
@@ -222,7 +222,7 @@ diagnose_separation.clm <- function(object, rational = FALSE, ... )
 
 #' @export
 #' @rdname detect_sepcols
-#' @param object model obj́ect
+#' @param object model object
 separation_columns.clm <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -233,7 +233,7 @@ separation_columns.clm <- function(object, rational = FALSE, ... )
 
 #' @export
 #' @rdname seprows
-#' @param object model obj́ect
+#' @param object model object
 separation_rows.clm <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -244,7 +244,7 @@ separation_rows.clm <- function(object, rational = FALSE, ... )
 
 #' @export
 #' @rdname reccone
-#' @param object model obj́ect
+#' @param object model object
 recession_cone.clm <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -257,7 +257,7 @@ recession_cone.clm <- function(object, rational = FALSE, ... )
 
 #' @export
 #' @rdname checksep
-#' @param object model obj́ect
+#' @param object model object
 check_separation.polr <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -268,7 +268,7 @@ check_separation.polr <- function(object, rational = FALSE, ... )
 
 #' @export
 #' @rdname diagsep
-#' @param object model obj́ect
+#' @param object model object
 diagnose_separation.polr <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -279,7 +279,7 @@ diagnose_separation.polr <- function(object, rational = FALSE, ... )
 
 #' @export
 #' @rdname detect_sepcols
-#' @param object model obj́ect
+#' @param object model object
 separation_columns.polr <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -290,7 +290,7 @@ separation_columns.polr <- function(object, rational = FALSE, ... )
 
 #' @export
 #' @rdname seprows
-#' @param object model obj́ect
+#' @param object model object
 separation_rows.polr <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -301,7 +301,7 @@ separation_rows.polr <- function(object, rational = FALSE, ... )
 
 #' @export
 #' @rdname reccone
-#' @param object model obj́ect
+#' @param object model object
 recession_cone.polr <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -315,7 +315,7 @@ recession_cone.polr <- function(object, rational = FALSE, ... )
 #' @export
 #' @importFrom stats model.frame model.matrix
 #' @rdname checksep
-#' @param object model obj́ect
+#' @param object model object
 check_separation.multinom <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -326,7 +326,7 @@ check_separation.multinom <- function(object, rational = FALSE, ... )
 
 #' @export
 #' @rdname diagsep
-#' @param object model obj́ect
+#' @param object model object
 diagnose_separation.multinom <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -337,7 +337,7 @@ diagnose_separation.multinom <- function(object, rational = FALSE, ... )
 
 #' @export
 #' @rdname detect_sepcols
-#' @param object model obj́ect
+#' @param object model object
 separation_columns.multinom <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -348,7 +348,7 @@ separation_columns.multinom <- function(object, rational = FALSE, ... )
 
 #' @export
 #' @rdname seprows
-#' @param object model obj́ect
+#' @param object model object
 separation_rows.multinom <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -359,7 +359,7 @@ separation_rows.multinom <- function(object, rational = FALSE, ... )
 
 #' @export
 #' @rdname reccone
-#' @param object model obj́ect
+#' @param object model object
 recession_cone.multinom <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -375,7 +375,7 @@ recession_cone.multinom <- function(object, rational = FALSE, ... )
 #' @export
 #' @importFrom stats model.matrix
 #' @rdname checksep
-#' @param object model obj́ect
+#' @param object model object
 check_separation.glm <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -387,7 +387,7 @@ check_separation.glm <- function(object, rational = FALSE, ... )
 
 #' @export
 #' @rdname diagsep
-#' @param object model obj́ect
+#' @param object model object
 diagnose_separation.glm <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -399,7 +399,7 @@ diagnose_separation.glm <- function(object, rational = FALSE, ... )
 
 #' @export
 #' @rdname detect_sepcols
-#' @param object model obj́ect
+#' @param object model object
 separation_columns.glm <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -411,7 +411,7 @@ separation_columns.glm <- function(object, rational = FALSE, ... )
 
 #' @export
 #' @rdname seprows
-#' @param object model obj́ect
+#' @param object model object
 separation_rows.glm <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -423,7 +423,7 @@ separation_rows.glm <- function(object, rational = FALSE, ... )
 
 #' @export
 #' @rdname reccone
-#' @param object model obj́ect
+#' @param object model object
 recession_cone.glm <- function(object, rational = FALSE, ... )
 {
     x <- object

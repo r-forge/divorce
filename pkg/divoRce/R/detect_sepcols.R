@@ -27,9 +27,9 @@ detect_sepcols<- function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl",
        warning("I'm not sure which model you want to fit, so I default to the most common ones.","\n")
        if(is.ordered(y) & length(unique(y))>2)
         {
-            detect_sepcols_cl(y=y,X=X,rational=rational)
+            return(detect_sepcols_cl(y=y,X=X,rational=rational))
         } else {
-            detect_sepcols_bcl(y=y,X=X,rational=rational)
+            return(detect_sepcols_bcl(y=y,X=X,rational=rational))
         }
     }
     model <- match.arg(model,several.ok=FALSE)

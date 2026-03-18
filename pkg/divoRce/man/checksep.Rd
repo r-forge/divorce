@@ -17,7 +17,7 @@ checksep(
   X,
   S,
   rational = FALSE,
-  model = c("b", "bcl", "cl", "acl", "sl", "osm")
+  model = c("bcl", "b", "cl", "acl", "sl", "osm")
 )
 
 check_separation(..., rational)
@@ -49,7 +49,7 @@ check_separation(..., rational)
 
 \item{...}{arguments for the generic: For pre-fit \code{y}, \code{X} with \code{y} a vector of type factor, character, logical, numeric or integer. This is the \code{y} argument of \code{checksep}. In this case one also needs to supply the argument \code{X} and optional but recommended a \code{model}. One can also supply a matrix \code{S}, in which case we treat it as the \code{S} argument to \code{checksep}. For post-fit this can currently be an object of class \code{glm}, \code{polr}, \code{clm}, \code{osm} or \code{nnet}.}
 
-\item{object}{model obj́ect}
+\item{object}{model object}
 }
 \value{
 a Boolean; either 'TRUE' if we detected separation or 'FALSE' if not.

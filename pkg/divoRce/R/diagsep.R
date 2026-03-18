@@ -42,9 +42,9 @@ diagsep<-function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","os
         warning("I'm not sure which model you want to fit, so I default to the most common ones.","\n")
         if(is.ordered(y) & length(unique(y))>2)
         {
-            diagsep_cl(y=y,X=X,rational=rational)
+            return(diagsep_cl(y=y,X=X,rational=rational))
         } else {
-            diagsep_bcl(y=y,X=X,rational=rational)
+            return(diagsep_bcl(y=y,X=X,rational=rational))
         }
     }
     model <- match.arg(model,several.ok=FALSE)
@@ -128,10 +128,10 @@ diagsep<-function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","os
 #' 
 diagsep_sl<-function(y,X,rational=FALSE)
 {
+  #if(!is.ordered(y)) stop("This function needs ordered outcomes.")  
   ratcols <- rat_cols(X)
   if(ratcols) rational <- TRUE
   y <- as.ordered(y)
-  if(!is.ordered(y)) stop("This function needs ordered outcomes.")
   splitdat <- create_bseq(y=y,X=X)
   seqout <- lapply(splitdat,function(l) diagsep_b(y=l$y,X=l$X,rational=rational))
   class(seqout) <- "sepmod_sl"

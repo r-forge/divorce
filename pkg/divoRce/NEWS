@@ -1,5 +1,5 @@
 Version 0.4-2
-	- Fixed bug in check_separation for missing model argument.
+	- Fixed bug when using generics with missing model argument. Removed weird typo unicode characters in documentation of methods for model object.
 
 Version 0.4-1
 	- Typos.

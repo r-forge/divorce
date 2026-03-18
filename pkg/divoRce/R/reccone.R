@@ -26,9 +26,9 @@ reccone <- function(y, X, S, rational=FALSE, model=c("b","bcl","acl","cl","sl","
     {
       warning("I'm not sure which model you want to fit, so I default to the most common ones.","\n")
       if(is.ordered(y) & length(unique(y))>2) { 
-        reccone_cl(y=y,X=X,rational=rational)
+        return(reccone_cl(y=y,X=X,rational=rational))
       } else {
-        reccone_bcl(y=y,X=X,rational=rational) #for all nominal and binary
+        return(reccone_bcl(y=y,X=X,rational=rational)) #for all nominal and binary
       }
     }
     model <- match.arg(model,several.ok=FALSE)
@@ -251,7 +251,7 @@ reccone_sl<- function(y, X, rational=FALSE,reduced=TRUE)
    ratcols <- rat_cols(X)
    if(ratcols) rational <- TRUE 
    y <- as.ordered(y)
-   if(!is.ordered(y)) stop("This function needs ordered outcomes.")
+   #if(!is.ordered(y)) stop("This function needs ordered outcomes.")
    splitdat <- create_bseq(y=y,X=X)
    reccsplit <- lapply(splitdat,function(l) reccone_b(y=l$y,X=l$X,rational=rational))
    ind <- lapply(reccsplit,function(x) x$index)

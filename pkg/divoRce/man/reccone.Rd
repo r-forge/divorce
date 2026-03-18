@@ -50,7 +50,7 @@ reccone(
 
 \item{S}{a matrix of structure vectors}
 
-\item{object}{model obj́ect}
+\item{object}{model object}
 
 \item{model}{what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing or NULL it defaults to cumulative link for ordinal y and baseline-category for everything else.}
 }

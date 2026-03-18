@@ -9,7 +9,7 @@ checkovl(
   X,
   S,
   rational = FALSE,
-  model = c("b", "bcl", "cl", "acl", "sl", "osm")
+  model = c("bcl", "b", "cl", "acl", "sl", "osm")
 )
 }
 \arguments{
