@@ -1,3 +1,9 @@
+Version 0.4-2
+	- Fixed bug in check_separation for missing model argument.
+
+Version 0.4-1
+	- Typos.
+
 Version 0.4-0
 	- Added S3 methods for post-fit functionality for classes glm, multinom, clm, polr, osm.  
 

@@ -87,6 +87,18 @@ seprows(S=Sqcs,rational=rational) #works
 
 ## vectors 
 check_separation(yqcs,Xqcs,rational=rational,model="b")
+check_separation(y=yqcs,X=Xqcs,rational=rational,model="b")
+check_separation(X=Xqcs,y=yqcs,rational=rational,model="b")
+check_separation(X=Xqcs,rational=rational,model="b")
+
+check_separation(yqcs,Xqcs,rational=rational,model="cl")
+
+check_separation(yqcs,Xqcs)
+debug(check_separation)
+debug(checksep)
+
+
+
 sloop::s3_dispatch(check_separation(yqcs))
 
 check_separation(factor(yqcs),Xqcs,rational=rational,model="b")
@@ -96,6 +108,8 @@ sloop::s3_dispatch(check_separation(factor(yqcs)))
 check_separation(Sqcs,rational=rational)
 sloop::s3_dispatch(check_separation(Sqcs))
 sloop::s3_class(Sqcs)
+
+## 
 
 ##quasi complete separation --- CHECKS OUT
 load("./Data/Silvapulle.rda")

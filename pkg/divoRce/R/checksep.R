@@ -15,7 +15,7 @@
 #' @return a Boolean; either 'TRUE' if we detected separation or 'FALSE' if not.
 #'
 #' @export
-checksep <- function(y, X, S, rational=FALSE, model=c("b", "bcl","cl","acl","sl","osm")){
+checksep <- function(y, X, S, rational=FALSE, model=c("bcl", "b","cl","acl","sl","osm")){
     if(missing(S))
     {
     if(length(unique(y))<2) stop("There is only one value in y.")
@@ -28,9 +28,10 @@ checksep <- function(y, X, S, rational=FALSE, model=c("b", "bcl","cl","acl","sl"
         warning("I'm not sure which model you want to fit, so I default to the most common ones.","\n")
         if(is.ordered(y) & length(unique(y))>2)
         {
-            checksep_cl(y=y,X=X,rational=rational)
+            return(checksep_cl(y=y,X=X,rational=rational))
         } else {
-            checksep_bcl(y=y,X=X,rational=rational)
+            return(checksep_bcl(y=y,X=X,rational=rational))
+            
         }
     }
     model <- match.arg(model,several.ok=FALSE)
@@ -98,7 +99,7 @@ checksep_cl<- function(y, X, rational=FALSE){
    if(ratcols) rational <- TRUE 
    if(length(unique(y))>2) { 
        Xstar <- cl_Xstar(y=y, X=X, label=FALSE, rational = rational)
-   } else stop("For 2 categories, please use checksep_b.")    
+   } else stop("For 2 categories, please use model = 'b' or checksep_b.")    
    ## we distiguish the following cases.
    ## Xstar numeric, rational FALSE: all is done with numeric
    ## Xstar numeric, rational TRUE: Matrices are built numeric and d2q is called for rational before linear program
@@ -142,7 +143,7 @@ checksep_osm<- function(y, X, rational=FALSE){
    if(ratcols) rational <- TRUE 
    if(length(unique(y))>2) { 
        Xstar <- osm_Xstar(y=y, X=X, label=FALSE, rational = rational)
-   } else stop("For 2 categories, please use checksep_b.")    
+   } else stop("For 2 categories, please use model= 'b' or checksep_b.")    
    ## we distiguish the following cases.
    ## Xstar numeric, rational FALSE: all is done with numeric
    ## Xstar numeric, rational TRUE: Matrices are built numeric and d2q is called for rational before linear program
@@ -183,7 +184,7 @@ checksep_osm<- function(y, X, rational=FALSE){
 checksep_bcl<- function(y, X, rational=FALSE){
    ratcols <- rat_cols(X)
    if(ratcols) rational <- TRUE 
-   if(is.ordered(y) & length(unique(y))>2) stop("This function is for unordered y. For ordered y, please use the appropriate checksep function.") 
+   if(is.ordered(y) & length(unique(y))>2) stop("For ordered y, please specify the model via the model argument or the appropriate checksep function.") 
         Xstar <- bcl_Xstar(y=y, X=X, label=FALSE, rational = rational) #for all nominal and binary
    ## we distiguish the following cases.
    ## Xstar numeric, rational FALSE: all is done with numeric
@@ -264,7 +265,7 @@ checksep_acl<- function(y, X, rational=FALSE){
    if(ratcols) rational <- TRUE 
    if(length(unique(y))>2) { 
        Xstar <- acl_Xstar(y=y, X=X, label=FALSE, rational = rational)
-   } else stop("For 2 categories, please use checksep_b.")    
+   } else stop("For 2 categories, please use model= 'b' or checksep_b.")    
    ## we distiguish the following cases.
    ## Xstar numeric, rational FALSE: all is done with numeric
    ## Xstar numeric, rational TRUE: Matrices are built numeric and d2q is called for rational before linear program
@@ -308,7 +309,7 @@ checksep_osm<- function(y, X, rational=FALSE){
    if(ratcols) rational <- TRUE 
    if(length(unique(y))>2) { 
        Xstar <- osm_Xstar(y=y, X=X, label=FALSE, rational = rational)
-   } else stop("For 2 categories, please use checksep_b.")    
+   } else stop("For 2 categories, please use model= 'b' or checksep_b.")    
    ## we distiguish the following cases.
    ## Xstar numeric, rational FALSE: all is done with numeric
    ## Xstar numeric, rational TRUE: Matrices are built numeric and d2q is called for rational before linear program
@@ -384,7 +385,7 @@ checksep_osm<- function(y, X, rational=FALSE){
 #' @return a Boolean; either 'TRUE' if there is overlap or 'FALSE' if not.
 #'
 #' @export
-checkovl <- function(y, X, S, rational=FALSE, model=c("b","bcl","cl","acl","sl","osm")){
+checkovl <- function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","osm")){
   if(missing(model)) model <- NULL
   if(missing(S)) !isTRUE(checksep(y=y, X=X, rational=rational, model = model)) else !isTRUE(checksep(S=S, rational=rational)) 
 }
