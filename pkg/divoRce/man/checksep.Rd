@@ -5,6 +5,7 @@
 \alias{check_separation}
 \alias{check_separation.default}
 \alias{check_separation.matrix}
+\alias{check_separation.formula}
 \alias{check_separation.osm}
 \alias{check_separation.clm}
 \alias{check_separation.polr}
@@ -26,6 +27,15 @@ check_separation(..., rational)
 
 \method{check_separation}{matrix}(S, rational = FALSE, ...)
 
+\method{check_separation}{formula}(
+  formula,
+  data,
+  model = c("bcl", "b", "cl", "acl", "osm", "sl"),
+  rational = FALSE,
+  contrasts = NULL,
+  ...
+)
+
 \method{check_separation}{osm}(object, rational = FALSE, ...)
 
 \method{check_separation}{clm}(object, rational = FALSE, ...)
@@ -45,9 +55,15 @@ check_separation(..., rational)
 
 \item{rational}{should rational arithmetic be used}
 
-\item{model}{what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing or NULL it defaults to cumulative link for ordinal y and baseline-category for everything else.}
+\item{model}{model string. One of "bcl", "b", "cl", "acl", "osm", "sl".}
 
 \item{...}{arguments for the generic: For pre-fit \code{y}, \code{X} with \code{y} a vector of type factor, character, logical, numeric or integer. This is the \code{y} argument of \code{checksep}. In this case one also needs to supply the argument \code{X} and optional but recommended a \code{model}. One can also supply a matrix \code{S}, in which case we treat it as the \code{S} argument to \code{checksep}. For post-fit this can currently be an object of class \code{glm}, \code{polr}, \code{clm}, \code{osm} or \code{nnet}.}
+
+\item{formula}{An object of class ‘"formula"’ (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.}
+
+\item{data}{Either a standard data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.}
+
+\item{contrasts}{contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.}
 
 \item{object}{model object}
 }
@@ -61,6 +77,8 @@ This function checks for (quasi-) complete separation by calling the appropriate
 The function uses either a response vector y and a design matrix X, or a structure vector matrix S. If S is given, y and X and model are ignored.
 
 \code{check_separation} is an S3 generic function. For developers: If a method should be provided for the generic, it is best to have that method create a matrix of structure vectors \code{S} and use the low-level function \code{checksep} with it.
+
+The `formula` method is for standard data frames and formulas that work the same way as when used with \code{\link[stats]{glm}}. It does not support extended formulas, and may not work for functions that do formula processing differently. For a data frame/matrix given as rational numbers in the \code{rcdd} definition this is recognized but the formula does not get expanded and is taken literally, so e.g. variables in formula must match exactly with the column names in data, or factors need to be converted to dummies before that (wouldn't be possible in the rational format in any other way anyway).
 }
 \examples{
 

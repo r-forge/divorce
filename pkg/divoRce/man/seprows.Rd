@@ -5,6 +5,7 @@
 \alias{separation_rows.factor}
 \alias{separation_rows.default}
 \alias{separation_rows.matrix}
+\alias{separation_rows.formula}
 \alias{separation_rows.osm}
 \alias{separation_rows.clm}
 \alias{separation_rows.polr}
@@ -21,6 +22,15 @@ separation_rows(..., rational)
 \method{separation_rows}{default}(y, X, rational = FALSE, ...)
 
 \method{separation_rows}{matrix}(S, rational = FALSE, ...)
+
+\method{separation_rows}{formula}(
+  formula,
+  data,
+  model = c("bcl", "b", "cl", "acl", "osm", "sl"),
+  rational = FALSE,
+  contrasts = NULL,
+  ...
+)
 
 \method{separation_rows}{osm}(object, rational = FALSE, ...)
 
@@ -59,15 +69,23 @@ detect_seprows(
 
 \item{S}{a matrix of structure vectors. If given, \code{y} and \code{X} and \code{model} are ignored.}
 
-\item{object}{model object}
+\item{formula}{An object of class ‘"formula"’ (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.}
+
+\item{data}{Either a standard data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.}
 
 \item{model}{what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else.}
+
+\item{contrasts}{contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.}
+
+\item{object}{model object}
 }
 \description{
 This function checks which rows in X/Xstar are responsible for separation on any category. The observations need not separate the same categories.
 }
 \details{
 \code{separation_rows} is S3 generic. For developers: If a method should be provided for the generic, it is best to have that method create a matrix of structure vectors \code{S} and use the low-level function \code{seprows} with it.
+
+The `formula` method is for standard data frames and formulas that work the same way as when used with \code{\link[stats]{glm}}. It does not support extended formulas, and may not work for functions that do formula processing differently. For a data frame/matrix given as rational numbers in the \code{rcdd} definition this is recognized but the formula does not get expanded and is taken literally, so e.g. variables in formula must match exactly with the column names in data, or factors need to be converted to dummies before that (wouldn't be possible in the rational format in any other way anyway).
 }
 \examples{
 data(qcsepdato)

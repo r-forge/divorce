@@ -5,6 +5,7 @@
 \alias{recession_cone.default}
 \alias{recession_cone.factor}
 \alias{recession_cone.matrix}
+\alias{recession_cone.formula}
 \alias{recession_cone.osm}
 \alias{recession_cone.clm}
 \alias{recession_cone.polr}
@@ -20,6 +21,15 @@ recession_cone(..., rational)
 \method{recession_cone}{factor}(y, X, rational = FALSE, ...)
 
 \method{recession_cone}{matrix}(S, rational = FALSE, ...)
+
+\method{recession_cone}{formula}(
+  formula,
+  data,
+  model = c("bcl", "b", "cl", "acl", "osm", "sl"),
+  rational = FALSE,
+  contrasts = NULL,
+  ...
+)
 
 \method{recession_cone}{osm}(object, rational = FALSE, ...)
 
@@ -50,9 +60,15 @@ reccone(
 
 \item{S}{a matrix of structure vectors}
 
-\item{object}{model object}
+\item{formula}{An object of class ‘"formula"’ (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.}
+
+\item{data}{Either a standard data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.}
 
 \item{model}{what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing or NULL it defaults to cumulative link for ordinal y and baseline-category for everything else.}
+
+\item{contrasts}{contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.}
+
+\item{object}{model object}
 }
 \value{
 a list with 'cone' being the recession cone, 'reccdim' being the dimensions of the recession cone, and 'index' the row index of the structure vectors that are not linearities. Note that in case of 'X' not having full column rank, the 'reccdim' value is the dimension of the recession cone due to separation plus the number of columns that are linear dependent.
@@ -62,6 +78,8 @@ This function returns the structure vectors that are not linearities (determinin
 }
 \details{
 \code{recession_cone} is S3 generic. For developers: If a method should be provided for the generic, it is best to have that method create a matrix of structure vectors \code{S} and use the low-level function \code{reccone} with it.
+
+The `formula` method is for standard data frames and formulas that work the same way as when used with \code{\link[stats]{glm}}. It does not support extended formulas, and may not work for functions that do formula processing differently. For a data frame/matrix given as rational numbers in the \code{rcdd} definition this is recognized but the formula does not get expanded and is taken literally, so e.g. variables in formula must match exactly with the column names in data, or factors need to be converted to dummies before that (wouldn't be possible in the rational format in any other way anyway).
 
 The function uses either a response vector y and a design matrix X, or a structure vector matrix S. If S is given, y and X and model are ignored.
 }

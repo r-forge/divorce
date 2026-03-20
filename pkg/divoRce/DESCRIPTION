@@ -1,12 +1,12 @@
 Package: divoRce
 Title: Diagnosing Separation Phenomena in Categorical Response Models 
-Version: 0.4-2
+Version: 0.5-0
 Authors@R: c(
     person(given="Thomas", family="Rusch", email="thomas.rusch@wu.ac.at", role = c("aut","cre"), comment = c(ORCID = "0000-0002-7773-2096")),
     person(given="Lukas",family="Sablica", role = c("aut")),
     person(given="Kurt",family="Hornik", role = "aut"))
 Maintainer: Thomas Rusch <thomas.rusch@wu.ac.at>
-Description: Utilities for checking and diagnosing separation phenomena (complete separation, quasi-complete separation, overlap) for binary, nominal and ordinal data models with link construction as baseline-category, adjacent-category, cumulative, sequential (continuation-ratio), ordered stereotype and arbitrary link error distribution (including logit, probit, cauchit, cloglog, loglog, log amonst others). The package functionality includes a check for overlap with a linear program, a quick check for overlap, detailed separation diagnostics such as identification of columns in the design/structure matrix that lead to separation, identification of rows that lead to separation, the dimension of the recession cone and the structure vectors that are linearities. 
+Description: Utilities for checking and diagnosing separation phenomena (complete separation, quasi-complete separation, overlap) for binary, nominal and ordinal data models with link construction as baseline-category, adjacent-category, cumulative, sequential (continuation-ratio), ordered stereotype and arbitrary link error distribution (including logit, probit, cauchit, cloglog, loglog, log amonst others). The package functionality includes a check for separation and a check for overlap with a linear program, a quick check for overlap, a sequential check for overlap based on subsamples, detailed separation diagnostics such as identification of columns in the design matrix/structure vector matrix that lead to separation, identification of design matrix/structure vector matrix rows that lead to separation, the dimension of the recession cone and the structure vectors that are linearities. 
 Depends:
     R (>= 3.5.0)
 Imports:

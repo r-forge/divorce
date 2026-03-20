@@ -39,7 +39,7 @@ diagsep<-function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","os
   if(missing(model)) model <- NULL
     if(is.null(model))
     {
-        warning("I'm not sure which model you want to fit, so I default to the most common ones.","\n")
+        warning("Default model class used.","\n")
         if(is.ordered(y) & length(unique(y))>2)
         {
             return(diagsep_cl(y=y,X=X,rational=rational))
@@ -62,7 +62,7 @@ diagsep<-function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","os
         typ<-ifelse(length(lout)>0,ifelse(length(lout)==dim(S)[1],"Overlap","Quasi-Complete Separation"),"Complete Separation")
         reccdim <- reccone(S=S,rational=rational)$reccdim
         offcols <- sepcols(S=S,rational=rational)$offcols 
-        out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols)
+        out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols, modelclass = model)
         class(out) <- out$class <- "sepmod"
         return(out)
      }
@@ -135,6 +135,7 @@ diagsep_sl<-function(y,X,rational=FALSE)
   splitdat <- create_bseq(y=y,X=X)
   seqout <- lapply(splitdat,function(l) diagsep_b(y=l$y,X=l$X,rational=rational))
   class(seqout) <- "sepmod_sl"
+    
   return(seqout)
 }
 
@@ -178,7 +179,7 @@ diagsep_osm<-function(y,X,rational=FALSE)
   typ<-ifelse(length(lout)>0,ifelse(length(lout)==dim(Xstar)[1],"Overlap","Quasi-Complete Separation"),"Complete Separation") 
   reccdim <-  reccone_osm(y=y,X=X,rational=rational)$reccdim
   offcols <- detect_sepcols_osm(y=y,X=X,rational=rational)$offcols 
-  out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols)
+  out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols, modelclass = "osm")
   class(out) <- out$class <- "sepmod"
   return(out)
 }
@@ -224,7 +225,7 @@ diagsep_acl<-function(y,X,rational=FALSE)
   typ<-ifelse(length(lout)>0,ifelse(length(lout)==dim(Xstar)[1],"Overlap","Quasi-Complete Separation"),"Complete Separation") 
   reccdim <-  reccone_acl(y=y,X=X,rational=rational)$reccdim
   offcols <- detect_sepcols_acl(y=y,X=X,rational=rational)$offcols 
-  out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols)
+  out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols, modelclass = "acl")
   class(out) <- out$class <- "sepmod"
   out
 }
@@ -269,7 +270,7 @@ diagsep_bcl<-function(y,X,rational=FALSE)
   typ<-ifelse(length(lout)>0,ifelse(length(lout)==dim(Xstar)[1],"Overlap","Quasi-Complete Separation"),"Complete Separation")
   reccdim <- reccone_bcl(y=y,X=X,rational=rational)$reccdim
   offcols <- detect_sepcols_bcl(y=y,X=X,rational=rational)$offcols 
-  out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols)
+  out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols, modelclass = "bcl")
   class(out) <- out$class <- "sepmod"
   out
 }
@@ -324,7 +325,7 @@ diagsep_b<-function(y, X, rational=FALSE)
   typ<-ifelse(length(lout)>0,ifelse(length(lout)==dim(Xstar)[1],"Overlap","Quasi-Complete Separation"),"Complete Separation") 
   reccdim <- dim(Xstar)[2]-qr(Xstar[lout,])$rank 
   offcols <- detect_sepcols_b(y=y,X=X,rational=rational)$offcols 
-  out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols)
+  out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols, modelclass = "b")
   class(out) <- out$class <- "sepmod"
   out
   }
@@ -372,7 +373,7 @@ diagsep_cl<-function(y,X,rational=FALSE)
   typ<-ifelse(length(lout)>0,ifelse(length(lout)==dim(Xstar)[1],"Overlap","Quasi-Complete Separation"),"Complete Separation") 
   reccdim <-  reccone_cl(y=y,X=X,rational=rational)$reccdim
   offcols <- detect_sepcols_cl(y=y,X=X,rational=rational)$offcols 
-  out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols)
+  out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols, modelclass = "cl")
   class(out) <- out$class <- "sepmod"
   out
 }

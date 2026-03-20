@@ -29,7 +29,6 @@
 #' str(mkr2)
 #'
 #' @importFrom stats model.response is.empty.model model.matrix
-#' 
 #' @export
 make_yx <- function(formula, data, contrasts=NULL)
 {

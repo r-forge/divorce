@@ -97,7 +97,23 @@ check_separation(yqcs,Xqcs)
 debug(check_separation)
 debug(checksep)
 
-
+#' data(nsduh2019)
+#' frml <- her_lifetime ~ alc_agefirst + demog_age_cat6 + demog_sex
+#' mk <- make_yx(frml,nsduh2019)
+#' str(mk)
+#' 
+#' ## rational structure
+#' yr <- as.character(as.numeric(mk$y))
+#' Xr <- apply(mk$X,2,as.character)
+#' datr1 <- data.frame(yr,Xr) #data frame with rational data
+#' frmlr1 <- yr~X.Intercept.+ alc_agefirst + demog_sexFemale
+#' mkr1 <- make_yx(frmlr1,datr1)
+#' str(mkr1)
+#' 
+#' datr2 <- cbind(yr,Xr) #character matrix with rational data  
+#' frmlr2 <- yr~(Intercept) + alc_agefirst #note the intercept column is labeled differently here 
+#' mkr2 <- make_yx(frmlr2,datr2)
+#' str(mkr2)
 
 sloop::s3_dispatch(check_separation(yqcs))
 
@@ -149,6 +165,9 @@ rec_cone(ycs,Xcs,rational=rational) #check out for overlap if this makes sense
 diagsep_b(ycs,Xcs,rational=rational)
 diagsep(ycs,Xcs,rational=rational)
 print.sepmod(diagsep(ycs,Xcs,rational=rational),"full")
+
+#### formula method
+
 
 ## quasi complete separation example --- larger data set. CHECKS OUT
 load("./Data/nsduh2019.rda")
