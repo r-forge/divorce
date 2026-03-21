@@ -24,7 +24,7 @@ detect_sepcols<- function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl",
     if(missing(model)) model <- NULL
     if(is.null(model))
     {
-       warning("I'm not sure which model you want to fit, so I default to the most common ones.","\n")
+       warning("Default model class used.","\n")
        if(is.ordered(y) & length(unique(y))>2)
         {
             return(detect_sepcols_cl(y=y,X=X,rational=rational))

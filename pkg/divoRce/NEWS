@@ -1,3 +1,6 @@
+Version 0.5-1
+	- Fixed bug in overlap_fc with respect to missing model. Chnaged warning message for default model. 
+
 Version 0.5-0
 	- Added formula methods. Fixed bug in print.sepmod_sl. Added modelclass slots to diagsep objects. Added modelcall to diagnose_separation objects generics (NULL otherwise).  
 

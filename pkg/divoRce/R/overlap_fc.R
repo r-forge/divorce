@@ -19,6 +19,7 @@
 overlap_fc <- function(y, X, S, frac=10L, verbose=FALSE, rational=FALSE, model=c("b","bcl","cl","acl","sl","osm"))
 {
  if(missing(S)) {
+ if(missing(model)) model <- NULL
  n <- length(y)
  #n.cat <- length(unique(y))
  if(frac>n || frac < 1) frac <- 1
@@ -33,7 +34,7 @@ overlap_fc <- function(y, X, S, frac=10L, verbose=FALSE, rational=FALSE, model=c
  olcheck <- FALSE
  if(isTRUE(all.equal(length(unique(ys)),length(unique(y))))) #we skip evaluation if not all categories are in the subsample
  {
-     olcheck <- checkovl(y=ys,X=Xs,rational=rational)
+     olcheck <- checkovl(y=ys, X=Xs, rational=rational, model=model)
      #olcheck <- overlap_qc(ys,Xs,rational=rational)
  }
  if(isTRUE(olcheck)) break()
