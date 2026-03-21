@@ -11,7 +11,7 @@
 \alias{check_separation.polr}
 \alias{check_separation.multinom}
 \alias{check_separation.glm}
-\title{General separation check.}
+\title{This function checks for (quasi-) complete separation by calling the appropriate low-level functions.}
 \usage{
 checksep(
   y,
@@ -71,11 +71,9 @@ check_separation(..., rational)
 a Boolean; either 'TRUE' if we detected separation or 'FALSE' if not.
 }
 \description{
-This function checks for (quasi-) complete separation by calling the appropriate low-level functions.
+The function uses either a response vector y and a design matrix X, or a structure vector matrix S. If S is given, y and X and model are ignored.
 }
 \details{
-The function uses either a response vector y and a design matrix X, or a structure vector matrix S. If S is given, y and X and model are ignored.
-
 \code{check_separation} is an S3 generic function. For developers: If a method should be provided for the generic, it is best to have that method create a matrix of structure vectors \code{S} and use the low-level function \code{checksep} with it.
 
 The `formula` method is for standard data frames and formulas that work the same way as when used with \code{\link[stats]{glm}}. It does not support extended formulas, and may not work for functions that do formula processing differently. For a data frame/matrix given as rational numbers in the \code{rcdd} definition this is recognized but the formula does not get expanded and is taken literally, so e.g. variables in formula must match exactly with the column names in data, or factors need to be converted to dummies before that (wouldn't be possible in the rational format in any other way anyway).
