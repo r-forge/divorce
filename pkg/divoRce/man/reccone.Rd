@@ -11,6 +11,8 @@
 \alias{recession_cone.polr}
 \alias{recession_cone.multinom}
 \alias{recession_cone.glm}
+\alias{recession_cone.bracl}
+\alias{recession_cone.brmultinom}
 \alias{reccone}
 \title{Calculates recession cone for categorical data models.}
 \usage{
@@ -40,6 +42,10 @@ recession_cone(..., rational)
 \method{recession_cone}{multinom}(object, rational = FALSE, ...)
 
 \method{recession_cone}{glm}(object, rational = FALSE, ...)
+
+\method{recession_cone}{bracl}(object, rational = FALSE, ...)
+
+\method{recession_cone}{brmultinom}(object, rational = FALSE, ...)
 
 reccone(
   y,

@@ -11,6 +11,8 @@
 \alias{check_separation.polr}
 \alias{check_separation.multinom}
 \alias{check_separation.glm}
+\alias{check_separation.bracl}
+\alias{check_separation.brmultinom}
 \title{This function checks for (quasi-) complete separation by calling the appropriate low-level functions.}
 \usage{
 checksep(
@@ -45,6 +47,10 @@ check_separation(..., rational)
 \method{check_separation}{multinom}(object, rational = FALSE, ...)
 
 \method{check_separation}{glm}(object, rational = FALSE, ...)
+
+\method{check_separation}{bracl}(object, rational = FALSE, ...)
+
+\method{check_separation}{brmultinom}(object, rational = FALSE, ...)
 }
 \arguments{
 \item{y}{a categorical outcome vector}

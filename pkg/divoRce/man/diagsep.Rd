@@ -12,6 +12,8 @@
 \alias{diagnose_separation.polr}
 \alias{diagnose_separation.multinom}
 \alias{diagnose_separation.glm}
+\alias{diagnose_separation.bracl}
+\alias{diagnose_separation.brmultinom}
 \title{Detailed separation diagnostic for all categorical outcomes.}
 \usage{
 diagsep(
@@ -48,6 +50,10 @@ diagnose_separation(..., rational)
 \method{diagnose_separation}{multinom}(object, rational = FALSE, ...)
 
 \method{diagnose_separation}{glm}(object, rational = FALSE, ...)
+
+\method{diagnose_separation}{bracl}(object, rational = FALSE, ...)
+
+\method{diagnose_separation}{brmultinom}(object, rational = FALSE, ...)
 }
 \arguments{
 \item{y}{the outcome variable. Can be binary, categorial or ordinal. Works best if it is an ordered or unordered factor but can also be numeric, boolean or character. If y is not a factor, it is treated as a nominal (categorical) outcome.}

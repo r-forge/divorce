@@ -1,3 +1,6 @@
+Version 0.5-2
+	- Added bracl and brmultinom methods.
+
 Version 0.5-1
 	- Fixed bug in overlap_fc with respect to missing model. Changed warning message for default model. 
 

@@ -11,6 +11,8 @@
 \alias{separation_rows.polr}
 \alias{separation_rows.multinom}
 \alias{separation_rows.glm}
+\alias{separation_rows.bracl}
+\alias{separation_rows.brmultinom}
 \alias{seprows}
 \alias{detect_seprows}
 \title{Identify the rows in the design/structure vector matrix that cause separation.  It calls lower level functions if given an argument or chooses based on the response type.}
@@ -41,6 +43,10 @@ separation_rows(..., rational)
 \method{separation_rows}{multinom}(object, rational = FALSE, ...)
 
 \method{separation_rows}{glm}(object, rational = FALSE, ...)
+
+\method{separation_rows}{bracl}(object, rational = FALSE, ...)
+
+\method{separation_rows}{brmultinom}(object, rational = FALSE, ...)
 
 seprows(
   y,

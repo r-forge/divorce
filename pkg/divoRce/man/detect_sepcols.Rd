@@ -13,6 +13,7 @@
 \alias{separation_columns.polr}
 \alias{separation_columns.multinom}
 \alias{separation_columns.glm}
+\alias{separation_columns.brmultinom}
 \title{Identify separation columns}
 \usage{
 detect_sepcols(
@@ -57,6 +58,8 @@ separation_columns(..., rational)
 \method{separation_columns}{multinom}(object, rational = FALSE, ...)
 
 \method{separation_columns}{glm}(object, rational = FALSE, ...)
+
+\method{separation_columns}{brmultinom}(object, rational = FALSE, ...)
 }
 \arguments{
 \item{y}{a categorical outcome vector.  Can be binary, categorial or ordinal. Works best if it is an ordered or unordered factor but can also be numeric, boolean or character. If \code{y} is not a factor, it is treated as a nominal (categorical) outcome.}

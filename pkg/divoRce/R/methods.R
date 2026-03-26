@@ -466,7 +466,7 @@ recession_cone.multinom <- function(object, rational = FALSE, ... )
 ## TODO what for the aggregation interface?
 
 #' @export
-#' @importFrom stats model.matrix
+#' @importFrom stats model.matrix model.frame
 #' @rdname checksep
 #' @param object model object
 check_separation.glm <- function(object, rational = FALSE, ... )
@@ -526,4 +526,143 @@ recession_cone.glm <- function(object, rational = FALSE, ... )
     y <- x$y
     X <- model.matrix(x)
     reccone_b(y=y,X=X,rational=rational) 
+}
+
+
+########## bracl
+#' @export
+#' @importFrom stats model.matrix 
+#' @rdname checksep
+#' @param object model object
+check_separation.bracl <- function(object, rational = FALSE, ... )
+{
+    y <- as.ordered(model.frame(object)[,1])
+    X <- model.matrix(object)
+    if(object$parallel)
+        return(checksep_acl(y=y,X=X,rational=rational, ...))
+    if(!object$parallel) {
+        y <- factor(y, ordered = FALSE)
+        return(checksep_bcl(y=y,X=X,rational=rational, ...))
+        }
+}
+
+#' @export
+#' @rdname diagsep
+#' @param object model object
+diagnose_separation.bracl <- function(object, rational = FALSE, ... )
+{
+    y <- as.ordered(model.frame(object)[,1])
+    X <- model.matrix(object)
+    if(object$parallel)
+        out <- diagsep_acl(y=y,X=X,rational=rational, ...)
+    if(!object$parallel) {
+        y <- factor(y, ordered = FALSE)
+        out <- diagsep_bcl(y=y,X=X,rational=rational, ...)
+    }
+   out$modelcall <- object$call
+   out
+}
+
+#' @export
+#' @rdname seprows
+#' @param object model object
+separation_rows.bracl <- function(object, rational = FALSE, ... )
+{
+    y <- as.ordered(model.frame(object)[,1])
+    X <- model.matrix(object)
+    if(object$parallel)
+        return(seprows_acl(y=y,X=X,rational=rational, ...))
+    if(!object$parallel) {
+        y <- factor(y, ordered = FALSE)
+        return(seprows_bcl(y=y,X=X,rational=rational, ...))
+        }
+}
+
+#' @export
+#' @rdname sepcols
+#' @param object model object
+separation_columns.bracl <- function(object, rational = FALSE, ... )
+{
+    y <- as.ordered(model.frame(object)[,1])
+    X <- model.matrix(object)
+    if(object$parallel)
+        return(sepcols_acl(y=y,X=X,rational=rational, ...))
+    if(!object$parallel) {
+        y <- factor(y, ordered = FALSE)
+        return(sepcols_bcl(y=y,X=X,rational=rational, ...))
+        }
+}
+
+#' @export
+#' @rdname reccone
+#' @param object model object
+recession_cone.bracl <- function(object, rational = FALSE, ... )
+{
+    y <- as.ordered(model.frame(object)[,1])
+    X <- model.matrix(object)
+    if(object$parallel)
+        return(reccone_acl(y=y,X=X,rational=rational, ...))
+    if(!object$parallel) {
+        y <- factor(y, ordered = FALSE)
+        return(reccone_bcl(y=y,X=X,rational=rational, ...))
+        }
+}
+
+########## brmultinom
+#' @export
+#' @importFrom stats model.matrix
+#' @rdname checksep
+#' @param object model object
+check_separation.brmultinom <- function(object, rational = FALSE, ... )
+{
+    y <- model.frame(object)[,1]
+    X <- model.matrix(object)
+    checksep_bcl(y=y,X=X,rational=rational, ...)
+}
+
+#' @export
+#' @rdname diagsep
+#' @param object model object
+diagnose_separation.brmultinom <- function(object, rational = FALSE, ... )
+{
+    x <- object
+    y <- model.frame(x)[,1]
+    X <- model.matrix(x)
+    out <- diagsep_bcl(y=y,X=X,rational=rational)
+    out$modelcall <- x$call
+    return(out)
+}
+
+
+#' @export
+#' @rdname detect_sepcols
+#' @param object model object
+separation_columns.brmultinom <- function(object, rational = FALSE, ... )
+{
+    x <- object
+    y <- model.frame(x)[,1]
+    X <- model.matrix(x)
+    sepcols_bcl(y=y,X=X,rational=rational)
+}
+
+#' @export
+#' @rdname seprows
+#' @param object model object
+separation_rows.brmultinom <- function(object, rational = FALSE, ... )
+{
+    x <- object
+    y <- model.frame(x)[,1]
+    X <- model.matrix(x)
+    seprows_bcl(y=y,X=X,rational=rational)
+}
+
+#' @export
+#' @rdname reccone
+#' @param object model object
+recession_cone.brmultinom <- function(object, rational = FALSE, ... )
+{
+    x <- object
+    y <- model.frame(x)[,1]
+    X <- model.matrix(x)
+    reccone_bcl(y=y,X=X,rational=rational)
 }
