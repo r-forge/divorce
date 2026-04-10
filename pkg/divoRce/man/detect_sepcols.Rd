@@ -43,8 +43,8 @@ separation_columns(..., rational, backend, solver)
   y,
   X,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
@@ -52,16 +52,16 @@ separation_columns(..., rational, backend, solver)
   y,
   X,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
 \method{separation_columns}{matrix}(
   S,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
@@ -71,64 +71,64 @@ separation_columns(..., rational, backend, solver)
   model = c("bcl", "b", "cl", "acl", "osm", "sl"),
   rational = FALSE,
   contrasts = NULL,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
 \method{separation_columns}{osm}(
   object,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
 \method{separation_columns}{clm}(
   object,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
 \method{separation_columns}{polr}(
   object,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
 \method{separation_columns}{multinom}(
   object,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
 \method{separation_columns}{glm}(
   object,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
 \method{separation_columns}{bracl}(
   object,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
 \method{separation_columns}{brmultinom}(
   object,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 }

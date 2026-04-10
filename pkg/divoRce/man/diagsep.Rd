@@ -32,8 +32,8 @@ diagnose_separation(..., rational, backend, solver)
   y,
   X,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
@@ -41,16 +41,16 @@ diagnose_separation(..., rational, backend, solver)
   y,
   X,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
 \method{diagnose_separation}{matrix}(
   S,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
@@ -60,64 +60,64 @@ diagnose_separation(..., rational, backend, solver)
   model = c("bcl", "b", "cl", "acl", "osm", "sl"),
   rational = FALSE,
   contrasts = NULL,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
 \method{diagnose_separation}{osm}(
   object,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
 \method{diagnose_separation}{clm}(
   object,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
 \method{diagnose_separation}{polr}(
   object,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
 \method{diagnose_separation}{multinom}(
   object,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
 \method{diagnose_separation}{glm}(
   object,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
 \method{diagnose_separation}{bracl}(
   object,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
 \method{diagnose_separation}{brmultinom}(
   object,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 }

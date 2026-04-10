@@ -31,12 +31,18 @@ check_separation(..., rational, backend, solver)
   y,
   X,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
-\method{check_separation}{matrix}(S, rational = FALSE, backend = backend, solver = solver, ...)
+\method{check_separation}{matrix}(
+  S,
+  rational = FALSE,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
+  ...
+)
 
 \method{check_separation}{formula}(
   formula,
@@ -44,64 +50,64 @@ check_separation(..., rational, backend, solver)
   model = c("bcl", "b", "cl", "acl", "osm", "sl"),
   rational = FALSE,
   contrasts = NULL,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
 \method{check_separation}{osm}(
   object,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
 \method{check_separation}{clm}(
   object,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
 \method{check_separation}{polr}(
   object,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
 \method{check_separation}{multinom}(
   object,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
 \method{check_separation}{glm}(
   object,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
 \method{check_separation}{bracl}(
   object,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
 \method{check_separation}{brmultinom}(
   object,
   rational = FALSE,
-  backend = backend,
-  solver = solver,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 }
