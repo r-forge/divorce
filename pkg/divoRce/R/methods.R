@@ -401,6 +401,7 @@ recession_cone.polr <- function(object, rational = FALSE,  ... )
     reccone_cl(y=y,X=X,rational=rational)
 }
 
+
 #### multinom 
 
 #' @export
