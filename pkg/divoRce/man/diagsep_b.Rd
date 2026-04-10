@@ -4,7 +4,7 @@
 \alias{diagsep_b}
 \title{Detailed separation diagnostic for binary outcomes.}
 \usage{
-diagsep_b(y, X, rational = FALSE)
+diagsep_b(y, X, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 }
 \arguments{
 \item{y}{the binary outcome variable. Works best if it is a factor or ordered factor but can also be numeric, boolean or character. We coerce to factor internally.}
@@ -12,6 +12,10 @@ diagsep_b(y, X, rational = FALSE)
 \item{X}{a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).}
 
 \item{rational}{should rational arithmetic be used.}
+
+\item{backend}{which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".}
+
+\item{solver}{the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".}
 }
 \value{
 an object of class 'sepmod' that is a list with the components:

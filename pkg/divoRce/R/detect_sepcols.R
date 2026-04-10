@@ -1,20 +1,17 @@
 #' Identify separation columns
 #' 
 #' This function identifies the columns in a design matrix/structure vector matrix that are responsible for separation. It calls lower level functions if given an argument or chooses based on the response type.
-#'
 #' 
-#' @param y a categorical outcome vector.  Can be binary, categorial or ordinal. Works best if it is an ordered or unordered factor but can also be numeric, boolean or character. If \code{y} is not a factor, it is treated as a nominal (categorical) outcome.   
+#' @param y a categorical outcome vector.  Can be binary, categorial or ordinal. Works best if it is an ordered or unordered factor appropriate for the model to be fitted but can also be numeric, boolean or character. If \code{y} is not a factor, it is treated as a nominal (categorical) outcome. with the alphanumerically lowest value being the reference.   
 #' @param X a design matrix, e.g. generated via a call to \code{model.matrix}. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynominals).
 #' @param S a matrix of structure vectors. If given \code{y}, \code{X} and \code{model} are ignored.
 #' @param rational Should rational arithmetic be used? 
-#' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else.  
-#' 
+#' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else.
+#' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by \code{ROI_applicable_solver()} for "ROI".  
 #' @export
-#'
-#'
-#'
-detect_sepcols<- function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","osm"))
-{
+detect_sepcols <- function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","osm"), backend = c("rcdd", "ROI"), solver = NULL) {
+    backend <- .divorce_match_backend(backend)
     if(missing(S))
     {
     if(length(unique(y))<2) stop("There is only one value in y.")
@@ -27,19 +24,19 @@ detect_sepcols<- function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl",
        warning("Default model class used.","\n")
        if(is.ordered(y) & length(unique(y))>2)
         {
-            return(detect_sepcols_cl(y=y,X=X,rational=rational))
+            return(detect_sepcols_cl(y=y,X=X,rational=rational, backend=backend, solver=solver))
         } else {
-            return(detect_sepcols_bcl(y=y,X=X,rational=rational))
+            return(detect_sepcols_bcl(y=y,X=X,rational=rational, backend=backend, solver=solver))
         }
     }
     model <- match.arg(model,several.ok=FALSE)
     switch(model,
-           b = detect_sepcols_b(y=y,X=X,rational=rational),
-           bcl = detect_sepcols_bcl(y=y,X=X,rational=rational),
-           cl = detect_sepcols_cl(y=y,X=X,rational=rational),
-           acl = detect_sepcols_acl(y=y,X=X,rational=rational),       
-           sl =detect_sepcols_sl(y=y,X=X,rational=rational),
-           osm =detect_sepcols_osm(y=y,X=X,rational=rational)
+           b = detect_sepcols_b(y=y,X=X,rational=rational, backend=backend, solver=solver),
+           bcl = detect_sepcols_bcl(y=y,X=X,rational=rational, backend=backend, solver=solver),
+           cl = detect_sepcols_cl(y=y,X=X,rational=rational, backend=backend, solver=solver),
+           acl = detect_sepcols_acl(y=y,X=X,rational=rational, backend=backend, solver=solver),       
+           sl =detect_sepcols_sl(y=y,X=X,rational=rational, backend=backend, solver=solver),
+           osm =detect_sepcols_osm(y=y,X=X,rational=rational, backend=backend, solver=solver)
            )
     } else {
         # for S given
@@ -58,27 +55,33 @@ detect_sepcols<- function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl",
         }
      ## matrix of constraints for \code{lpcdd} must be of the form A1 * \beta \leq b1. We combine the constraints into one big A1 for the left hand side and a vector b1 of the right hand side scalars.
     ## left hand side just inequalities to folow the linear program in the apper
-    A1<- rbind(-Xstar,              # the first ineqs -Xstar*beta <=0           
-               - diag(ncol(Xstar)), # lower bounds -beta <= 1
-                 diag(ncol(Xstar))) # upper bounds beta <= 1
+    #A1<- rbind(-Xstar,              # the first ineqs -Xstar*beta <=0           
+    #           - diag(ncol(Xstar)), # lower bounds -beta <= 1
+    #             diag(ncol(Xstar))) # upper bounds beta <= 1
     ## the right hand side are scalars 
-    b1<- c(rep(0,dim(Xstar)[1]), #the right hand side is 0
-           rep(1,ncol(Xstar)),   #the right hand side is 1
-           rep(1,ncol(Xstar))    #the right hand side is 1
-           )
-    if(rational){
-        A1 <- rcdd::d2q(A1)
-        b1 <- rcdd::d2q(b1)
-    }
+    #b1<- c(rep(0,dim(Xstar)[1]), #the right hand side is 0
+    #       rep(1,ncol(Xstar)),   #the right hand side is 1
+    #       rep(1,ncol(Xstar))    #the right hand side is 1
+    #       )
+    #if(rational){
+    #    A1 <- rcdd::d2q(A1)
+    #    b1 <- rcdd::d2q(b1)
+    #}
     ## making the H rep 
-    hrep<-rcdd::makeH(a1=A1,b1=b1)
+    #hrep<-rcdd::makeH(a1=A1,b1=b1)
     ## objective function
-   a<-t(rep(1,dim(Xstar)[1]))%*%Xstar
-   a <- as.numeric(a)
-   if(rational) a <- rcdd::d2q(a)
-   ## maximization with lpcdd
-   lso <- rcdd::lpcdd(hrep,a,minimize=FALSE)$primal.solution
-   if(rational) lso <- rcdd::q2d(lso) 
+   #a<-t(rep(1,dim(Xstar)[1]))%*%Xstar
+   #a <- as.numeric(a)
+   #if(rational) a <- rcdd::d2q(a)
+   ### maximization with lpcdd
+   #lso <- rcdd::lpcdd(hrep,a,minimize=FALSE)$primal.solution
+                                        #if(rational) lso <- rcdd::q2d(lso)
+    lso <- .divorce_detect_sepcols_lp(
+       Xstar,
+       rational = rational,
+       backend = backend,
+       solver = solver
+   )
    offflag <- sapply(lso,function(x) !isTRUE(all.equal(x,0)))
    offcols <- colnames(Xstar)[offflag]
    out <- list(ls=lso,offcols=offcols,colnrs=which(offflag),separated=offflag)
@@ -91,51 +94,8 @@ detect_sepcols<- function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl",
 sepcols <- detect_sepcols
 
 
-## detect_sepcolsOLD<- function(y,X, rational=FALSE) {
-##     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
-##     #this may be the only one we need; check this out again.
-##     ratcols <- rat_cols(X)
-##     if(ratcols) rational <- TRUE 
-##     ## setting up X*
-##      if(is.ordered(y) & length(unique(y))>2) { #TODO: Do we have any other way to check whether y is ordinal?
-##         Xstar <- cl_Xstar(y, X, label=TRUE, rational=rational) # for ordinal
-##     } else {
-##         Xstar <- bcl_Xstar(y, X, label=TRUE, rational=rational) #for all nominal and binary
-##     }
-##     ##here we check whether X has full column rank otherwise this check won't work properly.
-##     if(ratcols) X <- rcdd::q2d(X)
-##     if(qr(X)$rank<dim(X)[2]) warning("X doesn't have full column rank. Results of this check are unreliable.")     
-##     ## constraints
-##     ## matrix of constraints for \code{lpcdd} must be of the form A1 * \beta \leq b1. We combine the constraints into one big A1 for the left hand side and a vector b1 of the right hand side scalars.
-##     ## left hand side just inequalities to folow the linear program in the paper
-##     if(rational) Xstar <- rcdd::q2d(Xstar) # we need this to do the calculations; quicker than setting up struc_vec
-##     A1<- rbind(-Xstar,              # the first ineqs -Xstar*beta <=0           
-##                - diag(ncol(Xstar)), # lower bounds -beta <= 1
-##                  diag(ncol(Xstar))) # upper bounds beta <= 1
-##     ## the right hand side are scalars 
-##     b1<- c(rep(0,dim(Xstar)[1]), #the right hand side is 0
-##            rep(1,ncol(Xstar)),   #the right hand side is 1
-##            rep(1,ncol(Xstar))    #the right hand side is 1
-##            )
-##     if(rational){
-##         A1 <- rcdd::d2q(A1)
-##         b1 <- rcdd::d2q(b1)
-##     }
-##     ## making the H rep 
-##    hrep<-rcdd::makeH(a1=A1,b1=b1)
-##     ## objective function
-##    a<-t(rep(1,dim(Xstar)[1]))%*%Xstar
-##    a <- as.numeric(a)
-##    if(rational) a <- rcdd::d2q(a)
-##    ## maximization with lpcdd
-##    lso <- rcdd::lpcdd(hrep,a,minimize=FALSE)$primal.solution
-##    if(rational) lso <- rcdd::q2d(lso)
-##    ## if not 0, it is separation column
-##    offflag <- sapply(lso,function(x) !isTRUE(all.equal(x,0)))
-##    offcols <- colnames(Xstar)[offflag]
-##    out <- list(ls=lso,offcols=offcols,colnrs=which(offflag),separated=offflag)
-##    out
-## }
+#' Identify separation columns for binary models
+#'
 #' This function identifies the columns in a binary model design matrix that are responsible for separation. 
 #'
 #' @details We solve a linear program in this function that operates only on y and X, so without a specific model. This program corresponds to detecting which columns in the design matrix leads to infinite MLE for some link functions, but it is more general as there are links that can still give finite estimates even though there is separation. Hence this function detects separation even in the case of (seemingly) finite estimates or if there is no warning. The prime example is using the log link in logistic regression. 
@@ -143,41 +103,28 @@ sepcols <- detect_sepcols
 #' @param y the dependent variable. Must be binary. If we encounter a factor, we use the levels of the factor and thus also the specified reference. For anything else, we use the lowest alphanumeric category as reference. 
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynominals).
 #' @param rational should rational arithmetic be used.
-#' 
+#' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
 #' @export
-detect_sepcols_b<- function(y,X,rational=FALSE) { 
+detect_sepcols_b<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL) { 
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
+    y <- as.factor(y)
+    backend <- .divorce_match_backend(backend)
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
-    Xstar <- bcl_Xstar(y=y, X=X, label=TRUE, rational=rational)
+    Xstar <- b_Xstar(y=y, X=X, label=TRUE, rational=rational)
     ##here we check whether X has full column rank otherwise this check won't work properly.
     if(ratcols) X <- rcdd::q2d(X)
     if(qr(X)$rank<dim(X)[2]) warning("X doesn't have full column rank. Results of this check are unreliable.")     
     ## constraints
     ## matrix of constraints for \code{lpcdd} must be of the form A1 * \beta \leq b1. We combine the constraints into one big A1 for the left hand side and a vector b1 of the right hand side scalars.
     ## left hand side just inequalities to folow the linear program in the paper
-    if(rational) Xstar <- rcdd::q2d(Xstar)
-    A1<- rbind(-Xstar,              # the first ineqs -Xstar*beta <=0           
-               - diag(ncol(Xstar)), # lower bounds -beta <= 1
-                 diag(ncol(Xstar))) # upper bounds beta <= 1
-    ## the right hand side are scalars 
-    b1<- c(rep(0,dim(Xstar)[1]), #the right hand side is 0
-           rep(1,ncol(Xstar)),   #the right hand side is 1
-           rep(1,ncol(Xstar))    #the right hand side is 1
-           )
-    if(rational){
-        A1 <- rcdd::d2q(A1)
-        b1 <- rcdd::d2q(b1)
-    }
-    ## making the H rep 
-   hrep<-rcdd::makeH(a1=A1,b1=b1)
-    ## objective function
-   a<-t(rep(1,dim(Xstar)[1]))%*%Xstar
-   a <- as.numeric(a)
-   if(rational) a <- rcdd::d2q(a)
-   ## maximization with lpcdd
-   lso <- rcdd::lpcdd(hrep,a,minimize=FALSE)$primal.solution
-   if(rational) lso <- rcdd::q2d(lso)
+    lso <- .divorce_detect_sepcols_lp(
+       Xstar,
+       rational = rational,
+       backend = backend,
+       solver = solver
+    )
    offflag <- sapply(lso,function(x) !isTRUE(all.equal(x,0)))
    offcols <- colnames(Xstar)[offflag]
    out <- list(ls=lso,offcols=offcols,colnrs=which(offflag),separated=offflag)
@@ -188,203 +135,99 @@ detect_sepcols_b<- function(y,X,rational=FALSE) {
 #' @export
 sepcols_b <- detect_sepcols_b
 
+#' Identify separation columns in sequential models
+#'
 #' This function identifies the columns in a sequential model design matrix that are responsible for separation. 
 #'
 #' @details We solve a linear program in this function that operates only on y and X, so without a specific model. This program corresponds to detecting which columns in the design matrix leads to infinite MLE for some link functions, but it is more general as there are links that can still give finite estimates even though there is separation. Hence this function detects separation even in the case of (seemingly) finite estimates or if there is no warning. The prime example is using the log link in logistic regression. 
 #' 
-#' @param y the dependent variable. Works for ordered factors, factors, characters numeric of boolean. Works best if it is an ordered factor, else we treat it alphanuemrically ascneidng just as as.ordered. 
+#' @param y the dependent variable. Works for ordered factors, factors, characters numeric of boolean. Works best if it is an ordered factor, else we treat it alphanumerically ascending just as `as.ordered`. 
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynominals).
 #' @param rational should rational arithmetic be used.
-#' 
+#' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
 #' @export
-detect_sepcols_sl <- function(y,X,rational=FALSE)
+detect_sepcols_sl <- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 {
+  backend <- .divorce_match_backend(backend)
   ratcols <- rat_cols(X)
   if(ratcols) rational <- TRUE
   y <- as.ordered(y)
   splitdat <- create_bseq(y=y,X=X)
-  seqout <- lapply(splitdat,function(l) detect_sepcols_b(y=l$y,X=l$X,rational=rational))
-  seqout
+  seqout <- lapply(splitdat,function(l) detect_sepcols_b(y=l$y,X=l$X,rational=rational, backend=backend, solver=solver))
+  return(seqout)
 }
 
 #' @rdname detect_sepcols_sl
 #' @export
 sepcols_sl<- detect_sepcols_sl
 
-## detect_sepcols_bOLD<- function(y,X) { 
-##     ## We use y thus:
-##     ## If we encounter a factor, we use the levels of the factor and thus also the specified reference 
-##     ## For anything else, we use the lowest alphanumeric category as reference
-##     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
-##     y <- as.factor(y)
-##     refcat <- levels(y)[1]
-##        # {
-         
-##      #    othcat <- levels(y)[2]
-##       #  } else { 
-##      #    refcat <- sort(unique(y))[1]
-##      #    othcat <- sort(unique(y))[2]
-##      #    }   
-##     ## setting up Z*
-##     Xstar[y==refcat,] <- -Xstar[y==refcat,]
-##     ## constraints
-##     ## matrix of constraints for \code{lpcdd} must be of the form A1 * \beta \leq b1. We combine the constraints into one big A1 for the left hand side and a vector b1 of the right hand side scalars.
-##     ## left hand side just inequalities to folow the linear program in the paper
-##     A1<- rbind(-Xstar,              # the first ineqs -Xstar*beta <=0           
-##                - diag(ncol(Xstar)), # lower bounds -beta <= 1
-##                  diag(ncol(Xstar))) # upper bounds beta <= 1
-##     ## the right hand side are scalars 
-##     b1<- c(rep(0,dim(Xstar)[1]), #the right hand side is 0
-##            rep(1,ncol(Xstar)),   #the right hand side is 1
-##            rep(1,ncol(Xstar))    #the right hand side is 1
-##            )
-##     ## making the H rep 
-##    hrep<-rcdd::makeH(a1=A1,b1=b1)
-##     ##turn into rational arithmetic
-##     ## objective function
-##    a<-t(rep(1,dim(Xstar)[1]))%*%Xstar
-##    a <- as.numeric(a)
-##    ## maxmization with lpcdd
-##    lso <- rcdd::lpcdd(hrep,a,minimize=FALSE)$primal.solution
-##    ## if 1 or -1 it is separation column, else not
-##    offflag <- sapply(lso,function(x) !isTRUE(all.equal(x,0)))
-##    #intind <- grep("(Intercept)",colnames(Xstar))
-##    #offflag[intind] <- FALSE
-##    offcols <- colnames(Xstar)[offflag]
-##    out <- list(ls=lso,offcols=offcols,colnrs=which(offflag),separated=offflag)
-##    out
-## }
-
-
+#' Identify separation columns in baseline-category models
+#'
 #' This function identifies the columns in a design matrix for a baseline-category link model that have an infinite MLE, due to separation. Note this is due to separation which includes the case of a design matrix that doesn't have full rank.  
 #'
 #' @details We solve a linear program in this function that operates only on y and X, so without a specific model. This program corresponds to detecting which columns in the design matrix leads to infinite MLE for some link functions, but it is more general as there are links that can still give finite estimates even though there is separation. Hence this function detects separation even in the case of (seemingly) finite estimates or if there is no warning. The prime example is using the log link in logistic regression. 
 #' 
-#' @param y the outcome variable. Can be factor, numeric, character or boolean. Works best if it is a factor. 
+#' @param y the outcome variable. Can be factor, numeric, character or boolean. Works best if it is a factor because then we keep specified reference caetgory, else we use the alphanumerically lowest value. 
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
 #' @param rational should rational arithmetic be used.
-#' 
+#' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
 #' @export
-detect_sepcols_bcl<- function(y,X,rational=FALSE) {
-     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
+detect_sepcols_bcl<- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL) {
+    if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
+    y <- as.factor(y)
+    backend <- .divorce_match_backend(backend)
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
     Xstar <- bcl_Xstar(y=y,X=X,label=TRUE,rational=rational)
     ##here we check whether X has full column rank otherwise this check won't work properly.
     if(ratcols) X <- rcdd::q2d(X)
     if(qr(X)$rank<dim(X)[2]) warning("X doesn't have full column rank. Results of this check are unreliable.")      
-    if(rational) Xstar <- rcdd::q2d(Xstar) 
-    ## matrix of constraints for \code{lpcdd} must be of the form A1 * \beta \leq b1. We combine the constraints into one big A1 for the left hand side and a vector b1 of the right hand side scalars.
-    ## left hand side just inequalities to folow the linear program in the apper
-    A1<- rbind(-Xstar,              # the first ineqs -Xstar*beta <=0           
-               - diag(ncol(Xstar)), # lower bounds -beta <= 1
-                 diag(ncol(Xstar))) # upper bounds beta <= 1
-    ## the right hand side are scalars 
-    b1<- c(rep(0,dim(Xstar)[1]), #the right hand side is 0
-           rep(1,ncol(Xstar)),   #the right hand side is 1
-           rep(1,ncol(Xstar))    #the right hand side is 1
-           )
-    if(rational){
-        A1 <- rcdd::d2q(A1)
-        b1 <- rcdd::d2q(b1)
-    }
-    ## making the H rep 
-    hrep<-rcdd::makeH(a1=A1,b1=b1)
-    ## objective function
-   a<-t(rep(1,dim(Xstar)[1]))%*%Xstar
-   a <- as.numeric(a)
-   if(rational) a <- rcdd::d2q(a)
-   ## maximization with lpcdd
-   lso <- rcdd::lpcdd(hrep,a,minimize=FALSE)$primal.solution
-   if(rational) lso <- rcdd::q2d(lso) 
+    lso <- .divorce_detect_sepcols_lp(
+       Xstar,
+       rational = rational,
+       backend = backend,
+       solver = solver
+   )
    offflag <- sapply(lso,function(x) !isTRUE(all.equal(x,0)))
    offcols <- colnames(Xstar)[offflag]
    out <- list(ls=lso,offcols=offcols,colnrs=which(offflag),separated=offflag)
    return(out)
    }
-## detect_sepcols_pOLD<- function(y,X) {
-##     # if(is.ordered(y) & length(unique(y))>2) { #TODO: Do we have any other way to check whether y is ordinal?
-##     #    Xstar <- ordin_Xstar(y,X)
-##     #} else {
-##     Xstar <- nomin_Xstar(y,X) #for all ordinal, nominal and binary
-##                                         #}
-##     #intind <- grep("(Intercept)",colnames(Xstar))
-##     ##TODO: can this supplant the ordinal and binary check as well? I think so. 
-##     ## matrix of constraints for \code{lpcdd} must be of the form A1 * \beta \leq b1. We combine the constraints into one big A1 for the left hand side and a vector b1 of the right hand side scalars.
-##     ## left hand side just inequalities to folow the linear program in the apper
-##     A1<- rbind(-Xstar,              # the first ineqs -Xstar*beta <=0           
-##                - diag(ncol(Xstar)), # lower bounds -beta <= 1
-##                  diag(ncol(Xstar))) # upper bounds beta <= 1
-##     ## the right hand side are scalars 
-##     b1<- c(rep(0,dim(Xstar)[1]), #the right hand side is 0
-##            rep(1,ncol(Xstar)),   #the right hand side is 1
-##            rep(1,ncol(Xstar))    #the right hand side is 1
-##            )
-##     ## making the H rep 
-##     hrep<-rcdd::makeH(a1=A1,b1=b1)
-##     ##turn into rational arithmetic
-##     ##hrepr <- d2q(hrep) ## no longer used
-##     ## objective function
-##    a<-t(rep(1,dim(Xstar)[1]))%*%Xstar
-##    a <- as.numeric(a)
-##    #rational arithmetic
-##    ##ar <- d2q(a) ##skipped
-##    ## maximization with lpcdd
-##    lso <- rcdd::lpcdd(hrep,a,minimize=FALSE)$primal.solution
-##    ## if 1 or -1 it is separation column, else not 
-##    #offflag <- sapply(ls,function(x) isTRUE(all.equal(x,1)) || isTRUE(all.equal(x,-1))) # we need to test with tolerance
-##    offflag <- sapply(lso,function(x) !isTRUE(all.equal(x,0)))
-##    ##offflag[intind] <- FALSE
-##    offcols <- colnames(Xstar)[offflag]
-##    out <- list(ls=lso,offcols=offcols,colnrs=which(offflag),separated=offflag)
-##    return(out)
-## }
 
 #' @rdname detect_sepcols_bcl
 #' @export
 sepcols_bcl<- detect_sepcols_bcl
 
 
-#' This function identifies the columns in a design matrix for a cumulative link model that have an infinite MLE, due to separation. Note this is due to separation which includes the case of a design matrix that doesn't have full rank.  
+#' Identify separation columns in cumulative link models
+#'
+#' This function identifies the columns in a design matrix for a cumulative link model that have an infinite MLE, due to separation. Note this is due to separation which includes the case of a design matrix that doesn't have full rank. 
 #'
 #' @details We solve a linear program in this function that operates only on y and X, so without a specific model. This program corresponds to detecting which columns in the design matrix leads to infinite MLE for some link functions, but it is more general as there are links that can still give finite estimates even though there is separation. Hence this function detects separation even in the case of (seemingly) finite estimates or if there is no warning. The prime example is using the log link in logistic regression. 
 #' 
-#' @param y the outcome variable. Can be factor, ordered, numeric, character or boolean. Works best if it is an ordered factor. 
+#' @param y the outcome variable. Can be factor, ordered, numeric, character or boolean. Works best if it is an ordered factor, else we treat it alphanumerically ascending just as `as.ordered`. 
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
 #' @param rational should rational arithmetic be used.
+#' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
 #' @export
-detect_sepcols_cl<- function(y,X,rational=FALSE) {
+detect_sepcols_cl<- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL) {
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
+    y <- as.ordered(y)
+    backend <- .divorce_match_backend(backend)
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
     Xstar <- cl_Xstar(y=y,X=X,label=TRUE,rational=rational)
     if(ratcols) X <- rcdd::q2d(X)
     if(qr(X)$rank<dim(X)[2]) warning("X doesn't have full column rank. Results of this check are unreliable.")    
-    #ncat <- length(unique(y)) # we need this as in the ordin_Xstar all thresholds are always inf (because redundancy)
-    ## matrix of constraints for \code{lpcdd} must be of the form A1 * \beta \leq b1. We combine the constraints into one big A1 for the left hand side and a vector b1 of the right hand side scalars.
-    ## left hand side just inequalities to folow the linear program in the paper
-    if(rational) Xstar <- rcdd::q2d(Xstar) # we need this to do the calculations; quicker than setting up struc_vec
-    A1<- rbind(-Xstar,              # the first ineqs -Xstar*beta <=0           
-               - diag(ncol(Xstar)), # lower bounds -beta <= 1
-                 diag(ncol(Xstar))) # upper bounds beta <= 1
-    ## the right hand side are scalars 
-    b1<- c(rep(0,dim(Xstar)[1]), #the right hand side is 0
-           rep(1,ncol(Xstar)),   #the right hand side is 1
-           rep(1,ncol(Xstar))    #the right hand side is 1
-           )
-    if(rational){
-        A1 <- rcdd::d2q(A1)
-        b1 <- rcdd::d2q(b1)
-    }
-    ## making the H rep 
-    hrep<-rcdd::makeH(a1=A1,b1=b1)
-    ## objective function
-   a<-t(rep(1,dim(Xstar)[1]))%*%Xstar
-   a <- as.numeric(a)
-   if(rational) a <- rcdd::d2q(a)
-   ## maximization with lpcdd
-   lso <- rcdd::lpcdd(hrep,a,minimize=FALSE)$primal.solution
-   if(rational) lso <- rcdd::q2d(lso)
+    lso <- .divorce_detect_sepcols_lp(
+       Xstar,
+       rational = rational,
+       backend = backend,
+       solver = solver
+   )
    ## If not equal to 0 it is separation column, else not 
    offflag <- sapply(lso,function(x) !isTRUE(all.equal(x,0))) # we need to test with tolerance
    offcols <- colnames(Xstar)[offflag]
@@ -396,83 +239,36 @@ detect_sepcols_cl<- function(y,X,rational=FALSE) {
 #' @export
 sepcols_cl<- detect_sepcols_cl
 
-## detect_sepcols_oOLD<- function(y,X) {
-##    # if(is.ordered(y) & length(unique(y))>2) { #TODO: Do we have any other way to check whether y is ordinal?
-##     Xstar <- ordin_Xstar(y,X,label=TRUE)
-##     ncat <- length(unique(y)) # we need this as in the ordin_Xstar all thresholds are always inf (because redundancy)
-##     ##TODO: can this supplant the ordinal and binary check as well? I think so. 
-##     ## matrix of constraints for \code{lpcdd} must be of the form A1 * \beta \leq b1. We combine the constraints into one big A1 for the left hand side and a vector b1 of the right hand side scalars.
-##     ## left hand side just inequalities to folow the linear program in the apper
-##     A1<- rbind(-Xstar,              # the first ineqs -Xstar*beta <=0           
-##                - diag(ncol(Xstar)), # lower bounds -beta <= 1
-##                  diag(ncol(Xstar))) # upper bounds beta <= 1
-##     ## the right hand side are scalars 
-##     b1<- c(rep(0,dim(Xstar)[1]), #the right hand side is 0
-##            rep(1,ncol(Xstar)),   #the right hand side is 1
-##            rep(1,ncol(Xstar))    #the right hand side is 1
-##            )
-##     ## making the H rep 
-##     hrep<-rcdd::makeH(a1=A1,b1=b1)
-##     ##turn into rational arithmetic
-##     ##hrepr <- d2q(hrep) ## no longer used
-##     ## objective function
-##    a<-t(rep(1,dim(Xstar)[1]))%*%Xstar
-##    a <- as.numeric(a)
-##    #rational arithmetic
-##    ##ar <- d2q(a) ##skipped
-##    ## maximization with lpcdd
-##    lso <- rcdd::lpcdd(hrep,a,minimize=FALSE)$primal.solution
-##    ## If not equal to 0 it is separation column, else not 
-##    offflag <- sapply(lso,function(x) !isTRUE(all.equal(x,0))) # we need to test with tolerance
-##    #offflag[seq(1:ncat)] <- FALSE #We drop the threshold columns
-##    #offflag <- sapply(ls,function(x) isTRUE(all.equal(abs(x),1)))
-##    offcols <- colnames(Xstar)[offflag]
-##    out <- list(ls=lso,offcols=offcols,colnrs=which(offflag),separated=offflag)
-##    return(out)
-## }
 
 
+#' Identify separation columns in adjacent-category models
+#'
 #' This function identifies the columns in a design matrix for an adjacent-category link model that have an infinite MLE, due to separation. Note this is due to separation which includes the case of a design matrix that doesn't have full rank.  
 #'
 #' @details We solve a linear program in this function that operates only on y and X, so without a specific model. This program corresponds to detecting which columns in the design matrix leads to infinite MLE for some link functions, but it is more general as there are links that can still give finite estimates even though there is separation. Hence this function detects separation even in the case of (seemingly) finite estimates or if there is no warning. The prime example is using the log link in logistic regression. 
 #' 
-#' @param y the outcome variable. Can be factor, ordered, numeric, character or boolean. Works best if it is a factor or ordered factor. If it is not an (ordered) factor, we treat the outcome as nominal.    
+#' @param y the outcome variable. Can be factor, ordered, numeric, character or boolean. Works best if it is an ordered factor, else we treat it alphanumerically ascending just as `as.ordered`. 
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
 #' @param rational boolean flag whether rational arithmetic should be used. Default is FALSE.
+#' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
 #' @export
-detect_sepcols_acl <- function(y,X,rational=FALSE)
+detect_sepcols_acl <- function(y,X,rational=FALSE,backend = c("rcdd", "ROI"), solver = NULL)
     {
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
+    y <- as.ordered(y)
+    backend <- .divorce_match_backend(backend)
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
     Xstar <- acl_Xstar(y=y,X=X,label=TRUE,rational=rational)
     if(ratcols) X <- rcdd::q2d(X)
     if(qr(X)$rank<dim(X)[2]) warning("X doesn't have full column rank. Results of this check are unreliable.")    
-    #ncat <- length(unique(y)) # we need this as in the ordin_Xstar all thresholds are always inf (because redundancy)
-    ## matrix of constraints for \code{lpcdd} must be of the form A1 * \beta \leq b1. We combine the constraints into one big A1 for the left hand side and a vector b1 of the right hand side scalars.
-    ## left hand side just inequalities to folow the linear program in the paper
-    if(rational) Xstar <- rcdd::q2d(Xstar) # we need this to do the calculations; quicker than setting up struc_vec
-    A1<- rbind(-Xstar,              # the first ineqs -Xstar*beta <=0           
-               - diag(ncol(Xstar)), # lower bounds -beta <= 1
-                 diag(ncol(Xstar))) # upper bounds beta <= 1
-    ## the right hand side are scalars 
-    b1<- c(rep(0,dim(Xstar)[1]), #the right hand side is 0
-           rep(1,ncol(Xstar)),   #the right hand side is 1
-           rep(1,ncol(Xstar))    #the right hand side is 1
-           )
-    if(rational){
-        A1 <- rcdd::d2q(A1)
-        b1 <- rcdd::d2q(b1)
-    }
-    ## making the H rep 
-    hrep<-rcdd::makeH(a1=A1,b1=b1)
-    ## objective function
-   a<-t(rep(1,dim(Xstar)[1]))%*%Xstar
-   a <- as.numeric(a)
-   if(rational) a <- rcdd::d2q(a)
-   ## maximization with lpcdd
-   lso <- rcdd::lpcdd(hrep,a,minimize=FALSE)$primal.solution
-   if(rational) lso <- rcdd::q2d(lso)
+     lso <- .divorce_detect_sepcols_lp(
+       Xstar,
+       rational = rational,
+       backend = backend,
+       solver = solver
+   )
    ## If not equal to 0 it is separation column, else not 
    offflag <- sapply(lso,function(x) !isTRUE(all.equal(x,0))) # we need to test with tolerance
    offcols <- colnames(Xstar)[offflag]
@@ -484,47 +280,34 @@ detect_sepcols_acl <- function(y,X,rational=FALSE)
 #' @export
 sepcols_acl<- detect_sepcols_acl
 
+#' Identify separation columns in ordered stereotype models
+#'
 #' This function identifies the columns in a design matrix for an ordered stereotype model that have an infinite MLE, due to separation. Note this is due to separation which includes the case of a design matrix that doesn't have full rank.  
 #'
 #' @details We solve a linear program in this function that operates only on y and X, so without a specific model. This program corresponds to detecting which columns in the design matrix leads to infinite MLE for some link functions, but it is more general as there are links that can still give finite estimates even though there is separation. Hence this function detects separation even in the case of (seemingly) finite estimates or if there is no warning. The prime example is using the log link in logistic regression. 
 #' 
-#' @param y the outcome variable. Can be factor, ordered, numeric, character or boolean. Works best if it is a factor or ordered factor. If it is not an (ordered) factor, we treat the outcome as nominal.    
+#' @param y the outcome variable. Can be factor, ordered, numeric, character or boolean. Works best if it is an ordered factor, else we treat it alphanumerically ascending just as `as.ordered`. 
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
 #' @param rational boolean flag whether rational arithmetic should be used. Default is FALSE.
+#' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
 #' @export
-detect_sepcols_osm <- function(y,X,rational=FALSE)
+detect_sepcols_osm <- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 {
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
+    y <- as.ordered(y)
+    backend <- .divorce_match_backend(backend)
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
     Xstar <- osm_Xstar(y=y,X=X,label=TRUE,rational=rational)
     if(ratcols) X <- rcdd::q2d(X)
     if(qr(X)$rank<dim(X)[2]) warning("X doesn't have full column rank. Results of this check are unreliable.")    
-    #ncat <- length(unique(y)) # we need this as in the ordin_Xstar all thresholds are always inf (because redundancy)
-    ## matrix of constraints for \code{lpcdd} must be of the form A1 * \beta \leq b1. We combine the constraints into one big A1 for the left hand side and a vector b1 of the right hand side scalars.
-    ## left hand side just inequalities to folow the linear program in the paper
-    if(rational) Xstar <- rcdd::q2d(Xstar) # we need this to do the calculations; quicker than setting up struc_vec
-    A1<- rbind(-Xstar,              # the first ineqs -Xstar*beta <=0           
-               - diag(ncol(Xstar)), # lower bounds -beta <= 1
-                 diag(ncol(Xstar))) # upper bounds beta <= 1
-    ## the right hand side are scalars 
-    b1<- c(rep(0,dim(Xstar)[1]), #the right hand side is 0
-           rep(1,ncol(Xstar)),   #the right hand side is 1
-           rep(1,ncol(Xstar))    #the right hand side is 1
-           )
-    if(rational){
-        A1 <- rcdd::d2q(A1)
-        b1 <- rcdd::d2q(b1)
-    }
-    ## making the H rep 
-    hrep<-rcdd::makeH(a1=A1,b1=b1)
-    ## objective function
-   a<-t(rep(1,dim(Xstar)[1]))%*%Xstar
-   a <- as.numeric(a)
-   if(rational) a <- rcdd::d2q(a)
-   ## maximization with lpcdd
-   lso <- rcdd::lpcdd(hrep,a,minimize=FALSE)$primal.solution
-   if(rational) lso <- rcdd::q2d(lso)
+    lso <- .divorce_detect_sepcols_lp(
+       Xstar,
+       rational = rational,
+       backend = backend,
+       solver = solver
+   )
    ## If not equal to 0 it is separation column, else not 
    offflag <- sapply(lso,function(x) !isTRUE(all.equal(x,0))) # we need to test with tolerance
    offcols <- colnames(Xstar)[offflag]

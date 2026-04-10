@@ -4,9 +4,7 @@
 \alias{checksep_osm}
 \title{Separation check for ordered stereotype models.}
 \usage{
-checksep_osm(y, X, rational = FALSE)
-
-checksep_osm(y, X, rational = FALSE)
+checksep_osm(y, X, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 }
 \arguments{
 \item{y}{outcome vector.}
@@ -14,14 +12,14 @@ checksep_osm(y, X, rational = FALSE)
 \item{X}{design matrix.}
 
 \item{rational}{should rational arithmetic be used.}
+
+\item{backend}{which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".}
+
+\item{solver}{the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".}
 }
 \value{
 a Boolean; either 'TRUE' if we detected separation or 'FALSE' if not.
-
-a Boolean; either 'TRUE' if we detected separation or 'FALSE' if not.
 }
 \description{
-This function checks for (quasi-) complete separation. It is a low-level function for a response vector y and a design matrix X.
-
 This function checks for (quasi-) complete separation. It is a low-level function for a response vector y and a design matrix X.
 }

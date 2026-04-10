@@ -13,21 +13,30 @@
 \alias{check_separation.glm}
 \alias{check_separation.bracl}
 \alias{check_separation.brmultinom}
-\title{This function checks for (quasi-) complete separation by calling the appropriate low-level functions.}
+\title{General separation check.}
 \usage{
 checksep(
   y,
   X,
   S,
   rational = FALSE,
-  model = c("bcl", "b", "cl", "acl", "sl", "osm")
+  model = c("bcl", "b", "cl", "acl", "sl", "osm"),
+  backend = c("rcdd", "ROI"),
+  solver = NULL
 )
 
-check_separation(..., rational)
+check_separation(..., rational, backend, solver)
 
-\method{check_separation}{default}(y, X, rational = FALSE, ...)
+\method{check_separation}{default}(
+  y,
+  X,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
 
-\method{check_separation}{matrix}(S, rational = FALSE, ...)
+\method{check_separation}{matrix}(S, rational = FALSE, backend = backend, solver = solver, ...)
 
 \method{check_separation}{formula}(
   formula,
@@ -35,22 +44,66 @@ check_separation(..., rational)
   model = c("bcl", "b", "cl", "acl", "osm", "sl"),
   rational = FALSE,
   contrasts = NULL,
+  backend = backend,
+  solver = solver,
   ...
 )
 
-\method{check_separation}{osm}(object, rational = FALSE, ...)
+\method{check_separation}{osm}(
+  object,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
 
-\method{check_separation}{clm}(object, rational = FALSE, ...)
+\method{check_separation}{clm}(
+  object,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
 
-\method{check_separation}{polr}(object, rational = FALSE, ...)
+\method{check_separation}{polr}(
+  object,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
 
-\method{check_separation}{multinom}(object, rational = FALSE, ...)
+\method{check_separation}{multinom}(
+  object,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
 
-\method{check_separation}{glm}(object, rational = FALSE, ...)
+\method{check_separation}{glm}(
+  object,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
 
-\method{check_separation}{bracl}(object, rational = FALSE, ...)
+\method{check_separation}{bracl}(
+  object,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
 
-\method{check_separation}{brmultinom}(object, rational = FALSE, ...)
+\method{check_separation}{brmultinom}(
+  object,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
 }
 \arguments{
 \item{y}{a categorical outcome vector}
@@ -62,6 +115,10 @@ check_separation(..., rational)
 \item{rational}{should rational arithmetic be used}
 
 \item{model}{model string. One of "bcl", "b", "cl", "acl", "osm", "sl".}
+
+\item{backend}{which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".}
+
+\item{solver}{the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".}
 
 \item{...}{arguments for the generic: For pre-fit \code{y}, \code{X} with \code{y} a vector of type factor, character, logical, numeric or integer. This is the \code{y} argument of \code{checksep}. In this case one also needs to supply the argument \code{X} and optional but recommended a \code{model}. One can also supply a matrix \code{S}, in which case we treat it as the \code{S} argument to \code{checksep}. For post-fit this can currently be an object of class \code{glm}, \code{polr}, \code{clm}, \code{osm} or \code{nnet}.}
 
@@ -77,9 +134,11 @@ check_separation(..., rational)
 a Boolean; either 'TRUE' if we detected separation or 'FALSE' if not.
 }
 \description{
-The function uses either a response vector y and a design matrix X, or a structure vector matrix S. If S is given, y and X and model are ignored.
+This function checks for (quasi-) complete separation by calling the appropriate low-level functions.
 }
 \details{
+The function uses either a response vector y and a design matrix X, or a structure vector matrix S. If S is given, y and X and model are ignored.
+
 \code{check_separation} is an S3 generic function. For developers: If a method should be provided for the generic, it is best to have that method create a matrix of structure vectors \code{S} and use the low-level function \code{checksep} with it.
 
 The `formula` method is for standard data frames and formulas that work the same way as when used with \code{\link[stats]{glm}}. It does not support extended formulas, and may not work for functions that do formula processing differently. For a data frame/matrix given as rational numbers in the \code{rcdd} definition this is recognized but the formula does not get expanded and is taken literally, so e.g. variables in formula must match exactly with the column names in data, or factors need to be converted to dummies before that (wouldn't be possible in the rational format in any other way anyway).

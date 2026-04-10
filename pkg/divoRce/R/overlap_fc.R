@@ -12,16 +12,18 @@
 #' @param frac the fraction of the data to use for checking (uses n/frac data). Defaults to 10. If frac is below 1 or n, it uses frac=1. Using frac=1 is the same as using checkovl.  
 #' @param verbose should progress be reported. Defaults to 'FALSE'.
 #' @param rational should rational arithmetic be used?
-#' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else. 
+#' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else.
+#' @param backend which backend to use for the linear program. Can be 'rcdd' (default and only option for rational=TRUE) or 'ROI'.
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
 #' @return a Boolean; either 'TRUE' if we detect overlap or 'FALSE' if we do not (so the data show separation).
 #'
 #' @export
-overlap_fc <- function(y, X, S, frac=10L, verbose=FALSE, rational=FALSE, model=c("b","bcl","cl","acl","sl","osm"))
+overlap_fc <- function(y, X, S, frac=10L, verbose=FALSE, rational=FALSE, model=c("b","bcl","cl","acl","sl","osm"), backend = c("rcdd", "ROI"), solver = NULL)
 {
+ backend <- .divorce_match_backend(backend)   
  if(missing(S)) {
- if(missing(model)) model <- NULL
+ if(missing(model)) model <- NULL    
  n <- length(y)
- #n.cat <- length(unique(y))
  if(frac>n || frac < 1) frac <- 1
  i <- 1
  repeat{
@@ -34,8 +36,7 @@ overlap_fc <- function(y, X, S, frac=10L, verbose=FALSE, rational=FALSE, model=c
  olcheck <- FALSE
  if(isTRUE(all.equal(length(unique(ys)),length(unique(y))))) #we skip evaluation if not all categories are in the subsample
  {
-     olcheck <- checkovl(y=ys, X=Xs, rational=rational, model=model)
-     #olcheck <- overlap_qc(ys,Xs,rational=rational)
+     olcheck <- checkovl(y=ys, X=Xs, rational=rational, model=model, backend=backend, solver = solver)
  }
  if(isTRUE(olcheck)) break()
  if(nco >= n) break() 
@@ -53,7 +54,7 @@ overlap_fc <- function(y, X, S, frac=10L, verbose=FALSE, rational=FALSE, model=c
  if (verbose>0) cat("Checking ",nc,"rows.","\n")
  ind <- sample(1:n,nc,replace=FALSE)
  Ss <- S[ind,]
- olcheck <- checkovl(S=Ss,rational=rational)
+ olcheck <- checkovl(S=Ss, rational=rational, backend = backend, solver = solver)
  if(isTRUE(olcheck)) break()
  if(nco >= n) break() 
  i <- i+1
@@ -70,17 +71,19 @@ overlap_fc <- function(y, X, S, frac=10L, verbose=FALSE, rational=FALSE, model=c
 #' @param S structure vector matrix
 #' @param rational should rational arithmetic be used?
 #' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else.
+#' @param backend which backend to use for the linear program. Can be 'rcdd' (default and only option for rational=TRUE) or 'ROI'.
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".   
 #' @return a Boolean; either 'TRUE' if we detect overlap or 'FALSE' if we do not (so the data show separation).
 #' 
 #'
 #' @export
-overlap_qc <- function(y, X, S, rational=FALSE, model=c("b","bcl","cl","acl","sl","osm"))
+overlap_qc <- function(y, X, S, rational=FALSE, model=c("b","bcl","cl","acl","sl","osm"), backend = c("rcdd", "ROI"), solver = NULL)
 {
 if(missing(S)) {
 if(missing(model)) model <- NULL
-return(!any(sepcols(y=y,X=X,rational=rational,model=model)$separated))
+return(!any(sepcols(y = y,X = X, rational = rational, model = model, backend = backend, solver = solver)$separated))
         } else {
-return(!any(sepcols(S=S,rational=rational)$separated))    
+return(!any(sepcols(S=S, rational = rational, backend = backend, solver = solver)$separated))    
         }
 }
 
@@ -92,16 +95,17 @@ return(!any(sepcols(S=S,rational=rational)$separated))
 #' @param S structure vector matrix 
 #' @param rational should rational arithmetic be used?
 #' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else.
-#' 
+#' @param backend which backend to use for the linear program. Can be 'rcdd' (default and only option for rational=TRUE) or 'ROI'.
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".   
 #' @return a Boolean; either 'TRUE' if we detect overlap or 'FALSE' if we do not (so the data show separation).
 #'
 #' @export
-separation_qc <- function(y, X, S, rational=FALSE,model=c("b","bcl","cl","acl","sl","osm"))
+separation_qc <- function(y, X, S, rational=FALSE,model=c("b","bcl","cl","acl","sl","osm"), backend = c("rcdd", "ROI"), solver = NULL)
 {
 if(missing(S)) {
 if(missing(model)) model <- NULL
-return(any(sepcols(y=y,X=X,rational=rational,model=model)$separated))
+return(any(sepcols(y=y,X=X,rational=rational,model=model, backend = backend, solver=solver)$separated))
 } else {
-  return(any(sepcols(S=S,rational=rational)$separated))  
+  return(any(sepcols(S=S,rational=rational, backend = backend, solver = solver)$separated))  
  }
 }

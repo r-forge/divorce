@@ -3,18 +3,28 @@
 \name{detect_sepcols_osm}
 \alias{detect_sepcols_osm}
 \alias{sepcols_osm}
-\title{This function identifies the columns in a design matrix for an ordered stereotype model that have an infinite MLE, due to separation. Note this is due to separation which includes the case of a design matrix that doesn't have full rank.}
+\title{Identify separation columns in ordered stereotype models}
 \usage{
-detect_sepcols_osm(y, X, rational = FALSE)
+detect_sepcols_osm(
+  y,
+  X,
+  rational = FALSE,
+  backend = c("rcdd", "ROI"),
+  solver = NULL
+)
 
-sepcols_osm(y, X, rational = FALSE)
+sepcols_osm(y, X, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 }
 \arguments{
-\item{y}{the outcome variable. Can be factor, ordered, numeric, character or boolean. Works best if it is a factor or ordered factor. If it is not an (ordered) factor, we treat the outcome as nominal.}
+\item{y}{the outcome variable. Can be factor, ordered, numeric, character or boolean. Works best if it is an ordered factor, else we treat it alphanumerically ascending just as `as.ordered`.}
 
 \item{X}{a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).}
 
 \item{rational}{boolean flag whether rational arithmetic should be used. Default is FALSE.}
+
+\item{backend}{which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".}
+
+\item{solver}{the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".}
 }
 \description{
 This function identifies the columns in a design matrix for an ordered stereotype model that have an infinite MLE, due to separation. Note this is due to separation which includes the case of a design matrix that doesn't have full rank.

@@ -9,7 +9,9 @@ overlap_qc(
   X,
   S,
   rational = FALSE,
-  model = c("b", "bcl", "cl", "acl", "sl", "osm")
+  model = c("b", "bcl", "cl", "acl", "sl", "osm"),
+  backend = c("rcdd", "ROI"),
+  solver = NULL
 )
 }
 \arguments{
@@ -22,6 +24,10 @@ overlap_qc(
 \item{rational}{should rational arithmetic be used?}
 
 \item{model}{what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else.}
+
+\item{backend}{which backend to use for the linear program. Can be 'rcdd' (default and only option for rational=TRUE) or 'ROI'.}
+
+\item{solver}{the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".}
 }
 \value{
 a Boolean; either 'TRUE' if we detect overlap or 'FALSE' if we do not (so the data show separation).

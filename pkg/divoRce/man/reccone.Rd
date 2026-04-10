@@ -56,7 +56,7 @@ reccone(
 )
 }
 \arguments{
-\item{...}{other arguments}
+\item{...}{arguments for the generic: For pre-fit \code{y}, \code{X} with \code{y} a vector of type factor, character, logical, numeric or integer. This is the \code{y} argument of \code{reccone}. In this case one also needs to supply the argument \code{X} and optional but recommended a \code{model}. One can also supply a matrix \code{S}, in which case we treat it as the \code{S} argument to \code{reccone}. For post-fit this can currently be an object of class \code{glm}, \code{polr}, \code{clm}, \code{osm} or \code{nnet}.}
 
 \item{rational}{boolean flag whether rational arithmetic should be used. Default is FALSE.}
 

@@ -9,7 +9,10 @@
 #' @param S a matrix of structure vectors
 #' @param rational should rational arithmetic be used?
 #' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else.  
+#' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
 #'
+#' 
 #' @return an object of class 'sepmod' that is a list with the components:
 #' \itemize{
 #' \item separation boolean whether there is separation ('TRUE' means separation)
@@ -28,7 +31,7 @@
 #' X<-cbind(1,qcsepdatm[,2:ncol(qcsepdatm)])
 #' diagsep(y,X,model="bcl")
 #' 
-diagsep<-function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","osm"))
+diagsep<-function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","osm"), backend = c("rcdd", "ROI"), solver = NULL)
 {
   if(missing(S))
   {
@@ -42,26 +45,26 @@ diagsep<-function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","os
         warning("Default model class used.","\n")
         if(is.ordered(y) & length(unique(y))>2)
         {
-            return(diagsep_cl(y=y,X=X,rational=rational))
+            return(diagsep_cl(y=y,X=X,rational=rational, backend = backend, solver = solver))
         } else {
-            return(diagsep_bcl(y=y,X=X,rational=rational))
+            return(diagsep_bcl(y=y,X=X,rational=rational, backend = backend, solver = solver))
         }
     }
     model <- match.arg(model,several.ok=FALSE)
   switch(model,
-           b = diagsep_b(y=y,X=X,rational=rational),
-           bcl= diagsep_bcl(y=y,X=X,rational=rational),
-           cl= diagsep_cl(y=y,X=X,rational=rational),
-           acl= diagsep_acl(y=y,X=X,rational=rational),       
-           sl=diagsep_sl(y=y,X=X,rational=rational),
-           osm=diagsep_osm(y=y,X=X,rational=rational)
+           b = diagsep_b(y=y,X=X,rational=rational, backend = backend, solver = solver),
+           bcl= diagsep_bcl(y=y,X=X,rational=rational, backend = backend, solver = solver),
+           cl= diagsep_cl(y=y,X=X,rational=rational, backend = backend, solver = solver),
+           acl= diagsep_acl(y=y,X=X,rational=rational, backend = backend, solver = solver),       
+           sl=diagsep_sl(y=y,X=X,rational=rational, backend = backend, solver = solver),
+           osm=diagsep_osm(y=y,X=X,rational=rational, backend = backend, solver = solver)
            )
      } else {
         lout <- linearities(S=S,rational=rational)$index
         offrows <- seprows(S=S,rational=rational)$offrows
         typ<-ifelse(length(lout)>0,ifelse(length(lout)==dim(S)[1],"Overlap","Quasi-Complete Separation"),"Complete Separation")
         reccdim <- reccone(S=S,rational=rational)$reccdim
-        offcols <- sepcols(S=S,rational=rational)$offcols 
+        offcols <- sepcols(S=S,rational=rational, backend = backend, solver = solver)$offcols 
         out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols, modelclass = model)
         class(out) <- out$class <- "sepmod"
         return(out)
@@ -105,7 +108,8 @@ diagsep<-function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","os
 #' @param y the ordinal outcome variable. Works best if it is an ordered factor but can also be numeric, boolean or character. In the latter case we internally coerce to ordered factor interpret the ordering as alphanumerically increasing (just as as.ordered is doing).
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
 #' @param rational should rational arithemtic be used?
-#' 
+#' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
 #'
 #' @return an object of class 'sepmod_sl'. It is a list with the elements corresponding to each category. The elements are lists with the components:
 #' \itemize{
@@ -126,14 +130,14 @@ diagsep<-function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","os
 #' X<-qcsepdato[,2:ncol(qcsepdato)]
 #' diagsep_sl(y,X)
 #' 
-diagsep_sl<-function(y,X,rational=FALSE)
+diagsep_sl<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 {
   #if(!is.ordered(y)) stop("This function needs ordered outcomes.")  
   ratcols <- rat_cols(X)
   if(ratcols) rational <- TRUE
   y <- as.ordered(y)
   splitdat <- create_bseq(y=y,X=X)
-  seqout <- lapply(splitdat,function(l) diagsep_b(y=l$y,X=l$X,rational=rational))
+  seqout <- lapply(splitdat,function(l) diagsep_b(y=l$y,X=l$X,rational=rational, backend = backend, solver = solver))
   class(seqout) <- "sepmod_sl"
     
   return(seqout)
@@ -147,7 +151,8 @@ diagsep_sl<-function(y,X,rational=FALSE)
 #' @param y the ordinal outcome variable. Works best if it is an ordered factor but can also be numeric, boolean or character. In the latter case we coerce to ordered factor interpret the ordering as alphanumerically increasing (just like 'as.ordered' is doing).
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
 #' @param rational should rational arithemtic be used?
-#' 
+#' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
 #'
 #' @return an object of class 'sepmod' that is a list with the components:
 #' \itemize{
@@ -168,7 +173,7 @@ diagsep_sl<-function(y,X,rational=FALSE)
 #' X<-qcsepdato[,2:ncol(qcsepdato)]
 #' diagsep_osm(y,X)
 #' 
-diagsep_osm<-function(y,X,rational=FALSE)
+diagsep_osm<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 {
   ratcols <- rat_cols(X)
   if(ratcols) rational <- TRUE
@@ -178,7 +183,7 @@ diagsep_osm<-function(y,X,rational=FALSE)
   offrows <- seprows_osm(y=y,X=X,rational=rational)$offrows
   typ<-ifelse(length(lout)>0,ifelse(length(lout)==dim(Xstar)[1],"Overlap","Quasi-Complete Separation"),"Complete Separation") 
   reccdim <-  reccone_osm(y=y,X=X,rational=rational)$reccdim
-  offcols <- detect_sepcols_osm(y=y,X=X,rational=rational)$offcols 
+  offcols <- detect_sepcols_osm(y=y,X=X,rational=rational, backend = backend, solver = solver)$offcols 
   out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols, modelclass = "osm")
   class(out) <- out$class <- "sepmod"
   return(out)
@@ -193,7 +198,8 @@ diagsep_osm<-function(y,X,rational=FALSE)
 #' @param y the ordinal outcome variable. Works best if it is an ordered factor but can also be numeric, boolean or character. In the latter case we coerce to ordered factor and interpret the ordering as alphanumerically increasing (just as 'as.ordered' is doing).
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
 #' @param rational should rational arithemtic be used?
-#' 
+#' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
 #'
 #' @return an object of class 'sepmod' that is a list with the components:
 #' \itemize{
@@ -214,7 +220,7 @@ diagsep_osm<-function(y,X,rational=FALSE)
 #' X<-qcsepdato[,2:ncol(qcsepdato)]
 #' diagsep_acl(y,X)
 #' 
-diagsep_acl<-function(y,X,rational=FALSE)
+diagsep_acl<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 {
   ratcols <- rat_cols(X)
   if(ratcols) rational <- TRUE
@@ -224,7 +230,7 @@ diagsep_acl<-function(y,X,rational=FALSE)
   offrows <- seprows_acl(y=y,X=X,rational=rational)$offrows
   typ<-ifelse(length(lout)>0,ifelse(length(lout)==dim(Xstar)[1],"Overlap","Quasi-Complete Separation"),"Complete Separation") 
   reccdim <-  reccone_acl(y=y,X=X,rational=rational)$reccdim
-  offcols <- detect_sepcols_acl(y=y,X=X,rational=rational)$offcols 
+  offcols <- detect_sepcols_acl(y=y,X=X,rational=rational, backend = backend, solver = solver)$offcols 
   out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols, modelclass = "acl")
   class(out) <- out$class <- "sepmod"
   out
@@ -238,7 +244,8 @@ diagsep_acl<-function(y,X,rational=FALSE)
 #' @param y the nominal outcome variable. Works best if it is a factor but can also be numeric, boolean or character. In the case of the latter we coerce to factor and the lowest alphanumeric entry is used as reference (just as 'as.ordered' is doing).
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
 #' @param rational should rational arithmetic be used.
-#'
+#' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
 #' @return an object of class 'sepmod' that is a list with the components:
 #' \itemize{
 #' \item separation boolean whether there is separation ('TRUE' means separation)
@@ -257,7 +264,7 @@ diagsep_acl<-function(y,X,rational=FALSE)
 #' X<-qcsepdatm[,2:ncol(qcsepdatm)]
 #' diagsep_bcl(y,X)
 #' 
-diagsep_bcl<-function(y,X,rational=FALSE)
+diagsep_bcl<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 {
   if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
   ratcols <- rat_cols(X)
@@ -269,7 +276,7 @@ diagsep_bcl<-function(y,X,rational=FALSE)
   offrows <- seprows_bcl(y=y,X=X,rational=rational)$offrows
   typ<-ifelse(length(lout)>0,ifelse(length(lout)==dim(Xstar)[1],"Overlap","Quasi-Complete Separation"),"Complete Separation")
   reccdim <- reccone_bcl(y=y,X=X,rational=rational)$reccdim
-  offcols <- detect_sepcols_bcl(y=y,X=X,rational=rational)$offcols 
+  offcols <- detect_sepcols_bcl(y=y,X=X,rational=rational, backend = backend, solver = solver)$offcols 
   out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols, modelclass = "bcl")
   class(out) <- out$class <- "sepmod"
   out
@@ -283,7 +290,8 @@ diagsep_bcl<-function(y,X,rational=FALSE)
 #' @param y the binary outcome variable. Works best if it is a factor or ordered factor but can also be numeric, boolean or character. We coerce to factor internally. 
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
 #' @param rational should rational arithmetic be used.
-#'
+#' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
 #' @return an object of class 'sepmod' that is a list with the components:
 #' \itemize{
 #' \item separation boolean whether there is separation ('TRUE' means separation)
@@ -302,7 +310,7 @@ diagsep_bcl<-function(y,X,rational=FALSE)
 #' y<-csepdat1$y
 #' X<-cbind(1,csepdat1[,2:ncol(csepdat1)])
 #' diagsep_b(y,X) #separation
-diagsep_b<-function(y, X, rational=FALSE)
+diagsep_b<-function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 {
   ratcols <- rat_cols(X)
   if(ratcols) rational <- TRUE  
@@ -324,7 +332,7 @@ diagsep_b<-function(y, X, rational=FALSE)
   }
   typ<-ifelse(length(lout)>0,ifelse(length(lout)==dim(Xstar)[1],"Overlap","Quasi-Complete Separation"),"Complete Separation") 
   reccdim <- dim(Xstar)[2]-qr(Xstar[lout,])$rank 
-  offcols <- detect_sepcols_b(y=y,X=X,rational=rational)$offcols 
+  offcols <- detect_sepcols_b(y=y,X=X,rational=rational, backend = backend, solver = solver)$offcols 
   out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols, modelclass = "b")
   class(out) <- out$class <- "sepmod"
   out
@@ -339,7 +347,8 @@ diagsep_b<-function(y, X, rational=FALSE)
 #' @param y the ordinal outcome variable. Works best if it is an ordered factor but can also be numeric, boolean or character. In the latter case we corece to ordered factor and interpret the ordering as alphanumerically increasing (just as as.ordered is doing).
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
 #' @param rational should rational arithemtic be used?
-#' 
+#' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
 #'
 #' @return an object of class 'sepmod' that is a list with the components:
 #' \itemize{
@@ -360,7 +369,7 @@ diagsep_b<-function(y, X, rational=FALSE)
 #' X<-qcsepdato[,2:ncol(qcsepdato)]
 #' diagsep_cl(y,X)
 #' 
-diagsep_cl<-function(y,X,rational=FALSE)
+diagsep_cl<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 {
   ratcols <- rat_cols(X)
   if(ratcols) rational <- TRUE
@@ -372,7 +381,7 @@ diagsep_cl<-function(y,X,rational=FALSE)
   offrows <- seprows_cl(y=y,X=X,rational=rational)$offrows
   typ<-ifelse(length(lout)>0,ifelse(length(lout)==dim(Xstar)[1],"Overlap","Quasi-Complete Separation"),"Complete Separation") 
   reccdim <-  reccone_cl(y=y,X=X,rational=rational)$reccdim
-  offcols <- detect_sepcols_cl(y=y,X=X,rational=rational)$offcols 
+  offcols <- detect_sepcols_cl(y=y,X=X,rational=rational, backend = backend, solver = solver)$offcols 
   out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols, modelclass = "cl")
   class(out) <- out$class <- "sepmod"
   out

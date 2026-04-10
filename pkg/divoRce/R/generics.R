@@ -1,7 +1,11 @@
+#'
+#'
 #' @details \code{check_separation} is an S3 generic function. For developers: If a method should be provided for the generic, it is best to have that method create a matrix of structure vectors \code{S} and use the low-level function \code{checksep} with it.   
 #' 
-#' @param ... arguments for the generic: For pre-fit \code{y}, \code{X} with \code{y} a vector of type factor, character, logical, numeric or integer. This is the \code{y} argument of \code{checksep}. In this case one also needs to supply the argument \code{X} and optional but recommended a \code{model}. One can also supply a matrix \code{S}, in which case we treat it as the \code{S} argument to \code{checksep}. For post-fit this can currently be an object of class \code{glm}, \code{polr}, \code{clm}, \code{osm} or \code{nnet}. 
+#' @param ... arguments for the generic: For pre-fit \code{y}, \code{X} with \code{y} a vector of type factor, character, logical, numeric or integer. This is the \code{y} argument of \code{checksep}. In this case one also needs to supply the argument \code{X} and optional but recommended a \code{model}. One can also supply a matrix \code{S}, in which case we treat it as the \code{S} argument to \code{checksep}. For post-fit this can currently be an object of class \code{glm}, \code{polr}, \code{clm}, \code{osm} or \code{nnet}.  
 #' @param rational should rational arithmetic be used
+#' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI". 
 #' @rdname checksep
 #' @examples
 #' 
@@ -16,7 +20,7 @@
 #' m1 <- stats::glm(y~x1+x2,data=csepdat1,family=binomial())
 #' check_separation(m1)
 #' @export
-check_separation<- function (..., rational) {
+check_separation<- function (..., rational, backend, solver) {
     UseMethod("check_separation")
 }
 
@@ -25,6 +29,8 @@ check_separation<- function (..., rational) {
 #' 
 #' @param ... arguments for the generic: For pre-fit \code{y}, \code{X} with \code{y} a vector of type factor, character, logical, numeric or integer. This is the \code{y} argument of \code{diagsep}. In this case one also needs to supply the argument \code{X} and optional but recommended a \code{model}. One can also supply a matrix \code{S}, in which case we treat it as the \code{S} argument to \code{diagsep}. For post-fit this can currently be an object of class \code{glm}, \code{polr}, \code{clm}, \code{osm} or \code{nnet}. 
 #' @param rational should rational arithmetic be used
+#' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI". 
 #' @rdname diagsep
 #' @examples
 #' data(qcsepdatm)
@@ -40,7 +46,7 @@ check_separation<- function (..., rational) {
 #' diagnose_separation(m1)
 #' }
 #' @export
-diagnose_separation <- function (..., rational) {
+diagnose_separation <- function (..., rational, backend, solver) {
     UseMethod("diagnose_separation")
 }
 
@@ -50,6 +56,8 @@ diagnose_separation <- function (..., rational) {
 #' 
 #' @param ... arguments for the generic: For pre-fit \code{y}, \code{X} with \code{y} a vector of type factor, character, logical, numeric or integer. This is the \code{y} argument of \code{sepcols}. In this case one also needs to supply the argument \code{X} and optional but recommended a \code{model}. One can also supply a matrix \code{S}, in which case we treat it as the \code{S} argument to \code{sepcols}. For post-fit this can currently be an object of class \code{glm}, \code{polr}, \code{clm}, \code{osm} or \code{nnet}.
 #' @param rational should rational arithmetic be used
+#' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI". 
 #' @rdname detect_sepcols
 #' @examples
 #' data(qcsepdato)
@@ -65,7 +73,7 @@ diagnose_separation <- function (..., rational) {
 #' separation_columns(m1)
 #' }
 #' @export
-separation_columns<- function (..., rational) {
+separation_columns<- function (..., rational, backend, solver) {
     UseMethod("separation_columns")
 }
 
@@ -74,7 +82,6 @@ separation_columns<- function (..., rational) {
 #' 
 #' @param ... arguments for the generic: For pre-fit \code{y}, \code{X} with \code{y} a vector of type factor, character, logical, numeric or integer. This is the \code{y} argument of \code{seprows}. In this case one also needs to supply the argument \code{X} and optional but recommended a \code{model}. One can also supply a matrix \code{S}, in which case we treat it as the \code{S} argument to \code{seprows}. For post-fit this can currently be an object of class \code{glm}, \code{polr}, \code{clm}, \code{osm} or \code{nnet}. 
 #' @param rational should rational arithmetic be used
-#' 
 #' @rdname seprows
 #' @examples
 #' data(qcsepdato)
@@ -99,7 +106,6 @@ separation_rows <- function (..., rational) {
 #' 
 #' @param ... arguments for the generic: For pre-fit \code{y}, \code{X} with \code{y} a vector of type factor, character, logical, numeric or integer. This is the \code{y} argument of \code{reccone}. In this case one also needs to supply the argument \code{X} and optional but recommended a \code{model}. One can also supply a matrix \code{S}, in which case we treat it as the \code{S} argument to \code{reccone}. For post-fit this can currently be an object of class \code{glm}, \code{polr}, \code{clm}, \code{osm} or \code{nnet}.
 #' @param rational should rational arithmetic be used
-#' @param ... other arguments
 #' @rdname reccone
 #' @examples
 #' data(csepdat1)

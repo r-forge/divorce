@@ -21,16 +21,38 @@ diagsep(
   X,
   S,
   rational = FALSE,
-  model = c("bcl", "b", "cl", "acl", "sl", "osm")
+  model = c("bcl", "b", "cl", "acl", "sl", "osm"),
+  backend = c("rcdd", "ROI"),
+  solver = NULL
 )
 
-diagnose_separation(..., rational)
+diagnose_separation(..., rational, backend, solver)
 
-\method{diagnose_separation}{default}(y, X, rational = FALSE, ...)
+\method{diagnose_separation}{default}(
+  y,
+  X,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
 
-\method{diagnose_separation}{factor}(y, X, rational = FALSE, ...)
+\method{diagnose_separation}{factor}(
+  y,
+  X,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
 
-\method{diagnose_separation}{matrix}(S, rational = FALSE, ...)
+\method{diagnose_separation}{matrix}(
+  S,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
 
 \method{diagnose_separation}{formula}(
   formula,
@@ -38,22 +60,66 @@ diagnose_separation(..., rational)
   model = c("bcl", "b", "cl", "acl", "osm", "sl"),
   rational = FALSE,
   contrasts = NULL,
+  backend = backend,
+  solver = solver,
   ...
 )
 
-\method{diagnose_separation}{osm}(object, rational = FALSE, ...)
+\method{diagnose_separation}{osm}(
+  object,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
 
-\method{diagnose_separation}{clm}(object, rational = FALSE, ...)
+\method{diagnose_separation}{clm}(
+  object,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
 
-\method{diagnose_separation}{polr}(object, rational = FALSE, ...)
+\method{diagnose_separation}{polr}(
+  object,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
 
-\method{diagnose_separation}{multinom}(object, rational = FALSE, ...)
+\method{diagnose_separation}{multinom}(
+  object,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
 
-\method{diagnose_separation}{glm}(object, rational = FALSE, ...)
+\method{diagnose_separation}{glm}(
+  object,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
 
-\method{diagnose_separation}{bracl}(object, rational = FALSE, ...)
+\method{diagnose_separation}{bracl}(
+  object,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
 
-\method{diagnose_separation}{brmultinom}(object, rational = FALSE, ...)
+\method{diagnose_separation}{brmultinom}(
+  object,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
 }
 \arguments{
 \item{y}{the outcome variable. Can be binary, categorial or ordinal. Works best if it is an ordered or unordered factor but can also be numeric, boolean or character. If y is not a factor, it is treated as a nominal (categorical) outcome.}
@@ -65,6 +131,10 @@ diagnose_separation(..., rational)
 \item{rational}{should rational arithmetic be used}
 
 \item{model}{model string. One of "bcl", "b", "cl", "acl", "osm", "sl".}
+
+\item{backend}{which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".}
+
+\item{solver}{the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".}
 
 \item{...}{arguments for the generic: For pre-fit \code{y}, \code{X} with \code{y} a vector of type factor, character, logical, numeric or integer. This is the \code{y} argument of \code{diagsep}. In this case one also needs to supply the argument \code{X} and optional but recommended a \code{model}. One can also supply a matrix \code{S}, in which case we treat it as the \code{S} argument to \code{diagsep}. For post-fit this can currently be an object of class \code{glm}, \code{polr}, \code{clm}, \code{osm} or \code{nnet}.}
 

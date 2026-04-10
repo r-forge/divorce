@@ -4,7 +4,7 @@
 \alias{diagsep_cl}
 \title{Detailed separation diagnostic for cumulative link ordinal response models.}
 \usage{
-diagsep_cl(y, X, rational = FALSE)
+diagsep_cl(y, X, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 }
 \arguments{
 \item{y}{the ordinal outcome variable. Works best if it is an ordered factor but can also be numeric, boolean or character. In the latter case we corece to ordered factor and interpret the ordering as alphanumerically increasing (just as as.ordered is doing).}
@@ -12,6 +12,10 @@ diagsep_cl(y, X, rational = FALSE)
 \item{X}{a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).}
 
 \item{rational}{should rational arithemtic be used?}
+
+\item{backend}{which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".}
+
+\item{solver}{the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".}
 }
 \value{
 an object of class 'sepmod' that is a list with the components:

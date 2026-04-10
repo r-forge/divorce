@@ -9,7 +9,9 @@ checkovl(
   X,
   S,
   rational = FALSE,
-  model = c("bcl", "b", "cl", "acl", "sl", "osm")
+  model = c("bcl", "b", "cl", "acl", "sl", "osm"),
+  backend = c("rcdd", "ROI"),
+  solver = NULL
 )
 }
 \arguments{
@@ -22,6 +24,10 @@ checkovl(
 \item{rational}{should rational arithmetic be used.}
 
 \item{model}{what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing or NULL it defaults to cumulative link for ordinal y and baseline-category for everything else.}
+
+\item{backend}{which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".}
+
+\item{solver}{the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".}
 }
 \value{
 a Boolean; either 'TRUE' if there is overlap or 'FALSE' if not.

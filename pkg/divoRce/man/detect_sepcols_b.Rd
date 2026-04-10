@@ -3,11 +3,17 @@
 \name{detect_sepcols_b}
 \alias{detect_sepcols_b}
 \alias{sepcols_b}
-\title{This function identifies the columns in a binary model design matrix that are responsible for separation.}
+\title{Identify separation columns for binary models}
 \usage{
-detect_sepcols_b(y, X, rational = FALSE)
+detect_sepcols_b(
+  y,
+  X,
+  rational = FALSE,
+  backend = c("rcdd", "ROI"),
+  solver = NULL
+)
 
-sepcols_b(y, X, rational = FALSE)
+sepcols_b(y, X, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 }
 \arguments{
 \item{y}{the dependent variable. Must be binary. If we encounter a factor, we use the levels of the factor and thus also the specified reference. For anything else, we use the lowest alphanumeric category as reference.}
@@ -15,6 +21,10 @@ sepcols_b(y, X, rational = FALSE)
 \item{X}{a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynominals).}
 
 \item{rational}{should rational arithmetic be used.}
+
+\item{backend}{which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".}
+
+\item{solver}{the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".}
 }
 \description{
 This function identifies the columns in a binary model design matrix that are responsible for separation.

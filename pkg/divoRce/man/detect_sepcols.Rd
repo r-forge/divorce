@@ -13,6 +13,7 @@
 \alias{separation_columns.polr}
 \alias{separation_columns.multinom}
 \alias{separation_columns.glm}
+\alias{separation_columns.bracl}
 \alias{separation_columns.brmultinom}
 \title{Identify separation columns}
 \usage{
@@ -21,7 +22,9 @@ detect_sepcols(
   X,
   S,
   rational = FALSE,
-  model = c("bcl", "b", "cl", "acl", "sl", "osm")
+  model = c("bcl", "b", "cl", "acl", "sl", "osm"),
+  backend = c("rcdd", "ROI"),
+  solver = NULL
 )
 
 sepcols(
@@ -29,16 +32,38 @@ sepcols(
   X,
   S,
   rational = FALSE,
-  model = c("bcl", "b", "cl", "acl", "sl", "osm")
+  model = c("bcl", "b", "cl", "acl", "sl", "osm"),
+  backend = c("rcdd", "ROI"),
+  solver = NULL
 )
 
-separation_columns(..., rational)
+separation_columns(..., rational, backend, solver)
 
-\method{separation_columns}{factor}(y, X, rational = FALSE, ...)
+\method{separation_columns}{factor}(
+  y,
+  X,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
 
-\method{separation_columns}{default}(y, X, rational = FALSE, ...)
+\method{separation_columns}{default}(
+  y,
+  X,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
 
-\method{separation_columns}{matrix}(S, rational = FALSE, ...)
+\method{separation_columns}{matrix}(
+  S,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
 
 \method{separation_columns}{formula}(
   formula,
@@ -46,23 +71,69 @@ separation_columns(..., rational)
   model = c("bcl", "b", "cl", "acl", "osm", "sl"),
   rational = FALSE,
   contrasts = NULL,
+  backend = backend,
+  solver = solver,
   ...
 )
 
-\method{separation_columns}{osm}(object, rational = FALSE, ...)
+\method{separation_columns}{osm}(
+  object,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
 
-\method{separation_columns}{clm}(object, rational = FALSE, ...)
+\method{separation_columns}{clm}(
+  object,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
 
-\method{separation_columns}{polr}(object, rational = FALSE, ...)
+\method{separation_columns}{polr}(
+  object,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
 
-\method{separation_columns}{multinom}(object, rational = FALSE, ...)
+\method{separation_columns}{multinom}(
+  object,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
 
-\method{separation_columns}{glm}(object, rational = FALSE, ...)
+\method{separation_columns}{glm}(
+  object,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
 
-\method{separation_columns}{brmultinom}(object, rational = FALSE, ...)
+\method{separation_columns}{bracl}(
+  object,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
+
+\method{separation_columns}{brmultinom}(
+  object,
+  rational = FALSE,
+  backend = backend,
+  solver = solver,
+  ...
+)
 }
 \arguments{
-\item{y}{a categorical outcome vector.  Can be binary, categorial or ordinal. Works best if it is an ordered or unordered factor but can also be numeric, boolean or character. If \code{y} is not a factor, it is treated as a nominal (categorical) outcome.}
+\item{y}{a categorical outcome vector.  Can be binary, categorial or ordinal. Works best if it is an ordered or unordered factor appropriate for the model to be fitted but can also be numeric, boolean or character. If \code{y} is not a factor, it is treated as a nominal (categorical) outcome. with the alphanumerically lowest value being the reference.}
 
 \item{X}{a design matrix, e.g. generated via a call to \code{model.matrix}. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynominals).}
 
@@ -71,6 +142,10 @@ separation_columns(..., rational)
 \item{rational}{should rational arithmetic be used}
 
 \item{model}{model string. One of "bcl", "b", "cl", "acl", "osm", "sl".}
+
+\item{backend}{which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".}
+
+\item{solver}{the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".}
 
 \item{...}{arguments for the generic: For pre-fit \code{y}, \code{X} with \code{y} a vector of type factor, character, logical, numeric or integer. This is the \code{y} argument of \code{sepcols}. In this case one also needs to supply the argument \code{X} and optional but recommended a \code{model}. One can also supply a matrix \code{S}, in which case we treat it as the \code{S} argument to \code{sepcols}. For post-fit this can currently be an object of class \code{glm}, \code{polr}, \code{clm}, \code{osm} or \code{nnet}.}
 

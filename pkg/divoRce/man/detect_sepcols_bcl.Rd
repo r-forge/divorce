@@ -3,18 +3,28 @@
 \name{detect_sepcols_bcl}
 \alias{detect_sepcols_bcl}
 \alias{sepcols_bcl}
-\title{This function identifies the columns in a design matrix for a baseline-category link model that have an infinite MLE, due to separation. Note this is due to separation which includes the case of a design matrix that doesn't have full rank.}
+\title{Identify separation columns in baseline-category models}
 \usage{
-detect_sepcols_bcl(y, X, rational = FALSE)
+detect_sepcols_bcl(
+  y,
+  X,
+  rational = FALSE,
+  backend = c("rcdd", "ROI"),
+  solver = NULL
+)
 
-sepcols_bcl(y, X, rational = FALSE)
+sepcols_bcl(y, X, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 }
 \arguments{
-\item{y}{the outcome variable. Can be factor, numeric, character or boolean. Works best if it is a factor.}
+\item{y}{the outcome variable. Can be factor, numeric, character or boolean. Works best if it is a factor because then we keep specified reference caetgory, else we use the alphanumerically lowest value.}
 
 \item{X}{a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).}
 
 \item{rational}{should rational arithmetic be used.}
+
+\item{backend}{which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".}
+
+\item{solver}{the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".}
 }
 \description{
 This function identifies the columns in a design matrix for a baseline-category link model that have an infinite MLE, due to separation. Note this is due to separation which includes the case of a design matrix that doesn't have full rank.

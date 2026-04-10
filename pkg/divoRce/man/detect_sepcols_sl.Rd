@@ -3,18 +3,28 @@
 \name{detect_sepcols_sl}
 \alias{detect_sepcols_sl}
 \alias{sepcols_sl}
-\title{This function identifies the columns in a sequential model design matrix that are responsible for separation.}
+\title{Identify separation columns in sequential models}
 \usage{
-detect_sepcols_sl(y, X, rational = FALSE)
+detect_sepcols_sl(
+  y,
+  X,
+  rational = FALSE,
+  backend = c("rcdd", "ROI"),
+  solver = NULL
+)
 
-sepcols_sl(y, X, rational = FALSE)
+sepcols_sl(y, X, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 }
 \arguments{
-\item{y}{the dependent variable. Works for ordered factors, factors, characters numeric of boolean. Works best if it is an ordered factor, else we treat it alphanuemrically ascneidng just as as.ordered.}
+\item{y}{the dependent variable. Works for ordered factors, factors, characters numeric of boolean. Works best if it is an ordered factor, else we treat it alphanumerically ascending just as `as.ordered`.}
 
 \item{X}{a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynominals).}
 
 \item{rational}{should rational arithmetic be used.}
+
+\item{backend}{which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".}
+
+\item{solver}{the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".}
 }
 \description{
 This function identifies the columns in a sequential model design matrix that are responsible for separation.
