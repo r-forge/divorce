@@ -30,14 +30,18 @@
     invisible(plugin_pkgs)
 }
 
-.divorce_roi_make_op <- function(objective, L, dir, rhs, maximum = FALSE) {
+.divorce_roi_make_op <- function(objective, L, dir, rhs, maximum = FALSE, bounds = NULL) {
     objective <- as.numeric(objective)
     L <- as.matrix(L)
     storage.mode(L) <- "double"
     rhs <- as.numeric(rhs)
+    if (is.null(bounds)) {
+        bounds <- ROI::V_bound(nobj = length(objective), ld = -Inf, ud = Inf)
+    }
     ROI::OP(
         objective = ROI::L_objective(L = objective),
         constraints = ROI::L_constraint(L = L, dir = dir, rhs = rhs),
+        bounds = bounds,
         maximum = maximum
     )
 }
@@ -219,23 +223,22 @@
 
     if (backend == "ROI") {
         .divorce_stop_if_roi_rational(rational, Xstar)
-        A1 <- rbind(
-            -Xstar,
-            -diag(ncol(Xstar)),
-            diag(ncol(Xstar))
-        )
-        b1 <- c(
-            rep(0, nrow(Xstar)),
-            rep(1, ncol(Xstar)),
-            rep(1, ncol(Xstar))
-        )
+        A1 <- -Xstar
+        b1 <- rep(0, nrow(Xstar))
         a <- as.numeric(t(rep(1, nrow(Xstar))) %*% Xstar)
+        bounds <- ROI::V_bound(
+            li = seq_len(ncol(Xstar)),
+            ui = seq_len(ncol(Xstar)),
+            lb = rep(-1, ncol(Xstar)),
+            ub = rep(1, ncol(Xstar))
+        )
         op <- .divorce_roi_make_op(
             objective = a,
             L = A1,
             dir = rep("<=", nrow(A1)),
             rhs = b1,
-            maximum = TRUE
+            maximum = TRUE,
+            bounds = bounds
         )
         roi_fit <- .divorce_roi_solve(op, solver = solver)
         return(.divorce_roi_extract_primal(roi_fit$result, roi_fit$solver))
