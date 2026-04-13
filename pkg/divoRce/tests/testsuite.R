@@ -100,9 +100,9 @@ print_section("Loading Test Data")
 ## Binary Data
 data(endometrial, package="detectseparation")
 endo_glm <- glm(HG ~ NV + PI + EH, family = binomial(), data = endometrial)
-y_b_cs <- endometrial$HG
-X_b_cs <- model.matrix(endo_glm)
-cat("✓ Binary: endometrial (complete separation)")
+y_b_endo <- endometrial$HG
+X_b_endo <- model.matrix(endo_glm)
+cat("✓ Binary: endometrial (quasi-complete separation)")
 
 data(nsduh2019)
 nsduh_glm <- glm(her_lifetime ~ alc_agefirst + demog_age_cat6 + demog_sex, 
@@ -119,8 +119,8 @@ cat("✓ Binary: Silvapulle (quasi-complete separation)")
 
 data(titanic3)
 tita_glm <- glm(Survived ~ Pclass + Sex, family = binomial(), data = titanic3)
-y_b_tita <- tita_glm$y
-X_b_tita <- model.matrix(tita_glm)
+y_b_cs <- tita_glm$y
+X_b_cs <- model.matrix(tita_glm)
 cat("✓ Binary: titanic3 (complete separation)")
 
 data(ovldat1)
@@ -194,9 +194,11 @@ X_acl_ol <- as.matrix(ovldato[, 2:ncol(ovldato)])
 cat("✓ ACL: ovldato (overlap)")
 
 ## OSM Data
-y_osm_wine <- as.ordered(wine$rating)
-X_osm_wine <- model.matrix(~ temp + contact, data = wine)[, -1]
+y_osm_qcs <- y_osm_wine <- as.ordered(wine$rating)
+X_osm_qcs <- X_osm_wine <- model.matrix(~ temp * contact, data = wine)[, -1]
 cat("✓ OSM: wine")
+
+wine_osm <- clustord::osm(rating~ temp * contact, data = wine)
 
 y_osm_ol <- as.ordered(ovldatm$y)
 X_osm_ol <- as.matrix(ovldatm[, 2:ncol(ovldatm)])
@@ -1090,7 +1092,6 @@ run_simple_test("linearities(model='bcl') - overlap", function(backend, solver) 
 
 
 
-##### STOPPED HERE
 ################################################################################
 ##                                                                            ##
 ##  COMPREHENSIVE TEST SUITE - PART 3c: BCL MODEL TESTS                       ##
@@ -1107,54 +1108,54 @@ print_section("reccone / rec_cone (BCL)", 2)
 # --- Lowest level: reccone_bcl ---
 print_section("reccone_bcl (lowest level)", 3)
 
-run_test("reccone_bcl - complete separation", function(backend, solver) {
-  reccone_bcl(y_bcl_cs, X_bcl_cs, rational = rational, backend = backend, solver = solver)
+run_simple_test("reccone_bcl - complete separation", function(backend, solver) {
+  reccone_bcl(y_bcl_cs, X_bcl_cs, rational = rational)
 })
 
-run_test("reccone_bcl - quasi-complete separation", function(backend, solver) {
-  reccone_bcl(y_bcl_qcs, X_bcl_qcs, rational = rational, backend = backend, solver = solver)
+run_simple_test("reccone_bcl - quasi-complete separation", function(backend, solver) {
+  reccone_bcl(y_bcl_qcs, X_bcl_qcs, rational = rational)
 })
 
-run_test("reccone_bcl - overlap", function(backend, solver) {
-  reccone_bcl(y_bcl_ol, X_bcl_ol, rational = rational, backend = backend, solver = solver)
+run_simple_test("reccone_bcl - overlap", function(backend, solver) {
+  reccone_bcl(y_bcl_ol, X_bcl_ol, rational = rational)
 })
 
-run_test("reccone_bcl - no separation (Alligators)", function(backend, solver) {
-  reccone_bcl(y_bcl_allig, X_bcl_allig, rational = rational, backend = backend, solver = solver)
+run_simple_test("reccone_bcl - no separation (Alligators)", function(backend, solver) {
+  reccone_bcl(y_bcl_allig, X_bcl_allig, rational = rational)
 })
 
-run_test("reccone_bcl - quasi-complete (Alligators interaction)", function(backend, solver) {
-  reccone_bcl(y_bcl_allig2, X_bcl_allig2, rational = rational, backend = backend, solver = solver)
+run_simple_test("reccone_bcl - quasi-complete (Alligators interaction)", function(backend, solver) {
+  reccone_bcl(y_bcl_allig2, X_bcl_allig2, rational = rational)
 })
 
 # --- Mid level: reccone with model="bcl" ---
 print_section("reccone with model='bcl' (mid level)", 3)
 
-run_test("reccone(model='bcl') - complete separation", function(backend, solver) {
-  reccone(y_bcl_cs, X_bcl_cs, rational = rational, model = "bcl", backend = backend, solver = solver)
+run_simple_test("reccone(model='bcl') - complete separation", function(backend, solver) {
+  reccone(y_bcl_cs, X_bcl_cs, rational = rational, model = "bcl")
 })
 
-run_test("reccone(model='bcl') - quasi-complete separation", function(backend, solver) {
-  reccone(y_bcl_qcs, X_bcl_qcs, rational = rational, model = "bcl", backend = backend, solver = solver)
+run_simple_test("reccone(model='bcl') - quasi-complete separation", function(backend, solver) {
+  reccone(y_bcl_qcs, X_bcl_qcs, rational = rational, model = "bcl")
 })
 
-run_test("reccone(model='bcl') - overlap", function(backend, solver) {
-  reccone(y_bcl_ol, X_bcl_ol, rational = rational, model = "bcl", backend = backend, solver = solver)
+run_simple_test("reccone(model='bcl') - overlap", function(backend, solver) {
+  reccone(y_bcl_ol, X_bcl_ol, rational = rational, model = "bcl")
 })
 
 # --- Generic: recession_cone.multinom ---
 print_section("recession_cone.multinom (generic)", 3)
 
-run_test("recession_cone.multinom - complete separation", function(backend, solver) {
-  recession_cone(csep_bcl, rational = rational, backend = backend, solver = solver)
+run_simple_test("recession_cone.multinom - complete separation", function(backend, solver) {
+  recession_cone(csep_bcl, rational = rational)
 })
 
-run_test("recession_cone.multinom - quasi-complete separation", function(backend, solver) {
-  recession_cone(qcsep_bcl, rational = rational, backend = backend, solver = solver)
+run_simple_test("recession_cone.multinom - quasi-complete separation", function(backend, solver) {
+  recession_cone(qcsep_bcl, rational = rational)
 })
 
-run_test("recession_cone.multinom - overlap", function(backend, solver) {
-  recession_cone(ovl_bcl, rational = rational, backend = backend, solver = solver)
+run_simple_test("recession_cone.multinom - overlap", function(backend, solver) {
+  recession_cone(ovl_bcl, rational = rational)
 })
 
 ## =============================================================================
@@ -1254,35 +1255,6 @@ run_test("overlap_qc(model='bcl') - overlap", function(backend, solver) {
   overlap_qc(y_bcl_ol, X_bcl_ol, rational = rational, model = "bcl", backend = backend, solver = solver)
 })
 
-## =============================================================================
-## 2.10 separation_qc - BCL
-## =============================================================================
-
-print_section("separation_qc (BCL)", 2)
-
-# --- Lowest level: separation_qc_bcl ---
-print_section("separation_qc_bcl (lowest level)", 3)
-
-run_test("separation_qc_bcl - complete separation", function(backend, solver) {
-  separation_qc_bcl(y_bcl_cs, X_bcl_cs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("separation_qc_bcl - quasi-complete separation", function(backend, solver) {
-  separation_qc_bcl(y_bcl_qcs, X_bcl_qcs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("separation_qc_bcl - overlap", function(backend, solver) {
-  separation_qc_bcl(y_bcl_ol, X_bcl_ol, rational = rational, backend = backend, solver = solver)
-})
-
-run_test
-
-################################################################################
-##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 3c: BCL MODEL TESTS (continued)           ##
-##  Functions: separation_qc                                                  ##
-##                                                                            ##
-################################################################################
 
 ## =============================================================================
 ## 2.10 separation_qc - BCL
@@ -1347,14 +1319,10 @@ run_test("separation_qc - overlap", function(backend, solver) {
   separation_qc(y_bcl_ol, X_bcl_ol, rational = rational, backend = backend, solver = solver)
 })
 
-cat("
-")
-cat(paste(rep("#", 78), collapse = ""), "
-")
-cat("##  END OF BCL MODEL TESTS
-")
-cat(paste(rep("#", 78), collapse = ""), "
-")
+cat("")
+cat(paste(rep("#", 78), collapse = ""), "")
+cat("##  END OF BCL MODEL TESTS")
+cat(paste(rep("#", 78), collapse = ""), "")
 
 ################################################################################
 ##                                                                            ##
@@ -1421,21 +1389,6 @@ run_test("check_separation.clm - wine with bottle (singularities)", function(bac
 ## =============================================================================
 
 print_section("checkovl (CL)", 2)
-
-# --- Lowest level: checkovl_cl ---
-print_section("checkovl_cl (lowest level)", 3)
-
-run_test("checkovl_cl - HDSS", function(backend, solver) {
-  checkovl_cl(y_cl_hdss, X_cl_hdss, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("checkovl_cl - wine", function(backend, solver) {
-  checkovl_cl(y_cl_wine, X_cl_wine, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("checkovl_cl - wine with bottle", function(backend, solver) {
-  checkovl_cl(y_cl_wine2, X_cl_wine2, rational = rational, backend = backend, solver = solver)
-})
 
 # --- Mid level: checkovl with model="cl" ---
 print_section("checkovl with model='cl' (mid level)", 3)
@@ -1516,13 +1469,6 @@ run_simple_test("print.sepmod - full (CL)", function() {
   print(sd1, info = "full")
 })
 
-################################################################################
-##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 4b: CL MODEL TESTS                        ##
-##  Functions: sepcols, seprows, linearities                                  ##
-##                                                                            ##
-################################################################################
-
 ## =============================================================================
 ## 3.4 sepcols / detect_sepcols - CL
 ## =============================================================================
@@ -1583,46 +1529,46 @@ print_section("seprows (CL)", 2)
 # --- Lowest level: seprows_cl ---
 print_section("seprows_cl (lowest level)", 3)
 
-run_test("seprows_cl - HDSS", function(backend, solver) {
-  seprows_cl(y_cl_hdss, X_cl_hdss, rational = rational, backend = backend, solver = solver)
+run_simple_test("seprows_cl - HDSS", function(backend, solver) {
+  seprows_cl(y_cl_hdss, X_cl_hdss, rational = rational)
 })
 
-run_test("seprows_cl - wine", function(backend, solver) {
-  seprows_cl(y_cl_wine, X_cl_wine, rational = rational, backend = backend, solver = solver)
+run_simple_test("seprows_cl - wine", function(backend, solver) {
+  seprows_cl(y_cl_wine, X_cl_wine, rational = rational)
 })
 
-run_test("seprows_cl - wine with bottle", function(backend, solver) {
-  seprows_cl(y_cl_wine2, X_cl_wine2, rational = rational, backend = backend, solver = solver)
+run_simple_test("seprows_cl - wine with bottle", function(backend, solver) {
+  seprows_cl(y_cl_wine2, X_cl_wine2, rational = rational)
 })
 
 # --- Mid level: seprows with model="cl" ---
 print_section("seprows with model='cl' (mid level)", 3)
 
-run_test("seprows(model='cl') - HDSS", function(backend, solver) {
-  seprows(y_cl_hdss, X_cl_hdss, rational = rational, model = "cl", backend = backend, solver = solver)
+run_simple_test("seprows(model='cl') - HDSS", function(backend, solver) {
+  seprows(y_cl_hdss, X_cl_hdss, rational = rational, model = "cl")
 })
 
-run_test("seprows(model='cl') - wine", function(backend, solver) {
-  seprows(y_cl_wine, X_cl_wine, rational = rational, model = "cl", backend = backend, solver = solver)
+run_simple_test("seprows(model='cl') - wine", function(backend, solver) {
+  seprows(y_cl_wine, X_cl_wine, rational = rational, model = "cl")
 })
 
-run_test("seprows(model='cl') - wine with bottle", function(backend, solver) {
-  seprows(y_cl_wine2, X_cl_wine2, rational = rational, model = "cl", backend = backend, solver = solver)
+run_simple_test("seprows(model='cl') - wine with bottle", function(backend, solver) {
+  seprows(y_cl_wine2, X_cl_wine2, rational = rational, model = "cl")
 })
 
 # --- Generic: separation_rows.clm ---
 print_section("separation_rows.clm (generic)", 3)
 
-run_test("separation_rows.clm - HDSS", function(backend, solver) {
-  separation_rows(hdss_clm, rational = rational, backend = backend, solver = solver)
+run_simple_test("separation_rows.clm - HDSS", function(backend, solver) {
+  separation_rows(hdss_clm, rational = rational)
 })
 
-run_test("separation_rows.clm - wine", function(backend, solver) {
-  separation_rows(wine_clm, rational = rational, backend = backend, solver = solver)
+run_simple_test("separation_rows.clm - wine", function(backend, solver) {
+  separation_rows(wine_clm, rational = rational)
 })
 
-run_test("separation_rows.clm - wine with bottle", function(backend, solver) {
-  separation_rows(wine_clm2, rational = rational, backend = backend, solver = solver)
+run_simple_test("separation_rows.clm - wine with bottle", function(backend, solver) {
+  separation_rows(wine_clm2, rational = rational)
 })
 
 ## =============================================================================
@@ -1634,40 +1580,32 @@ print_section("linearities (CL)", 2)
 # --- Lowest level: linearities_cl ---
 print_section("linearities_cl (lowest level)", 3)
 
-run_test("linearities_cl - HDSS", function(backend, solver) {
-  linearities_cl(y_cl_hdss, X_cl_hdss, rational = rational, backend = backend, solver = solver)
+run_simple_test("linearities_cl - HDSS", function(backend, solver) {
+  linearities_cl(y_cl_hdss, X_cl_hdss, rational = rational)
 })
 
-run_test("linearities_cl - wine", function(backend, solver) {
-  linearities_cl(y_cl_wine, X_cl_wine, rational = rational, backend = backend, solver = solver)
+run_simple_test("linearities_cl - wine", function(backend, solver) {
+  linearities_cl(y_cl_wine, X_cl_wine, rational = rational)
 })
 
-run_test("linearities_cl - wine with bottle", function(backend, solver) {
-  linearities_cl(y_cl_wine2, X_cl_wine2, rational = rational, backend = backend, solver = solver)
+run_simple_test("linearities_cl - wine with bottle", function(backend, solver) {
+  linearities_cl(y_cl_wine2, X_cl_wine2, rational = rational)
 })
 
 # --- Mid level: linearities with model="cl" ---
 print_section("linearities with model='cl' (mid level)", 3)
 
-run_test("linearities(model='cl') - HDSS", function(backend, solver) {
-  linearities(y_cl_hdss, X_cl_hdss, rational = rational, model = "cl", backend = backend, solver = solver)
+run_simple_test("linearities(model='cl') - HDSS", function(backend, solver) {
+  linearities(y_cl_hdss, X_cl_hdss, rational = rational, model = "cl")
 })
 
-run_test("linearities(model='cl') - wine", function(backend, solver) {
-  linearities(y_cl_wine, X_cl_wine, rational = rational, model = "cl", backend = backend, solver = solver)
+run_simple_test("linearities(model='cl') - wine", function(backend, solver) {
+  linearities(y_cl_wine, X_cl_wine, rational = rational, model = "cl")
 })
 
 run_test("linearities(model='cl') - wine with bottle", function(backend, solver) {
-  linearities(y_cl_wine2, X_cl_wine2, rational = rational, model = "cl", backend = backend, solver = solver)
+  linearities(y_cl_wine2, X_cl_wine2, rational = rational, model = "cl")
 })
-
-################################################################################
-##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 4c: CL MODEL TESTS                        ##
-##  Functions: reccone, overlap_fc, overlap_qc, separation_qc                 ##
-##                                                                            ##
-################################################################################
-
 ## =============================================================================
 ## 3.7 reccone / rec_cone - CL
 ## =============================================================================
@@ -1677,69 +1615,46 @@ print_section("reccone / rec_cone (CL)", 2)
 # --- Lowest level: reccone_cl ---
 print_section("reccone_cl (lowest level)", 3)
 
-run_test("reccone_cl - HDSS", function(backend, solver) {
-  reccone_cl(y_cl_hdss, X_cl_hdss, rational = rational, backend = backend, solver = solver)
+run_simple_test("reccone_cl - HDSS", function(backend, solver) {
+  reccone_cl(y_cl_hdss, X_cl_hdss, rational = rational)
 })
 
-run_test("reccone_cl - wine", function(backend, solver) {
-  reccone_cl(y_cl_
-
-             ################################################################################
-##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 4c: CL MODEL TESTS                        ##
-##  Functions: reccone, overlap_fc, overlap_qc, separation_qc                 ##
-##                                                                            ##
-################################################################################
-
-## =============================================================================
-## 3.7 reccone / rec_cone - CL
-## =============================================================================
-
-print_section("reccone / rec_cone (CL)", 2)
-
-# --- Lowest level: reccone_cl ---
-print_section("reccone_cl (lowest level)", 3)
-
-run_test("reccone_cl - HDSS", function(backend, solver) {
-  reccone_cl(y_cl_hdss, X_cl_hdss, rational = rational, backend = backend, solver = solver)
+run_simple_test("reccone_cl - wine", function(backend, solver) {
+  reccone_cl(y_cl_wine, X_cl_wine, rational = rational)
 })
 
-run_test("reccone_cl - wine", function(backend, solver) {
-  reccone_cl(y_cl_wine, X_cl_wine, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("reccone_cl - wine with bottle", function(backend, solver) {
-  reccone_cl(y_cl_wine2, X_cl_wine2, rational = rational, backend = backend, solver = solver)
+run_simple_test("reccone_cl - wine with bottle", function(backend, solver) {
+  reccone_cl(y_cl_wine2, X_cl_wine2, rational = rational)
 })
 
 # --- Mid level: reccone with model="cl" ---
 print_section("reccone with model='cl' (mid level)", 3)
 
-run_test("reccone(model='cl') - HDSS", function(backend, solver) {
-  reccone(y_cl_hdss, X_cl_hdss, rational = rational, model = "cl", backend = backend, solver = solver)
+run_simple_test("reccone(model='cl') - HDSS", function(backend, solver) {
+  reccone(y_cl_hdss, X_cl_hdss, rational = rational, model = "cl")
 })
 
-run_test("reccone(model='cl') - wine", function(backend, solver) {
-  reccone(y_cl_wine, X_cl_wine, rational = rational, model = "cl", backend = backend, solver = solver)
+run_simple_test("reccone(model='cl') - wine", function(backend, solver) {
+  reccone(y_cl_wine, X_cl_wine, rational = rational, model = "cl")
 })
 
-run_test("reccone(model='cl') - wine with bottle", function(backend, solver) {
-  reccone(y_cl_wine2, X_cl_wine2, rational = rational, model = "cl", backend = backend, solver = solver)
+run_simple_test("reccone(model='cl') - wine with bottle", function(backend, solver) {
+  reccone(y_cl_wine2, X_cl_wine2, rational = rational, model = "cl")
 })
 
 # --- Generic: recession_cone.clm ---
 print_section("recession_cone.clm (generic)", 3)
 
-run_test("recession_cone.clm - HDSS", function(backend, solver) {
-  recession_cone(hdss_clm, rational = rational, backend = backend, solver = solver)
+run_simple_test("recession_cone.clm - HDSS", function(backend, solver) {
+  recession_cone(hdss_clm, rational = rational)
 })
 
-run_test("recession_cone.clm - wine", function(backend, solver) {
-  recession_cone(wine_clm, rational = rational, backend = backend, solver = solver)
+run_simple_test("recession_cone.clm - wine", function(backend, solver) {
+  recession_cone(wine_clm, rational = rational)
 })
 
-run_test("recession_cone.clm - wine with bottle", function(backend, solver) {
-  recession_cone(wine_clm2, rational = rational, backend = backend, solver = solver)
+run_simple_test("recession_cone.clm - wine with bottle", function(backend, solver) {
+  recession_cone(wine_clm2, rational = rational)
 })
 
 ## =============================================================================
@@ -1861,14 +1776,12 @@ run_test("separation_qc(model='cl') - wine with bottle", function(backend, solve
   separation_qc(y_cl_wine2, X_cl_wine2, rational = rational, model = "cl", backend = backend, solver = solver)
 })
 
-cat("
-")
-cat(paste(rep("#", 78), collapse = ""), "
-")
-cat("##  END OF CL MODEL TESTS
-")
-cat(paste(rep("#", 78), collapse = ""), "
-")
+cat("")
+cat(paste(rep("#", 78), collapse = ""), "")
+cat("##  END OF CL MODEL TESTS")
+cat(paste(rep("#", 78), collapse = ""), "")
+
+
 
 ################################################################################
 ##                                                                            ##
@@ -1921,20 +1834,7 @@ run_test("checksep(model='acl') - overlap", function(backend, solver) {
 
 print_section("checkovl (ACL)", 2)
 
-# --- Lowest level: checkovl_acl ---
-print_section("checkovl_acl (lowest level)", 3)
 
-run_test("checkovl_acl - complete separation", function(backend, solver) {
-  checkovl_acl(y_acl_cs, X_acl_cs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("checkovl_acl - quasi-complete separation", function(backend, solver) {
-  checkovl_acl(y_acl_qcs, X_acl_qcs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("checkovl_acl - overlap", function(backend, solver) {
-  checkovl_acl(y_acl_ol, X_acl_ol, rational = rational, backend = backend, solver = solver)
-})
 
 # --- Mid level: checkovl with model="acl" ---
 print_section("checkovl with model='acl' (mid level)", 3)
@@ -1987,61 +1887,6 @@ run_test("diagsep(model='acl') - overlap", function(backend, solver) {
   diagsep(y_acl_ol, X_acl_ol, rational = rational, model = "acl", backend = backend, solver = solver)
 })
 
-# --- print.sepmod for ACL ---
-print_section("print.sepmod (ACL)", 3)
-
-run_simple_test("print.sepmod - default (ACL)", function() {
-  sd1 <- diagsep_acl(y_acl_qcs, X_acl_qcs, rational = rational)
-  print(sd1)
-})
-
-run_simple_test("print.sepmod - full (ACL)", function() {
-  sd1 <- diagsep_acl(y_acl_qcs, X_acl_qcs, rational = rational)
-  print(sd
-
-        ################################################################################
-##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 4c: CL MODEL TESTS                        ##
-##  Functions: diagsep (continued), reccone, overlap_fc, overlap_qc,          ##
-##             separation_qc                                                  ##
-##                                                                            ##
-################################################################################
-
-## =============================================================================
-## 4.3 diagsep - ACL
-## =============================================================================
-
-print_section("diagsep (ACL)", 2)
-
-# --- Lowest level: diagsep_acl ---
-print_section("diagsep_acl (lowest level)", 3)
-
-run_test("diagsep_acl - complete separation", function(backend, solver) {
-  diagsep_acl(y_acl_cs, X_acl_cs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("diagsep_acl - quasi-complete separation", function(backend, solver) {
-  diagsep_acl(y_acl_qcs, X_acl_qcs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("diagsep_acl - overlap", function(backend, solver) {
-  diagsep_acl(y_acl_ol, X_acl_ol, rational = rational, backend = backend, solver = solver)
-})
-
-# --- Mid level: diagsep with model="acl" ---
-print_section("diagsep with model='acl' (mid level)", 3)
-
-run_test("diagsep(model='acl') - complete separation", function(backend, solver) {
-  diagsep(y_acl_cs, X_acl_cs, rational = rational, model = "acl", backend = backend, solver = solver)
-})
-
-run_test("diagsep(model='acl') - quasi-complete separation", function(backend, solver) {
-  diagsep(y_acl_qcs, X_acl_qcs, rational = rational, model = "acl", backend = backend, solver = solver)
-})
-
-run_test("diagsep(model='acl') - overlap", function(backend, solver) {
-  diagsep(y_acl_ol, X_acl_ol, rational = rational, model = "acl", backend = backend, solver = solver)
-})
 
 # --- print.sepmod for ACL ---
 print_section("print.sepmod (ACL)", 3)
@@ -2056,93 +1901,6 @@ run_simple_test("print.sepmod - full (ACL)", function() {
   print(sd1, info = "full")
 })
 
-################################################################################
-##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 5a: ACL MODEL TESTS                       ##
-##  Functions: checksep, checkovl                                             ##
-##                                                                            ##
-################################################################################
-
-print_section("Adjacent-Category Logit Model Tests (acl)")
-
-## =============================================================================
-## 4.1 checksep - ACL
-## =============================================================================
-
-print_section("checksep (ACL)", 2)
-
-# --- Lowest level: checksep_acl ---
-print_section("checksep_acl (lowest level)", 3)
-
-run_test("checksep_acl - complete separation", function(backend, solver) {
-  checksep_acl(y_acl_cs, X_acl_cs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("checksep_acl - quasi-complete separation", function(backend, solver) {
-  checksep_acl(y_acl_qcs, X_acl_qcs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("checksep_acl - overlap", function(backend, solver) {
-  checksep_acl(y_acl_ol, X_acl_ol, rational = rational, backend = backend, solver = solver)
-})
-
-# --- Mid level: checksep with model="acl" ---
-print_section("checksep with model='acl' (mid level)", 3)
-
-run_test("checksep(model='acl') - complete separation", function(backend, solver) {
-  checksep(y_acl_cs, X_acl_cs, rational = rational, model = "acl", backend = backend, solver = solver)
-})
-
-run_test("checksep(model='acl') - quasi-complete separation", function(backend, solver) {
-  checksep(y_acl_qcs, X_acl_qcs, rational = rational, model = "acl", backend = backend, solver = solver)
-})
-
-run_test("checksep(model='acl') - overlap", function(backend, solver) {
-  checksep(y_acl_ol, X_acl_ol, rational = rational, model = "acl", backend = backend, solver = solver)
-})
-
-## =============================================================================
-## 4.2 checkovl - ACL
-## =============================================================================
-
-print_section("checkovl (ACL)", 2)
-
-# --- Lowest level: checkovl_acl ---
-print_section("checkovl_acl (lowest level)", 3)
-
-run_test("checkovl_acl - complete separation", function(backend, solver) {
-  checkovl_acl(y_acl_cs, X_acl_cs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("checkovl_acl - quasi-complete separation", function(backend, solver) {
-  checkovl_acl(y_acl_qcs, X_acl_qcs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("checkovl_acl - overlap", function(backend, solver) {
-  checkovl_acl(y_acl_ol, X_acl_ol, rational = rational, backend = backend, solver = solver)
-})
-
-# --- Mid level: checkovl with model="acl" ---
-print_section("checkovl with model='acl' (mid level)", 3)
-
-run_test("checkovl(model='acl') - complete separation", function(backend, solver) {
-  checkovl(y_acl_cs, X_acl_cs, rational = rational, model = "acl", backend = backend, solver = solver)
-})
-
-run_test("checkovl(model='acl') - quasi-complete separation", function(backend, solver) {
-  checkovl(y_acl_qcs, X_acl_qcs, rational = rational, model = "acl", backend = backend, solver = solver)
-})
-
-run_test("checkovl(model='acl') - overlap", function(backend, solver) {
-  checkovl(y_acl_ol, X_acl_ol, rational = rational, model = "acl", backend = backend, solver = solver)
-})
-
-################################################################################
-##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 5b: ACL MODEL TESTS                       ##
-##  Functions: sepcols, seprows, linearities                                  ##
-##                                                                            ##
-################################################################################
 
 ## =============================================================================
 ## 4.4 sepcols / detect_sepcols - ACL
@@ -2189,31 +1947,31 @@ print_section("seprows (ACL)", 2)
 # --- Lowest level: seprows_acl ---
 print_section("seprows_acl (lowest level)", 3)
 
-run_test("seprows_acl - complete separation", function(backend, solver) {
-  seprows_acl(y_acl_cs, X_acl_cs, rational = rational, backend = backend, solver = solver)
+run_simple_test("seprows_acl - complete separation", function(backend, solver) {
+  seprows_acl(y_acl_cs, X_acl_cs, rational = rational)
 })
 
-run_test("seprows_acl - quasi-complete separation", function(backend, solver) {
-  seprows_acl(y_acl_qcs, X_acl_qcs, rational = rational, backend = backend, solver = solver)
+run_simple_test("seprows_acl - quasi-complete separation", function(backend, solver) {
+  seprows_acl(y_acl_qcs, X_acl_qcs, rational = rational)
 })
 
-run_test("seprows_acl - overlap", function(backend, solver) {
-  seprows_acl(y_acl_ol, X_acl_ol, rational = rational, backend = backend, solver = solver)
+run_simple_test("seprows_acl - overlap", function(backend, solver) {
+  seprows_acl(y_acl_ol, X_acl_ol, rational = rational)
 })
 
 # --- Mid level: seprows with model="acl" ---
 print_section("seprows with model='acl' (mid level)", 3)
 
-run_test("seprows(model='acl') - complete separation", function(backend, solver) {
-  seprows(y_acl_cs, X_acl_cs, rational = rational, model = "acl", backend = backend, solver = solver)
+run_simple_test("seprows(model='acl') - complete separation", function(backend, solver) {
+  seprows(y_acl_cs, X_acl_cs, rational = rational, model = "acl")
 })
 
-run_test("seprows(model='acl') - quasi-complete separation", function(backend, solver) {
-  seprows(y_acl_qcs, X_acl_qcs, rational = rational, model = "acl", backend = backend, solver = solver)
+run_simple_test("seprows(model='acl') - quasi-complete separation", function(backend, solver) {
+  seprows(y_acl_qcs, X_acl_qcs, rational = rational, model = "acl")
 })
 
-run_test("seprows(model='acl') - overlap", function(backend, solver) {
-  seprows(y_acl_ol, X_acl_ol, rational = rational, model = "acl", backend = backend, solver = solver)
+run_simple_test("seprows(model='acl') - overlap", function(backend, solver) {
+  seprows(y_acl_ol, X_acl_ol, rational = rational, model = "acl")
 })
 
 ## =============================================================================
@@ -2225,39 +1983,33 @@ print_section("linearities (ACL)", 2)
 # --- Lowest level: linearities_acl ---
 print_section("linearities_acl (lowest level)", 3)
 
-run_test("linearities_acl - complete separation", function(backend, solver) {
-  linearities_acl(y_acl_cs, X_acl_cs, rational = rational, backend = backend, solver = solver)
+run_simple_test("linearities_acl - complete separation", function(backend, solver) {
+  linearities_acl(y_acl_cs, X_acl_cs, rational = rational)
 })
 
-run_test("linearities_acl - quasi-complete separation", function(backend, solver) {
-  linearities_acl(y_acl_qcs, X_acl_qcs, rational = rational, backend = backend, solver = solver)
+run_simple_test("linearities_acl - quasi-complete separation", function(backend, solver) {
+  linearities_acl(y_acl_qcs, X_acl_qcs, rational = rational)
 })
 
-run_test("linearities_acl - overlap", function(backend, solver) {
-  linearities_acl(y_acl_ol, X_acl_ol, rational = rational, backend = backend, solver = solver)
+run_simple_test("linearities_acl - overlap", function(backend, solver) {
+  linearities_acl(y_acl_ol, X_acl_ol, rational = rational)
 })
 
 # --- Mid level: linearities with model="acl" ---
 print_section("linearities with model='acl' (mid level)", 3)
 
-run_test("linearities(model='acl') - complete separation", function(backend, solver) {
-  linearities(y_acl_cs, X_acl_cs, rational = rational, model = "acl", backend = backend, solver = solver)
+run_simple_test("linearities(model='acl') - complete separation", function(backend, solver) {
+  linearities(y_acl_cs, X_acl_cs, rational = rational, model = "acl")
 })
 
-run_test("linearities(model='acl') - quasi-complete separation", function(backend, solver) {
-  linearities(y_acl_qcs, X_acl_qcs, rational = rational, model = "acl", backend = backend, solver = solver)
+run_simple_test("linearities(model='acl') - quasi-complete separation", function(backend, solver) {
+  linearities(y_acl_qcs, X_acl_qcs, rational = rational, model = "acl")
 })
 
-run_test("linearities(model='acl') - overlap", function(backend, solver) {
-  linearities(y_acl_ol, X_acl_ol, rational = rational, model = "acl", backend = backend, solver = solver)
+run_simple_test("linearities(model='acl') - overlap", function(backend, solver) {
+  linearities(y_acl_ol, X_acl_ol, rational = rational, model = "acl")
 })
 
-################################################################################
-##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 5c: ACL MODEL TESTS                       ##
-##  Functions: reccone, overlap_fc, overlap_qc, separation_qc                 ##
-##                                                                            ##
-################################################################################
 
 ## =============================================================================
 ## 4.7 reccone / rec_cone - ACL
@@ -2268,86 +2020,39 @@ print_section("reccone / rec_cone (ACL)", 2)
 # --- Lowest level: reccone_acl ---
 print_section("reccone_acl (lowest level)", 3)
 
-run_test("reccone_acl - complete separation", function(backend, solver) {
-  reccone_acl(y_acl_cs, X_acl_cs, rational = rational, backend = backend, solver = solver)
+run_simple_test("reccone_acl - complete separation", function(backend, solver) {
+  reccone_acl(y_acl_cs, X_acl_cs, rational = rational)
 })
 
-run_test("reccone_acl - quasi-complete separation", function(backend, solver) {
-  reccone_acl(y_acl_qcs, X_acl_qcs, rational = rational, backend = backend, solver = solver)
+run_simple_test("reccone_acl - quasi-complete separation", function(backend, solver) {
+  reccone_acl(y_acl_qcs, X_acl_qcs, rational = rational)
 })
 
-run_test("reccone_acl - overlap", function(backend, solver) {
-  reccone_acl(y_acl_ol, X_acl_ol, rational = rational, backend = backend, solver = solver)
+run_simple_test("reccone_acl - overlap", function(backend, solver) {
+  reccone_acl(y_acl_ol, X_acl_ol, rational = rational)
 })
 
 # --- Mid level: reccone with model="acl" ---
 print_section("reccone with model='acl' (mid level)", 3)
 
-run_test("reccone(model='acl') - complete separation", function(backend, solver) {
-  reccone(y_acl_cs, X_acl_cs, rational = rational, model = "acl", backend = backend, solver = solver)
+run_simple_test("reccone(model='acl') - complete separation", function(backend, solver) {
+  reccone(y_acl_cs, X_acl_cs, rational = rational, model = "acl")
 })
 
-run_test("reccone(model='acl') - quasi-complete separation", function(backend, solver) {
-  reccone(y_acl_qcs, X_acl_qcs, rational = rational, model = "acl", backend = backend, solver = solver)
+run_simple_test("reccone(model='acl') - quasi-complete separation", function(backend, solver) {
+  reccone(y_acl_qcs, X_acl_qcs, rational = rational, model = "acl")
 })
 
-run_test("reccone(model='acl') - overlap", function(backend, solver) {
-  reccone(y_acl_ol, X_acl_ol, rational = rational, model = "acl", backend = backend, solver = solver)
+run_simple_test("reccone(model='acl') - overlap", function(backend, solver) {
+  reccone(y_acl_ol, X_acl_ol, rational = rational, model = "acl")
 })
+
 
 ## =============================================================================
 ## 4.8 overlap_fc - ACL
 ## =============================================================================
 
 print_section("overlap_fc (ACL)", 2)
-
-# --- Lowest level: overlap_fc_acl ---
-print_section("overlap_fc_acl (lowest level)", 3)
-
-run_test("overlap_fc_acl - complete separation (frac=1)", function(backend, solver) {
-  overlap_fc_acl(y_acl_cs, X_acl_cs, frac
-
-
-                 ################################################################################
-##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 5c: ACL MODEL TESTS                       ##
-##  Functions: overlap_fc, overlap_qc, separation_qc                          ##
-##                                                                            ##
-################################################################################
-
-## =============================================================================
-## 4.8 overlap_fc - ACL
-## =============================================================================
-
-print_section("overlap_fc (ACL)", 2)
-
-# --- Lowest level: overlap_fc_acl ---
-print_section("overlap_fc_acl (lowest level)", 3)
-
-run_test("overlap_fc_acl - complete separation (frac=1)", function(backend, solver) {
-  overlap_fc_acl(y_acl_cs, X_acl_cs, frac = 1, verbose = 0, rational = rational, 
-                 backend = backend, solver = solver)
-})
-
-run_test("overlap_fc_acl - complete separation (frac=3)", function(backend, solver) {
-  overlap_fc_acl(y_acl_cs, X_acl_cs, frac = 3, verbose = 0, rational = rational, 
-                 backend = backend, solver = solver)
-})
-
-run_test("overlap_fc_acl - quasi-complete separation (frac=1)", function(backend, solver) {
-  overlap_fc_acl(y_acl_qcs, X_acl_qcs, frac = 1, verbose = 0, rational = rational, 
-                 backend = backend, solver = solver)
-})
-
-run_test("overlap_fc_acl - quasi-complete separation (frac=5)", function(backend, solver) {
-  overlap_fc_acl(y_acl_qcs, X_acl_qcs, frac = 5, verbose = 0, rational = rational, 
-                 backend = backend, solver = solver)
-})
-
-run_test("overlap_fc_acl - overlap (frac=1)", function(backend, solver) {
-  overlap_fc_acl(y_acl_ol, X_acl_ol, frac = 1, verbose = 0, rational = rational, 
-                 backend = backend, solver = solver)
-})
 
 # --- Mid level: overlap_fc with model="acl" ---
 print_section("overlap_fc with model='acl' (mid level)", 3)
@@ -2373,21 +2078,6 @@ run_test("overlap_fc(model='acl') - overlap", function(backend, solver) {
 
 print_section("overlap_qc (ACL)", 2)
 
-# --- Lowest level: overlap_qc_acl ---
-print_section("overlap_qc_acl (lowest level)", 3)
-
-run_test("overlap_qc_acl - complete separation", function(backend, solver) {
-  overlap_qc_acl(y_acl_cs, X_acl_cs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("overlap_qc_acl - quasi-complete separation", function(backend, solver) {
-  overlap_qc_acl(y_acl_qcs, X_acl_qcs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("overlap_qc_acl - overlap", function(backend, solver) {
-  overlap_qc_acl(y_acl_ol, X_acl_ol, rational = rational, backend = backend, solver = solver)
-})
-
 # --- Mid level: overlap_qc with model="acl" ---
 print_section("overlap_qc with model='acl' (mid level)", 3)
 
@@ -2409,21 +2099,6 @@ run_test("overlap_qc(model='acl') - overlap", function(backend, solver) {
 
 print_section("separation_qc (ACL)", 2)
 
-# --- Lowest level: separation_qc_acl ---
-print_section("separation_qc_acl (lowest level)", 3)
-
-run_test("separation_qc_acl - complete separation", function(backend, solver) {
-  separation_qc_acl(y_acl_cs, X_acl_cs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("separation_qc_acl - quasi-complete separation", function(backend, solver) {
-  separation_qc_acl(y_acl_qcs, X_acl_qcs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("separation_qc_acl - overlap", function(backend, solver) {
-  separation_qc_acl(y_acl_ol, X_acl_ol, rational = rational, backend = backend, solver = solver)
-})
-
 # --- Mid level: separation_qc with model="acl" ---
 print_section("separation_qc with model='acl' (mid level)", 3)
 
@@ -2439,240 +2114,11 @@ run_test("separation_qc(model='acl') - overlap", function(backend, solver) {
   separation_qc(y_acl_ol, X_acl_ol, rational = rational, model = "acl", backend = backend, solver = solver)
 })
 
-cat("
-")
-cat(paste(rep("#", 78), collapse = ""), "
-")
-cat("##  END OF ACL MODEL TESTS
-")
-cat(paste(rep("#", 78), collapse = ""), "
-")
+cat("")
+cat(paste(rep("#", 78), collapse = ""), "")
+cat("##  END OF ACL MODEL TESTS")
+cat(paste(rep("#", 78), collapse = ""), "")
 
-################################################################################
-##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 5d: ACL MODEL TESTS                       ##
-##  Functions: diagsep, sepcols, seprows, linearities, reccone                ##
-##                                                                            ##
-################################################################################
-
-## =============================================================================
-## 4.3 diagsep - ACL
-## =============================================================================
-
-print_section("diagsep (ACL)", 2)
-
-# --- Lowest level: diagsep_acl ---
-print_section("diagsep_acl (lowest level)", 3)
-
-run_test("diagsep_acl - complete separation", function(backend, solver) {
-  diagsep_acl(y_acl_cs, X_acl_cs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("diagsep_acl - quasi-complete separation", function(backend, solver) {
-  diagsep_acl(y_acl_qcs, X_acl_qcs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("diagsep_acl - overlap", function(backend, solver) {
-  diagsep_acl(y_acl_ol, X_acl_ol, rational = rational, backend = backend, solver = solver)
-})
-
-# --- Mid level: diagsep with model="acl" ---
-print_section("diagsep with model='acl' (mid level)", 3)
-
-run_test("diagsep(model='acl') - complete separation", function(backend, solver) {
-  diagsep(y_acl_cs, X_acl_cs, rational = rational, model = "acl", backend = backend, solver = solver)
-})
-
-run_test("diagsep(model='acl') - quasi-complete separation", function(backend, solver) {
-  diagsep(y_acl_qcs, X_acl_qcs, rational = rational, model = "acl", backend = backend, solver = solver)
-})
-
-run_test("diagsep(model='acl') - overlap", function(backend, solver) {
-  diagsep(y_acl_ol, X_acl_ol, rational = rational, model = "acl", backend = backend, solver = solver)
-})
-
-# --- print.sepmod for ACL ---
-print_section("print.sepmod (ACL)", 3)
-
-run_simple_test("print.sepmod - default (ACL)", function() {
-  sd1 <- diagsep_acl(y_acl_qcs, X_acl_qcs, rational = rational)
-  print(sd1)
-})
-
-run_simple_test("print.sepmod - full (ACL)", function() {
-  sd1 <- diagsep_acl(y_acl_qcs, X_acl_qcs, rational = rational)
-  print(sd1, info = "full")
-})
-
-## =============================================================================
-## 4.4 sepcols / detect_sepcols - ACL
-## =============================================================================
-
-print_section("sepcols / detect_sepcols (ACL)", 2)
-
-# --- Lowest level: detect_sepcols_acl ---
-print_section("detect_sepcols_acl (lowest level)", 3)
-
-run_test("detect_sepcols_acl - complete separation", function(backend, solver) {
-  detect_sepcols_acl(y_acl_cs, X_acl_cs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("detect_sepcols_acl - quasi-complete separation", function(backend, solver) {
-  detect_sepcols_acl(y_acl_qcs, X_acl_qcs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("detect_sepcols_acl - overlap", function(backend, solver) {
-  detect_sepcols_acl(y_acl_ol, X_acl_ol, rational = rational, backend = backend, solver = solver)
-})
-
-# --- Mid level: detect_sepcols with model="acl" ---
-print_section("detect_sepcols with model='acl' (mid level)", 3)
-
-run_test("detect_sepcols(model='acl') - complete separation", function(backend, solver) {
-  detect_sepcols(y_acl_cs, X_acl_cs, rational = rational, model = "acl", backend = backend, solver = solver)
-})
-
-run_test("detect_sepcols(model='acl') - quasi-complete separation", function(backend, solver) {
-  detect_sepcols(y_acl_qcs, X_acl_qcs, rational = rational, model = "acl", backend = backend, solver = solver)
-})
-
-run_test("detect_sepcols(model='acl') - overlap", function(backend, solver) {
-  detect_sepcols(y_acl_ol, X_acl_ol, rational = rational, model = "acl", backend = backend, solver = solver)
-})
-
-## =============================================================================
-## 4.5 seprows - ACL
-## =============================================================================
-
-print_section("seprows (ACL)", 2)
-
-# --- Lowest level: seprows_acl ---
-print_section("seprows_acl (lowest level)", 3)
-
-run_test("seprows_acl - complete separation", function(backend, solver) {
-  seprows_acl(y_acl_cs, X_acl_cs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("seprows_acl - quasi-complete separation", function(backend, solver) {
-  seprows_acl(y_acl_qcs, X_acl_qcs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("seprows_acl - overlap", function(backend, solver) {
-  seprows_acl(y_acl_ol, X_acl_ol, rational = rational, backend = backend, solver = solver)
-})
-
-# --- Mid level: seprows with model="acl" ---
-print_section("seprows with model='acl' (mid level)", 3)
-
-run_test("seprows(model='acl') - complete separation", function(backend, solver) {
-  seprows(y_acl_cs, X_acl_cs, rational = rational, model = "acl", backend = backend, solver = solver)
-})
-
-run_test("seprows(model='acl') - quasi-complete separation", function(backend, solver) {
-  seprows(y_acl_qcs, X_acl_qcs, rational = rational, model = "acl", backend = backend, solver = solver)
-})
-
-run_test("seprows(model='acl') - overlap", function(backend, solver) {
-  seprows(y_acl_ol, X_acl_ol, rational = rational, model = "acl", backend = backend, solver = solver)
-})
-
-## =============================================================================
-## 4.6 linearities - ACL
-## =============================================================================
-
-print_section("linearities (ACL)", 2)
-
-# --- Lowest level: linearities_acl ---
-print_section("linearities_acl (lowest level)", 3)
-
-run_test("linearities_acl - complete separation", function(backend, solver) {
-  linearities_acl(y_acl_cs, X_acl_cs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("linearities_acl - quasi-complete separation", function(backend, solver) {
-  linearities_acl(y_acl_qcs, X_acl_qcs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("linearities_acl - overlap", function(backend, solver) {
-  linearities_acl(y_acl_ol, X_acl_ol, rational = rational, backend = backend, solver = solver)
-})
-
-# --- Mid level: linearities with model="acl" ---
-print_section("linearities with model='acl' (mid level)", 3)
-
-run_test("linearities(model='acl') - complete separation", function(backend, solver) {
-  linearities(y_acl_cs, X_acl_cs, rational = rational, model = "acl", backend = backend, solver = solver)
-})
-
-run_test("linearities(model='acl') - quasi-complete separation", function(backend, solver) {
-  linearities(y_acl_qcs, X_acl_qcs, rational = rational, model = "acl", backend = backend, solver = solver)
-})
-
-run_test("linearities(model='acl') - overlap", function(backend, solver) {
-  linearities(y_acl_ol, X_acl_ol, rational = rational
-
-
-
-              ################################################################################
-##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 5c (continued): ACL MODEL TESTS           ##
-##  Functions: linearities (continued), reccone                               ##
-##                                                                            ##
-################################################################################
-
-## =============================================================================
-## 4.6 linearities - ACL (continued)
-## =============================================================================
-
-# --- Mid level: linearities with model="acl" (continued) ---
-run_test("linearities(model='acl') - overlap", function(backend, solver) {
-  linearities(y_acl_ol, X_acl_ol, rational = rational, model = "acl", backend = backend, solver = solver)
-})
-
-## =============================================================================
-## 4.7 reccone / rec_cone - ACL
-## =============================================================================
-
-print_section("reccone / rec_cone (ACL)", 2)
-
-# --- Lowest level: reccone_acl ---
-print_section("reccone_acl (lowest level)", 3)
-
-run_test("reccone_acl - complete separation", function(backend, solver) {
-  reccone_acl(y_acl_cs, X_acl_cs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("reccone_acl - quasi-complete separation", function(backend, solver) {
-  reccone_acl(y_acl_qcs, X_acl_qcs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("reccone_acl - overlap", function(backend, solver) {
-  reccone_acl(y_acl_ol, X_acl_ol, rational = rational, backend = backend, solver = solver)
-})
-
-# --- Mid level: reccone with model="acl" ---
-print_section("reccone with model='acl' (mid level)", 3)
-
-run_test("reccone(model='acl') - complete separation", function(backend, solver) {
-  reccone(y_acl_cs, X_acl_cs, rational = rational, model = "acl", backend = backend, solver = solver)
-})
-
-run_test("reccone(model='acl') - quasi-complete separation", function(backend, solver) {
-  reccone(y_acl_qcs, X_acl_qcs, rational = rational, model = "acl", backend = backend, solver = solver)
-})
-
-run_test("reccone(model='acl') - overlap", function(backend, solver) {
-  reccone(y_acl_ol, X_acl_ol, rational = rational, model = "acl", backend = backend, solver = solver)
-})
-
-cat("
-")
-cat(paste(rep("#", 78), collapse = ""), "
-")
-cat("##  END OF ACL MODEL TESTS
-")
-cat(paste(rep("#", 78), collapse = ""), "
-")
 
 ################################################################################
 ##                                                                            ##
@@ -2683,6 +2129,9 @@ cat(paste(rep("#", 78), collapse = ""), "
 
 print_section("Ordered Stereotype Model Tests (osm)")
 
+## TODO: Are these results weird? 
+
+
 ## =============================================================================
 ## 5.1 checksep - OSM
 ## =============================================================================
@@ -2691,10 +2140,6 @@ print_section("checksep (OSM)", 2)
 
 # --- Lowest level: checksep_osm ---
 print_section("checksep_osm (lowest level)", 3)
-
-run_test("checksep_osm - complete separation", function(backend, solver) {
-  checksep_osm(y_osm_cs, X_osm_cs, rational = rational, backend = backend, solver = solver)
-})
 
 run_test("checksep_osm - quasi-complete separation", function(backend, solver) {
   checksep_osm(y_osm_qcs, X_osm_qcs, rational = rational, backend = backend, solver = solver)
@@ -2710,10 +2155,6 @@ run_test("checksep_osm - wine data", function(backend, solver) {
 
 # --- Mid level: checksep with model="osm" ---
 print_section("checksep with model='osm' (mid level)", 3)
-
-run_test("checksep(model='osm') - complete separation", function(backend, solver) {
-  checksep(y_osm_cs, X_osm_cs, rational = rational, model = "osm", backend = backend, solver = solver)
-})
 
 run_test("checksep(model='osm') - quasi-complete separation", function(backend, solver) {
   checksep(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm", backend = backend, solver = solver)
@@ -2736,27 +2177,9 @@ run_test("check_separation.osm - wine data", function(backend, solver) {
 
 print_section("checkovl (OSM)", 2)
 
-# --- Lowest level: checkovl_osm ---
-print_section("checkovl_osm (lowest level)", 3)
-
-run_test("checkovl_osm - complete separation", function(backend, solver) {
-  checkovl_osm(y_osm_cs, X_osm_cs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("checkovl_osm - quasi-complete separation", function(backend, solver) {
-  checkovl_osm(y_osm_qcs, X_osm_qcs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("checkovl_osm - overlap", function(backend, solver) {
-  checkovl_osm(y_osm_ol, X_osm_ol, rational = rational, backend = backend, solver = solver)
-})
 
 # --- Mid level: checkovl with model="osm" ---
 print_section("checkovl with model='osm' (mid level)", 3)
-
-run_test("checkovl(model='osm') - complete separation", function(backend, solver) {
-  checkovl(y_osm_cs, X_osm_cs, rational = rational, model = "osm", backend = backend, solver = solver)
-})
 
 run_test("checkovl(model='osm') - quasi-complete separation", function(backend, solver) {
   checkovl(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm", backend = backend, solver = solver)
@@ -2775,10 +2198,6 @@ print_section("diagsep (OSM)", 2)
 # --- Lowest level: diagsep_osm ---
 print_section("diagsep_osm (lowest level)", 3)
 
-run_test("diagsep_osm - complete separation", function(backend, solver) {
-  diagsep_osm(y_osm_cs, X_osm_cs, rational = rational, backend = backend, solver = solver)
-})
-
 run_test("diagsep_osm - quasi-complete separation", function(backend, solver) {
   diagsep_osm(y_osm_qcs, X_osm_qcs, rational = rational, backend = backend, solver = solver)
 })
@@ -2793,10 +2212,6 @@ run_test("diagsep_osm - wine data", function(backend, solver) {
 
 # --- Mid level: diagsep with model="osm" ---
 print_section("diagsep with model='osm' (mid level)", 3)
-
-run_test("diagsep(model='osm') - complete separation", function(backend, solver) {
-  diagsep(y_osm_cs, X_osm_cs, rational = rational, model = "osm", backend = backend, solver = solver)
-})
 
 run_test("diagsep(model='osm') - quasi-complete separation", function(backend, solver) {
   diagsep(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm", backend = backend, solver = solver)
@@ -2826,13 +2241,6 @@ run_simple_test("print.sepmod - full (OSM)", function() {
   print(sd1, info = "full")
 })
 
-################################################################################
-##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 6b: OSM MODEL TESTS                       ##
-##  Functions: sepcols, seprows, linearities                                  ##
-##                                                                            ##
-################################################################################
-
 ## =============================================================================
 ## 5.4 sepcols / detect_sepcols - OSM
 ## =============================================================================
@@ -2842,9 +2250,6 @@ print_section("sepcols / detect_sepcols (OSM)", 2)
 # --- Lowest level: detect_sepcols_osm ---
 print_section("detect_sepcols_osm (lowest level)", 3)
 
-run_test("detect_sepcols_osm - complete separation", function(backend, solver) {
-  detect_sepcols_osm(y_osm_cs, X_osm_cs, rational = rational, backend = backend, solver = solver)
-})
 
 run_test("detect_sepcols_osm - quasi-complete separation", function(backend, solver) {
   detect_sepcols_osm(y_osm_qcs, X_osm_qcs, rational = rational, backend = backend, solver = solver)
@@ -2861,9 +2266,6 @@ run_test("detect_sepcols_osm - wine data", function(backend, solver) {
 # --- Mid level: detect_sepcols with model="osm" ---
 print_section("detect_sepcols with model='osm' (mid level)", 3)
 
-run_test("detect_sepcols(model='osm') - complete separation", function(backend, solver) {
-  detect_sepcols(y_osm_cs, X_osm_cs, rational = rational, model = "osm", backend = backend, solver = solver)
-})
 
 run_test("detect_sepcols(model='osm') - quasi-complete separation", function(backend, solver) {
   detect_sepcols(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm", backend = backend, solver = solver)
@@ -2889,42 +2291,35 @@ print_section("seprows (OSM)", 2)
 # --- Lowest level: seprows_osm ---
 print_section("seprows_osm (lowest level)", 3)
 
-run_test("seprows_osm - complete separation", function(backend, solver) {
-  seprows_osm(y_osm_cs, X_osm_cs, rational = rational, backend = backend, solver = solver)
+
+run_simple_test("seprows_osm - quasi-complete separation", function(backend, solver) {
+  seprows_osm(y_osm_qcs, X_osm_qcs, rational = rational)
 })
 
-run_test("seprows_osm - quasi-complete separation", function(backend, solver) {
-  seprows_osm(y_osm_qcs, X_osm_qcs, rational = rational, backend = backend, solver = solver)
+run_simple_test("seprows_osm - overlap", function(backend, solver) {
+  seprows_osm(y_osm_ol, X_osm_ol, rational = rational)
 })
 
-run_test("seprows_osm - overlap", function(backend, solver) {
-  seprows_osm(y_osm_ol, X_osm_ol, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("seprows_osm - wine data", function(backend, solver) {
-  seprows_osm(y_osm_wine, X_osm_wine, rational = rational, backend = backend, solver = solver)
+run_simple_test("seprows_osm - wine data", function(backend, solver) {
+  seprows_osm(y_osm_wine, X_osm_wine, rational = rational)
 })
 
 # --- Mid level: seprows with model="osm" ---
 print_section("seprows with model='osm' (mid level)", 3)
 
-run_test("seprows(model='osm') - complete separation", function(backend, solver) {
-  seprows(y_osm_cs, X_osm_cs, rational = rational, model = "osm", backend = backend, solver = solver)
+run_simple_test("seprows(model='osm') - quasi-complete separation", function(backend, solver) {
+  seprows(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm")
 })
 
-run_test("seprows(model='osm') - quasi-complete separation", function(backend, solver) {
-  seprows(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm", backend = backend, solver = solver)
-})
-
-run_test("seprows(model='osm') - overlap", function(backend, solver) {
-  seprows(y_osm_ol, X_osm_ol, rational = rational, model = "osm", backend = backend, solver = solver)
+run_simple_test("seprows(model='osm') - overlap", function(backend, solver) {
+  seprows(y_osm_ol, X_osm_ol, rational = rational, model = "osm")
 })
 
 # --- Generic: separation_rows.osm ---
 print_section("separation_rows.osm (generic)", 3)
 
-run_test("separation_rows.osm - wine data", function(backend, solver) {
-  separation_rows(wine_osm, rational = rational, backend = backend, solver = solver)
+run_simple_test("separation_rows.osm - wine data", function(backend, solver) {
+  separation_rows(wine_osm, rational = rational)
 })
 
 ## =============================================================================
@@ -2936,43 +2331,29 @@ print_section("linearities (OSM)", 2)
 # --- Lowest level: linearities_osm ---
 print_section("linearities_osm (lowest level)", 3)
 
-run_test("linearities_osm - complete separation", function(backend, solver) {
-  linearities_osm(y_osm_cs, X_osm_cs, rational = rational, backend = backend, solver = solver)
+
+run_simple_test("linearities_osm - quasi-complete separation", function(backend, solver) {
+  linearities_osm(y_osm_qcs, X_osm_qcs, rational = rational)
 })
 
-run_test("linearities_osm - quasi-complete separation", function(backend, solver) {
-  linearities_osm(y_osm_qcs, X_osm_qcs, rational = rational, backend = backend, solver = solver)
+run_simple_test("linearities_osm - overlap", function(backend, solver) {
+  linearities_osm(y_osm_ol, X_osm_ol, rational = rational)
 })
 
-run_test("linearities_osm - overlap", function(backend, solver) {
-  linearities_osm(y_osm_ol, X_osm_ol, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("linearities_osm - wine data", function(backend, solver) {
-  linearities_osm(y_osm_wine, X_osm_wine, rational = rational, backend = backend, solver = solver)
+run_simple_test("linearities_osm - wine data", function(backend, solver) {
+  linearities_osm(y_osm_wine, X_osm_wine, rational = rational)
 })
 
 # --- Mid level: linearities with model="osm" ---
 print_section("linearities with model='osm' (mid level)", 3)
 
-run_test("linearities(model='osm') - complete separation", function(backend, solver) {
-  linearities(y_osm_cs, X_osm_cs, rational = rational, model = "osm", backend = backend, solver = solver)
+run_simple_test("linearities(model='osm') - quasi-complete separation", function(backend, solver) {
+  linearities(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm")
 })
 
-run_test("linearities(model='osm') - quasi-complete separation", function(backend, solver) {
-  linearities(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm", backend = backend, solver = solver)
+run_simple_test("linearities(model='osm') - overlap", function(backend, solver) {
+  linearities(y_osm_ol, X_osm_ol, rational = rational, model = "osm")
 })
-
-run_test("linearities(model='osm') - overlap", function(backend, solver) {
-  linearities(y_osm_ol, X_osm_ol, rational = rational, model = "osm", backend = backend, solver = solver)
-})
-
-################################################################################
-##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 6c: OSM MODEL TESTS                       ##
-##  Functions: reccone, overlap_fc, overlap_qc, separation_qc                 ##
-##                                                                            ##
-################################################################################
 
 ## =============================================================================
 ## 5.7 reccone / rec_cone - OSM
@@ -2983,61 +2364,34 @@ print_section("reccone / rec_cone (OSM)", 2)
 # --- Lowest level: reccone_osm ---
 print_section("reccone_osm (lowest level)", 3)
 
-run_test("reccone_osm - complete separation", function(backend, solver) {
-  reccone_osm(y_osm_cs, X_osm_cs, rational = rational, backend = backend, solver = solver
-
-              ################################################################################
-##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 6c (continued): OSM MODEL TESTS           ##
-##  Functions: reccone, overlap_fc, overlap_qc, separation_qc                 ##
-##                                                                            ##
-################################################################################
-
-## =============================================================================
-## 5.7 reccone / rec_cone - OSM
-## =============================================================================
-
-print_section("reccone / rec_cone (OSM)", 2)
-
-# --- Lowest level: reccone_osm ---
-print_section("reccone_osm (lowest level)", 3)
-
-run_test("reccone_osm - complete separation", function(backend, solver) {
-  reccone_osm(y_osm_cs, X_osm_cs, rational = rational, backend = backend, solver = solver)
+run_simple_test("reccone_osm - quasi-complete separation", function(backend, solver) {
+  reccone_osm(y_osm_qcs, X_osm_qcs, rational = rational)
 })
 
-run_test("reccone_osm - quasi-complete separation", function(backend, solver) {
-  reccone_osm(y_osm_qcs, X_osm_qcs, rational = rational, backend = backend, solver = solver)
+run_simple_test("reccone_osm - overlap", function(backend, solver) {
+  reccone_osm(y_osm_ol, X_osm_ol, rational = rational)
 })
 
-run_test("reccone_osm - overlap", function(backend, solver) {
-  reccone_osm(y_osm_ol, X_osm_ol, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("reccone_osm - wine data", function(backend, solver) {
-  reccone_osm(y_osm_wine, X_osm_wine, rational = rational, backend = backend, solver = solver)
+run_simple_test("reccone_osm - wine data", function(backend, solver) {
+  reccone_osm(y_osm_wine, X_osm_wine, rational = rational)
 })
 
 # --- Mid level: reccone with model="osm" ---
 print_section("reccone with model='osm' (mid level)", 3)
 
-run_test("reccone(model='osm') - complete separation", function(backend, solver) {
-  reccone(y_osm_cs, X_osm_cs, rational = rational, model = "osm", backend = backend, solver = solver)
+run_simple_test("reccone(model='osm') - quasi-complete separation", function(backend, solver) {
+  reccone(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm")
 })
 
-run_test("reccone(model='osm') - quasi-complete separation", function(backend, solver) {
-  reccone(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm", backend = backend, solver = solver)
-})
-
-run_test("reccone(model='osm') - overlap", function(backend, solver) {
-  reccone(y_osm_ol, X_osm_ol, rational = rational, model = "osm", backend = backend, solver = solver)
+run_simple_test("reccone(model='osm') - overlap", function(backend, solver) {
+  reccone(y_osm_ol, X_osm_ol, rational = rational, model = "osm")
 })
 
 # --- Generic: recession_cone.osm ---
 print_section("recession_cone.osm (generic)", 3)
 
-run_test("recession_cone.osm - wine data", function(backend, solver) {
-  recession_cone(wine_osm, rational = rational, backend = backend, solver = solver)
+run_simple_test("recession_cone.osm - wine data", function(backend, solver) {
+  recession_cone(wine_osm, rational = rational)
 })
 
 ## =============================================================================
@@ -3046,46 +2400,9 @@ run_test("recession_cone.osm - wine data", function(backend, solver) {
 
 print_section("overlap_fc (OSM)", 2)
 
-# --- Lowest level: overlap_fc_osm ---
-print_section("overlap_fc_osm (lowest level)", 3)
-
-run_test("overlap_fc_osm - complete separation (frac=1)", function(backend, solver) {
-  overlap_fc_osm(y_osm_cs, X_osm_cs, frac = 1, verbose = 0, rational = rational, 
-                 backend = backend, solver = solver)
-})
-
-run_test("overlap_fc_osm - complete separation (frac=3)", function(backend, solver) {
-  overlap_fc_osm(y_osm_cs, X_osm_cs, frac = 3, verbose = 0, rational = rational, 
-                 backend = backend, solver = solver)
-})
-
-run_test("overlap_fc_osm - quasi-complete separation (frac=1)", function(backend, solver) {
-  overlap_fc_osm(y_osm_qcs, X_osm_qcs, frac = 1, verbose = 0, rational = rational, 
-                 backend = backend, solver = solver)
-})
-
-run_test("overlap_fc_osm - quasi-complete separation (frac=5)", function(backend, solver) {
-  overlap_fc_osm(y_osm_qcs, X_osm_qcs, frac = 5, verbose = 0, rational = rational, 
-                 backend = backend, solver = solver)
-})
-
-run_test("overlap_fc_osm - overlap (frac=1)", function(backend, solver) {
-  overlap_fc_osm(y_osm_ol, X_osm_ol, frac = 1, verbose = 0, rational = rational, 
-                 backend = backend, solver = solver)
-})
-
-run_test("overlap_fc_osm - wine data (frac=1)", function(backend, solver) {
-  overlap_fc_osm(y_osm_wine, X_osm_wine, frac = 1, verbose = 0, rational = rational, 
-                 backend = backend, solver = solver)
-})
-
 # --- Mid level: overlap_fc with model="osm" ---
 print_section("overlap_fc with model='osm' (mid level)", 3)
 
-run_test("overlap_fc(model='osm') - complete separation", function(backend, solver) {
-  overlap_fc(y_osm_cs, X_osm_cs, frac = 1, verbose = 0, rational = rational, 
-             model = "osm", backend = backend, solver = solver)
-})
 
 run_test("overlap_fc(model='osm') - quasi-complete separation", function(backend, solver) {
   overlap_fc(y_osm_qcs, X_osm_qcs, frac = 1, verbose = 0, rational = rational, 
@@ -3101,33 +2418,9 @@ run_test("overlap_fc(model='osm') - overlap", function(backend, solver) {
 ## 5.9 overlap_qc - OSM
 ## =============================================================================
 
-print_section("overlap_qc (OSM)", 2)
-
-# --- Lowest level: overlap_qc_osm ---
-print_section("overlap_qc_osm (lowest level)", 3)
-
-run_test("overlap_qc_osm - complete separation", function(backend, solver) {
-  overlap_qc_osm(y_osm_cs, X_osm_cs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("overlap_qc_osm - quasi-complete separation", function(backend, solver) {
-  overlap_qc_osm(y_osm_qcs, X_osm_qcs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("overlap_qc_osm - overlap", function(backend, solver) {
-  overlap_qc_osm(y_osm_ol, X_osm_ol, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("overlap_qc_osm - wine data", function(backend, solver) {
-  overlap_qc_osm(y_osm_wine, X_osm_wine, rational = rational, backend = backend, solver = solver)
-})
-
 # --- Mid level: overlap_qc with model="osm" ---
 print_section("overlap_qc with model='osm' (mid level)", 3)
 
-run_test("overlap_qc(model='osm') - complete separation", function(backend, solver) {
-  overlap_qc(y_osm_cs, X_osm_cs, rational = rational, model = "osm", backend = backend, solver = solver)
-})
 
 run_test("overlap_qc(model='osm') - quasi-complete separation", function(backend, solver) {
   overlap_qc(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm", backend = backend, solver = solver)
@@ -3143,31 +2436,9 @@ run_test("overlap_qc(model='osm') - overlap", function(backend, solver) {
 
 print_section("separation_qc (OSM)", 2)
 
-# --- Lowest level: separation_qc_osm ---
-print_section("separation_qc_osm (lowest level)", 3)
-
-run_test("separation_qc_osm - complete separation", function(backend, solver) {
-  separation_qc_osm(y_osm_cs, X_osm_cs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("separation_qc_osm - quasi-complete separation", function(backend, solver) {
-  separation_qc_osm(y_osm_qcs, X_osm_qcs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("separation_qc_osm - overlap", function(backend, solver) {
-  separation_qc_osm(y_osm_ol, X_osm_ol, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("separation_qc_osm - wine data", function(backend, solver) {
-  separation_qc_osm(y_osm_wine, X_osm_wine, rational = rational, backend = backend, solver = solver)
-})
-
 # --- Mid level: separation_qc with model="osm" ---
 print_section("separation_qc with model='osm' (mid level)", 3)
 
-run_test("separation_qc(model='osm') - complete separation", function(backend, solver) {
-  separation_qc(y_osm_cs, X_osm_cs, rational = rational, model = "osm", backend = backend, solver = solver)
-})
 
 run_test("separation_qc(model='osm') - quasi-complete separation", function(backend, solver) {
   separation_qc(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm", backend = backend, solver = solver)
@@ -3177,14 +2448,10 @@ run_test("separation_qc(model='osm') - overlap", function(backend, solver) {
   separation_qc(y_osm_ol, X_osm_ol, rational = rational, model = "osm", backend = backend, solver = solver)
 })
 
-cat("
-")
-cat(paste(rep("#", 78), collapse = ""), "
-")
-cat("##  END OF OSM MODEL TESTS
-")
-cat(paste(rep("#", 78), collapse = ""), "
-")
+cat("")
+cat(paste(rep("#", 78), collapse = ""), "")
+cat("##  END OF OSM MODEL TESTS")
+cat(paste(rep("#", 78), collapse = ""), "")
 
 ################################################################################
 ##                                                                            ##
@@ -3237,20 +2504,6 @@ run_test("checksep(model='sl') - overlap", function(backend, solver) {
 
 print_section("checkovl (SL)", 2)
 
-# --- Lowest level: checkovl_sl ---
-print_section("checkovl_sl (lowest level)", 3)
-
-run_test("checkovl_sl - complete separation", function(backend, solver) {
-  checkovl_sl(y_sl_cs, X_sl_cs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("checkovl_sl - quasi-complete separation", function(backend, solver) {
-  checkovl_sl(y_sl_qcs, X_sl_qcs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("checkovl_sl - overlap", function(backend, solver) {
-  checkovl_sl(y_sl_ol, X_sl_ol, rational = rational, backend = backend, solver = solver)
-})
 
 # --- Mid level: checkovl with model="sl" ---
 print_section("checkovl with model='sl' (mid level)", 3)
@@ -3287,23 +2540,6 @@ run_test("diagsep_sl - quasi-complete separation", function(backend, solver) {
 run_test("diagsep_sl - overlap", function(backend, solver) {
   diagsep_sl(y_sl_ol, X_sl_ol, rational = rational, backend = backend, solver = solver)
 })
-
-# --- Mid level: diagsep with model="sl" ---
-print_section("diagsep with model='sl' (mid level)", 3)
-
-run_test("diagsep(model='sl') - complete separation", function(backend, solver) {
-  diagsep(y_sl_cs, X_sl_cs, rational = rational, model = "sl", backend
-
-          ################################################################################
-##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 7a (continued): SL MODEL TESTS            ##
-##  Functions: diagsep (continued), sepcols, seprows, linearities             ##
-##                                                                            ##
-################################################################################
-
-## =============================================================================
-## 6.3 diagsep - SL (continued)
-## =============================================================================
 
 # --- Mid level: diagsep with model="sl" (continued) ---
 run_test("diagsep(model='sl') - complete separation", function(backend, solver) {
@@ -3376,31 +2612,31 @@ print_section("seprows (SL)", 2)
 # --- Lowest level: seprows_sl ---
 print_section("seprows_sl (lowest level)", 3)
 
-run_test("seprows_sl - complete separation", function(backend, solver) {
-  seprows_sl(y_sl_cs, X_sl_cs, rational = rational, backend = backend, solver = solver)
+run_simple_test("seprows_sl - complete separation", function(backend, solver) {
+  seprows_sl(y_sl_cs, X_sl_cs, rational = rational)
 })
 
-run_test("seprows_sl - quasi-complete separation", function(backend, solver) {
-  seprows_sl(y_sl_qcs, X_sl_qcs, rational = rational, backend = backend, solver = solver)
+run_simple_test("seprows_sl - quasi-complete separation", function(backend, solver) {
+  seprows_sl(y_sl_qcs, X_sl_qcs, rational = rational)
 })
 
-run_test("seprows_sl - overlap", function(backend, solver) {
-  seprows_sl(y_sl_ol, X_sl_ol, rational = rational, backend = backend, solver = solver)
+run_simple_test("seprows_sl - overlap", function(backend, solver) {
+  seprows_sl(y_sl_ol, X_sl_ol, rational = rational)
 })
 
 # --- Mid level: seprows with model="sl" ---
 print_section("seprows with model='sl' (mid level)", 3)
 
-run_test("seprows(model='sl') - complete separation", function(backend, solver) {
-  seprows(y_sl_cs, X_sl_cs, rational = rational, model = "sl", backend = backend, solver = solver)
+run_simple_test("seprows(model='sl') - complete separation", function(backend, solver) {
+  seprows(y_sl_cs, X_sl_cs, rational = rational, model = "sl")
 })
 
-run_test("seprows(model='sl') - quasi-complete separation", function(backend, solver) {
-  seprows(y_sl_qcs, X_sl_qcs, rational = rational, model = "sl", backend = backend, solver = solver)
+run_simple_test("seprows(model='sl') - quasi-complete separation", function(backend, solver) {
+  seprows(y_sl_qcs, X_sl_qcs, rational = rational, model = "sl")
 })
 
-run_test("seprows(model='sl') - overlap", function(backend, solver) {
-  seprows(y_sl_ol, X_sl_ol, rational = rational, model = "sl", backend = backend, solver = solver)
+run_simple_test("seprows(model='sl') - overlap", function(backend, solver) {
+  seprows(y_sl_ol, X_sl_ol, rational = rational, model = "sl")
 })
 
 ## =============================================================================
@@ -3412,39 +2648,33 @@ print_section("linearities (SL)", 2)
 # --- Lowest level: linearities_sl ---
 print_section("linearities_sl (lowest level)", 3)
 
-run_test("linearities_sl - complete separation", function(backend, solver) {
-  linearities_sl(y_sl_cs, X_sl_cs, rational = rational, backend = backend, solver = solver)
+run_simple_test("linearities_sl - complete separation", function(backend, solver) {
+  linearities_sl(y_sl_cs, X_sl_cs, rational = rational)
 })
 
-run_test("linearities_sl - quasi-complete separation", function(backend, solver) {
-  linearities_sl(y_sl_qcs, X_sl_qcs, rational = rational, backend = backend, solver = solver)
+run_simple_test("linearities_sl - quasi-complete separation", function(backend, solver) {
+  linearities_sl(y_sl_qcs, X_sl_qcs, rational = rational)
 })
 
-run_test("linearities_sl - overlap", function(backend, solver) {
-  linearities_sl(y_sl_ol, X_sl_ol, rational = rational, backend = backend, solver = solver)
+run_simple_test("linearities_sl - overlap", function(backend, solver) {
+  linearities_sl(y_sl_ol, X_sl_ol, rational = rational)
 })
 
 # --- Mid level: linearities with model="sl" ---
 print_section("linearities with model='sl' (mid level)", 3)
 
-run_test("linearities(model='sl') - complete separation", function(backend, solver) {
-  linearities(y_sl_cs, X_sl_cs, rational = rational, model = "sl", backend = backend, solver = solver)
+run_simple_test("linearities(model='sl') - complete separation", function(backend, solver) {
+  linearities(y_sl_cs, X_sl_cs, rational = rational, model = "sl")
 })
 
-run_test("linearities(model='sl') - quasi-complete separation", function(backend, solver) {
-  linearities(y_sl_qcs, X_sl_qcs, rational = rational, model = "sl", backend = backend, solver = solver)
+run_simple_test("linearities(model='sl') - quasi-complete separation", function(backend, solver) {
+  linearities(y_sl_qcs, X_sl_qcs, rational = rational, model = "sl")
 })
 
-run_test("linearities(model='sl') - overlap", function(backend, solver) {
-  linearities(y_sl_ol, X_sl_ol, rational = rational, model = "sl", backend = backend, solver = solver)
+run_simple_test("linearities(model='sl') - overlap", function(backend, solver) {
+  linearities(y_sl_ol, X_sl_ol, rational = rational, model = "sl")
 })
 
-################################################################################
-##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 7b: SL MODEL TESTS                        ##
-##  Functions: reccone, overlap_fc, overlap_qc, separation_qc                 ##
-##                                                                            ##
-################################################################################
 
 ## =============================================================================
 ## 6.7 reccone / rec_cone - SL
@@ -3455,31 +2685,31 @@ print_section("reccone / rec_cone (SL)", 2)
 # --- Lowest level: reccone_sl ---
 print_section("reccone_sl (lowest level)", 3)
 
-run_test("reccone_sl - complete separation", function(backend, solver) {
-  reccone_sl(y_sl_cs, X_sl_cs, rational = rational, backend = backend, solver = solver)
+run_simple_test("reccone_sl - complete separation", function(backend, solver) {
+  reccone_sl(y_sl_cs, X_sl_cs, rational = rational)
 })
 
-run_test("reccone_sl - quasi-complete separation", function(backend, solver) {
-  reccone_sl(y_sl_qcs, X_sl_qcs, rational = rational, backend = backend, solver = solver)
+run_simple_test("reccone_sl - quasi-complete separation", function(backend, solver) {
+  reccone_sl(y_sl_qcs, X_sl_qcs, rational = rational)
 })
 
-run_test("reccone_sl - overlap", function(backend, solver) {
-  reccone_sl(y_sl_ol, X_sl_ol, rational = rational, backend = backend, solver = solver)
+run_simple_test("reccone_sl - overlap", function(backend, solver) {
+  reccone_sl(y_sl_ol, X_sl_ol, rational = rational)
 })
 
 # --- Mid level: reccone with model="sl" ---
 print_section("reccone with model='sl' (mid level)", 3)
 
-run_test("reccone(model='sl') - complete separation", function(backend, solver) {
-  reccone(y_sl_cs, X_sl_cs, rational = rational, model = "sl", backend = backend, solver = solver)
+run_simple_test("reccone(model='sl') - complete separation", function(backend, solver) {
+  reccone(y_sl_cs, X_sl_cs, rational = rational, model = "sl")
 })
 
-run_test("reccone(model='sl') - quasi-complete separation", function(backend, solver) {
-  reccone(y_sl_qcs, X_sl_qcs, rational = rational, model = "sl", backend = backend, solver = solver)
+run_simple_test("reccone(model='sl') - quasi-complete separation", function(backend, solver) {
+  reccone(y_sl_qcs, X_sl_qcs, rational = rational, model = "sl")
 })
 
-run_test("reccone(model='sl') - overlap", function(backend, solver) {
-  reccone(y_sl_ol, X_sl_ol, rational = rational, model = "sl", backend = backend, solver = solver)
+run_simple_test("reccone(model='sl') - overlap", function(backend, solver) {
+  reccone(y_sl_ol, X_sl_ol, rational = rational, model = "sl")
 })
 
 ## =============================================================================
@@ -3488,33 +2718,6 @@ run_test("reccone(model='sl') - overlap", function(backend, solver) {
 
 print_section("overlap_fc (SL)", 2)
 
-# --- Lowest level: overlap_fc_sl ---
-print_section("overlap_fc_sl (lowest level)", 3)
-
-run_test("overlap_fc_sl - complete separation (frac=1)", function(backend, solver) {
-  overlap_fc_sl(y_sl_cs, X_sl_cs, frac = 1, verbose = 0, rational = rational, 
-                backend = backend, solver = solver)
-})
-
-run_test("overlap_fc_sl - complete separation (frac=3)", function(backend, solver) {
-  overlap_fc_sl(y_sl_cs, X_sl_cs, frac = 3, verbose = 0, rational = rational, 
-                backend = backend, solver = solver)
-})
-
-run_test("overlap_fc_sl - quasi-complete separation (frac=1)", function(backend, solver) {
-  overlap_fc_sl(y_sl_qcs, X_sl_qcs, frac = 1, verbose = 0, rational = rational, 
-                backend = backend, solver = solver)
-})
-
-run_test("overlap_fc_sl - quasi-complete separation (frac=5)", function(backend, solver) {
-  overlap_fc_sl(y_sl_qcs, X_sl_qcs, frac = 5, verbose = 0, rational = rational, 
-                backend = backend, solver = solver)
-})
-
-run_test("overlap_fc_sl - overlap (frac=1)", function(backend, solver) {
-  overlap_fc_sl(y_sl_ol, X_sl_ol, frac = 1, verbose = 0, rational = rational, 
-                backend = backend, solver = solver)
-})
 
 # --- Mid level: overlap_fc with model="sl" ---
 print_section("overlap_fc with model='sl' (mid level)", 3)
@@ -3540,21 +2743,6 @@ run_test("overlap_fc(model='sl') - overlap", function(backend, solver) {
 
 print_section("overlap_qc (SL)", 2)
 
-# --- Lowest level: overlap_qc_sl ---
-print_section("overlap_qc_sl (lowest level)", 3)
-
-run_test("overlap_qc_sl - complete separation", function(backend, solver) {
-  overlap_qc_sl(y_sl_cs, X_sl_cs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("overlap_qc_sl - quasi-complete separation", function(backend, solver) {
-  overlap_qc_sl(y_sl_qcs, X_sl_qcs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("overlap_qc_sl - overlap", function(backend, solver) {
-  overlap_qc_sl(y_sl_ol, X_sl_ol, rational = rational, backend = backend, solver = solver)
-})
-
 # --- Mid level: overlap_qc with model="sl" ---
 print_section("overlap_qc with model='sl' (mid level)", 3)
 
@@ -3576,50 +2764,6 @@ run_test("overlap_qc(model='sl') - overlap", function(backend, solver) {
 
 print_section("separation_qc (SL)", 2)
 
-# --- Lowest level: separation_qc_sl ---
-print_section("separation_qc_sl (lowest level)", 3)
-
-run_test("separation_qc_sl - complete separation", function(backend, solver) {
-  separation_qc_sl(y_sl_cs, X_sl_cs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("separation_qc_sl - quasi-complete separation", function(backend, solver) {
-  separation_qc_sl(y_sl_qcs, X_sl_qcs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("separation_qc_sl - overlap", function(backend, solver) {
-  separation_qc_sl(y_sl_ol, X_sl_ol, rational = rational, backend = backend, solver = solver)
-})
-
-# --- Mid level: separation_qc with model="sl" ---
-print_section("separation_qc with model='sl' (mid level)", 3)
-
-run_test("separation_qc(model='sl') - complete separation", function(backend, solver) {
-  separation_qc(y_sl_cs, X_sl_cs, rational = rational, model = "sl", backend = backend, solver = solver)
-})
-
-run_test("separation_qc(model='sl') - quasi-complete separation", function(backend, solver) {
-  separation_qc(y_sl_qcs, X_sl_qcs, rational = rational, model = "sl", backend = backend, solver = solver)
-})
-
-run_test("separation_qc(model='sl') - overlap", function(backend, solver) {
-  separation_qc(y_sl_ol, X_sl_ol, rational = rational, model = "sl", backend = backend, solver = solver)
-})
-
-cat("
-")
-cat(paste(rep
-
-          ################################################################################
-##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 7b (continued): SL MODEL TESTS            ##
-##  Functions: separation_qc (continued)                                      ##
-##                                                                            ##
-################################################################################
-
-## =============================================================================
-## 6.10 separation_qc - SL (continued)
-## =============================================================================
 
 # --- Mid level: separation_qc with model="sl" (continued) ---
 run_test("separation_qc(model='sl') - complete separation", function(backend, solver) {
@@ -3634,14 +2778,10 @@ run_test("separation_qc(model='sl') - overlap", function(backend, solver) {
   separation_qc(y_sl_ol, X_sl_ol, rational = rational, model = "sl", backend = backend, solver = solver)
 })
 
-cat("
-")
-cat(paste(rep("#", 78), collapse = ""), "
-")
-cat("##  END OF SL MODEL TESTS
-")
-cat(paste(rep("#", 78), collapse = ""), "
-")
+cat("")
+cat(paste(rep("#", 78), collapse = ""), "")
+cat("##  END OF SL MODEL TESTS")
+cat(paste(rep("#", 78), collapse = ""), "")
 
 ################################################################################
 ##                                                                            ##
