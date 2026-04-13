@@ -10,13 +10,14 @@ print.sepmod <- function(x, info = c("minimal","full"),...)
      if(missing(info)) info <- "minimal"   
      cat("Separation Check for Model:","\n")
      print(obj$modelcall)
-     cat("Model Class:", switch(obj$modelclass,
-                                b = "Binary",
-                                bcl = "Baseline-Category",
-                                cl = "Cumulative",
-                                acl = "Adjacent-Category",
-                                sl = "Sequential",
-                                osm = "Ordered Stereotype")
+     cat("Check Family:", switch(obj$modelclass,
+                                b = "Binary Model",
+                                bcl = "Baseline-Category Link Model",
+                                cl = "Cumulative Link Model",
+                                acl = "Adjacent-Category Link Model",
+                                sl = "Sequential Link Model",
+                                osm = "Ordered Stereotype Model",
+                                strucvec= "Structure Vectors")
        , "\n")
      cat("\n")
      cat("Separation:", obj$separation, "\n")
@@ -42,7 +43,7 @@ print.sepmod_sl<- function(x, info = c("minimal","full"),...)
      if(missing(info)) info <- "minimal"
      cat("Separation Check for Model:","\n")
      print(obj[[1]]$modelcall)
-     cat("Model Class: Sequential","\n")
+     cat("Check Family: Sequential Link Model","\n")
      cat("\n")
      for(i in 1:(length(obj))){
      #cat(rep("-",30),"\n")

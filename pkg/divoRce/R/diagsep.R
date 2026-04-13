@@ -59,7 +59,8 @@ diagsep<-function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","os
            sl=diagsep_sl(y=y,X=X,rational=rational, backend = backend, solver = solver),
            osm=diagsep_osm(y=y,X=X,rational=rational, backend = backend, solver = solver)
            )
-     } else {
+  } else {
+        model <- "strucvec"
         lout <- linearities(S=S,rational=rational)$index
         offrows <- seprows(S=S,rational=rational)$offrows
         typ<-ifelse(length(lout)>0,ifelse(length(lout)==dim(S)[1],"Overlap","Quasi-Complete Separation"),"Complete Separation")

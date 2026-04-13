@@ -54,27 +54,27 @@ seprows<-function(y, X, S, rational=FALSE, model = c("bcl","b","cl","acl","sl","
         }
         lout <- linearities(S=S,rational=rational)$index # these are the structure vectors that are linearities
         if (length(lout)==0){
-        # No structure vectors are linearities = complete separation and all rows are returned
-        offrows <-  S
-        idxo <-  seq(1,dim(Xstar)[1],by=1)
-        attr(offrows,"assign") <- NULL
+            # No structure vectors are linearities = complete separation and all rows are returned
+            offrows <-  S
+            idxo <-  seq(1,dim(Xstar)[1],by=1)
+            attr(offrows,"assign") <- NULL
         } else {
-        if (length(lout)==dim(Xstar)[1]){
-      # All structure vectors are linearities = overlap and no rows are returned
-        idxo <- integer(0)
-        offrows <-  S[idxo,]
-        attr(offrows,"assign") <- NULL
-        } else {
-        # some structure vectors but not all are linearities = quasi-complete separation and all the rows that are non-linearities get returned
-       idxo <-  seq(1,dim(Xstar)[1],by=1)[-lout]
-       Soffrows <- S[idxo,,drop=FALSE]
-       offrows <- Soffrows
-  }
-  colnames(offrows) <- colnames(S)
-  out <- list(offrows=offrows,index=idxo)
-  return(out)
-  }
- }
+               if (length(lout)==dim(Xstar)[1]){
+                   # All structure vectors are linearities = overlap and no rows are returned
+                   idxo <- integer(0)
+                   offrows <-  S[idxo,]
+                   attr(offrows,"assign") <- NULL
+               } else {
+                       # some structure vectors but not all are linearities = quasi-complete separation and all the rows that are non-linearities get returned
+                       idxo <-  seq(1,dim(Xstar)[1],by=1)[-lout]
+                       Soffrows <- S[idxo,,drop=FALSE]
+                       offrows <- Soffrows
+               }
+        }
+        colnames(offrows) <- colnames(S)
+        out <- list(offrows=offrows,index=idxo)
+        return(out)
+   }
 }
 
 

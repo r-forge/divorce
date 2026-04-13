@@ -1,7 +1,6 @@
 ################################################################################
 ##                                                                            ##
-##  COMPREHENSIVE TEST SUITE FOR SEPARATION DETECTION PACKAGE                 ##
-##  Part 1: Setup, Data Loading, and Binary Model Tests                       ##
+##  COMPREHENSIVE TEST SUITE FOR divoRce PACKAGE                   ##
 ##                                                                            ##
 ################################################################################
 
@@ -24,7 +23,7 @@ backend_solver_combos <- list(
   list(backend = "rcdd", solver = NULL),
   list(backend = "rcdd", solver = "CrissCross"),
   list(backend = "ROI", solver = NULL),
-  list(backend = "ROI", solver = "lpsolve")
+  list(backend = "ROI", solver = "lpsolve"),
   list(backend = "ROI", solver = "highs")
 )
 
@@ -120,8 +119,8 @@ cat("✓ Binary: Silvapulle (quasi-complete separation)")
 
 data(titanic3)
 tita_glm <- glm(Survived ~ Pclass + Sex, family = binomial(), data = titanic3)
-y_b_cs <- tita_glm$y
-X_b_cs <- model.matrix(tita_glm)
+y_b_tita <- y_b_cs <- tita_glm$y
+X_b_tita <- X_b_cs <- model.matrix(tita_glm)
 cat("✓ Binary: titanic3 (complete separation)")
 
 data(ovldat1)
@@ -224,11 +223,14 @@ cat("✓ SL: using ACL datasets")
 
 ## S matrix versions
 
-S_cs <- X_b_cs
+S_cs <- as.matrix(X_b_cs)
 S_cs[y_b_cs == 0, ] <- -1 * S_cs[y_b_cs == 0, ]
 
-S_qcs <- X_b_qcs
-  S_qcs[y_b_qcs == 0, ] <- -1 * S_qcs[y_b_qcs == 0, ]
+S_qcs <- as.matrix(X_b_qcs)
+S_qcs[y_b_qcs == "No", ] <- -1 * S_qcs[y_b_qcs == "No", ]
+
+S_ol <- as.matrix(X_b_ol)
+S_ol[y_b_ol == 0, ] <- -1 * S_ol[y_b_ol == 0, ]
 
 cat("✓ All test data loaded successfully")
 
@@ -536,7 +538,11 @@ run_simple_test("seprows(model='b') - overlap", function(backend, solver) {
 })
 
 run_simple_test("seprows(S=) - complete separation", function(backend, solver) {
-  seprows(S = S_cs, rational = rational)
+  seprows(S = S_qcs, rational = rational)
+})
+
+run_simple_test("seprows(S=) - overlap", function(backend, solver) {
+  seprows(S = S_ol, rational = rational)
 })
 
 # --- Generic: separation_rows.glm ---
