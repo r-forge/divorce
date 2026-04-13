@@ -25,6 +25,7 @@ backend_solver_combos <- list(
   list(backend = "rcdd", solver = "CrissCross"),
   list(backend = "ROI", solver = NULL),
   list(backend = "ROI", solver = "lpsolve")
+  list(backend = "ROI", solver = "highs")
 )
 
 ## Test runner with all backend/solver combinations
@@ -159,9 +160,13 @@ y_bcl_allig2 <- Alligators$foodchoice
 X_bcl_allig2 <- model.matrix(allgm2)
 cat("✓ BCL: Alligators with interaction (quasi-complete separation)")
 
+allgm3 <- brglm2::brmultinom(foodchoice ~ size + lake * sex, data = Alligators)
+cat("✓ BCL: Alligators with interaction (quasi-complete separation)")
+
 ## CL / Ordinal Data
 data(HDSS)
 hdss_clm <- clm(WTSSHI ~ trustSHI * knowledge, data = HDSS)
+hdss_polr <- MASS::polr(WTSSHI ~ trustSHI * knowledge, data = HDSS)
 y_cl_hdss <- HDSS$WTSSHI
 X_cl_hdss <- model.matrix(hdss_clm)$X
 cat("✓ CL: HDSS")
@@ -193,6 +198,10 @@ y_acl_ol <- as.ordered(ovldato$y)
 X_acl_ol <- as.matrix(ovldato[, 2:ncol(ovldato)])
 cat("✓ ACL: ovldato (overlap)")
 
+data(HDSS)
+hdss_npacl <- brglm2::bracl(WTSSHI ~ trustSHI * knowledge, data = HDSS, parallel = FALSE)
+hdss_pacl <-brglm2::bracl(WTSSHI ~ trustSHI * knowledge, data = HDSS, parallel = TRUE)
+
 ## OSM Data
 y_osm_qcs <- y_osm_wine <- as.ordered(wine$rating)
 X_osm_qcs <- X_osm_wine <- model.matrix(~ temp * contact, data = wine)[, -1]
@@ -213,13 +222,20 @@ y_sl_ol <- y_acl_ol
 X_sl_ol <- X_acl_ol
 cat("✓ SL: using ACL datasets")
 
+## S matrix versions
+
+S_cs <- X_b_cs
+S_cs[y_b_cs == 0, ] <- -1 * S_cs[y_b_cs == 0, ]
+
+S_qcs <- X_b_qcs
+  S_qcs[y_b_qcs == 0, ] <- -1 * S_qcs[y_b_qcs == 0, ]
+
 cat("✓ All test data loaded successfully")
 
 
 ################################################################################
 ##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 2a: BINARY MODEL TESTS                    ##
-##  Functions: checksep, checkovl, diagsep                                    ##
+##  COMPREHENSIVE TEST SUITE - PART 1: BINARY MODEL TESTS                    ##
 ##                                                                            ##
 ################################################################################
 
@@ -269,6 +285,13 @@ run_test("checksep(model='b') - overlap", function(backend, solver) {
   checksep(y_b_ol, X_b_ol, rational = rational, model = "b", backend = backend, solver = solver)
 })
 
+# --- Mid level: with S matrix ---
+print_section("checksep with S matrix (mid level)", 3)
+
+run_test("checksep(S=) - complete separation", function(backend, solver) {
+  checksep(S = S_cs, rational = rational, backend = backend, solver = solver)
+})
+
 # --- Generic: check_separation.glm ---
 print_section("check_separation.glm (generic)", 3)
 
@@ -292,6 +315,15 @@ run_test("check_separation.glm - overlap", function(backend, solver) {
   check_separation(ovl_glm, rational = rational, backend = backend, solver = solver)
 })
 
+run_test("check_separation.formula ", function(backend, solver) {
+  check_separation(y ~ x1 + x2, data = ovldat1, model="b", rational = rational, backend = backend, solver = solver)
+})
+
+run_test("check_separation.matrix - complete separation", function(backend, solver) {
+  check_separation(S = S_cs, rational = rational, backend = backend, solver = solver)
+})
+
+
 
 ###############
 ## checkovl
@@ -314,6 +346,11 @@ run_test("checkovl(model='b') - quasi-complete separation", function(backend, so
 run_test("checkovl(model='b') - overlap", function(backend, solver) {
   checkovl(y_b_ol, X_b_ol, rational = rational, model = "b", backend = backend, solver = solver)
 })
+
+run_test("checkovl(S=) - complete separation", function(backend, solver) {
+  checkovl(S = S_cs, rational = rational, backend=backend, solver=solver)
+})
+
 
 ## =============================================================================
 ## 1.3 diagsep - Binary
@@ -351,6 +388,13 @@ run_test("diagsep(model='b') - overlap", function(backend, solver) {
   diagsep(y_b_ol, X_b_ol, rational = rational, model = "b", backend = backend, solver = solver)
 })
 
+
+run_test("diagsep(S=) - complete separation", function(backend, solver) {
+  diagsep(S = S_cs, rational = rational, backend = backend, solver = solver)
+})
+
+
+
 # --- Generic: diagnose_separation.glm ---
 print_section("diagnose_separation.glm (generic)", 3)
 
@@ -366,6 +410,15 @@ run_test("diagnose_separation.glm - overlap", function(backend, solver) {
   diagnose_separation(ovl_glm, rational = rational, backend = backend, solver = solver)
 })
 
+run_test("diagnose_separation.formula ", function(backend, solver) {
+  diagnose_separation(y ~ x1 + x2, data = ovldat1, model="b", rational = rational, backend = backend, solver = solver)
+})
+
+run_test("diagnose_separation.matrix - complete separation", function(backend, solver) {
+  diagnose_separation(S = S_cs, rational = rational, backend = backend, solver = solver)
+})
+
+
 # --- print.sepmod ---
 print_section("print.sepmod (Binary)", 3)
 
@@ -378,13 +431,6 @@ run_simple_test("print.sepmod - full", function() {
   sd1 <- diagsep_b(y_b_qcs, X_b_qcs, rational = rational)
   print(sd1, info = "full")
 })
-
-################################################################################
-##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 2b: BINARY MODEL TESTS                    ##
-##  Functions: sepcols, seprows, linearities                                  ##
-##                                                                            ##
-################################################################################
 
 ## =============================================================================
 ## 1.4 sepcols / detect_sepcols - Binary
@@ -422,6 +468,12 @@ run_test("detect_sepcols(model='b') - overlap", function(backend, solver) {
   detect_sepcols(y_b_ol, X_b_ol, rational = rational, model = "b", backend = backend, solver = solver)
 })
 
+
+run_test("detect_sepcols (S=) - complete separation", function(backend, solver) {
+  sepcols(S = S_cs, rational = rational, backend = backend, solver = solver)
+})
+
+
 # --- Generic: separation_columns.glm ---
 print_section("separation_columns.glm (generic)", 3)
 
@@ -436,6 +488,16 @@ run_test("separation_columns.glm - quasi-complete separation", function(backend,
 run_test("separation_columns.glm - overlap", function(backend, solver) {
   separation_columns(ovl_glm, rational = rational, backend = backend, solver = solver)
 })
+
+run_test("separation_columns.formula ", function(backend, solver) {
+  separation_columns(y ~ x1 + x2, data = ovldat1, model="b", rational = rational, backend = backend, solver = solver)
+})
+
+
+run_test("separation_columns.matrix - complete separation", function(backend, solver) {
+  separation_columns(S = S_cs, rational = rational, backend = backend, solver = solver)
+})
+
 
 ## =============================================================================
 ## 1.5 seprows - Binary
@@ -473,6 +535,10 @@ run_simple_test("seprows(model='b') - overlap", function(backend, solver) {
   seprows(y_b_ol, X_b_ol, rational = rational, model = "b")
 })
 
+run_simple_test("seprows(S=) - complete separation", function(backend, solver) {
+  seprows(S = S_cs, rational = rational)
+})
+
 # --- Generic: separation_rows.glm ---
 print_section("separation_rows.glm (generic)", 3)
 
@@ -486,6 +552,14 @@ run_simple_test("separation_rows.glm - quasi-complete separation", function(back
 
 run_simple_test("separation_rows.glm - overlap", function(backend, solver) {
   separation_rows(ovl_glm, rational = rational)
+})
+
+run_simple_test("separation_rows.formula ", function(backend, solver) {
+  separation_rows(y ~ x1 + x2, data = ovldat1, model="b", rational = rational)
+})
+
+run_simple_test("separation_rows.matrix - complete separation", function(backend, solver) {
+  separation_rows(S = S_cs, rational = rational)
 })
 
 ## =============================================================================
@@ -524,12 +598,11 @@ run_simple_test("linearities(model='b') - overlap", function(backend, solver) {
   linearities(y_b_ol, X_b_ol, rational = rational, model = "b")
 })
 
-################################################################################
-##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 2c: BINARY MODEL TESTS                    ##
-##  Functions: reccone, overlap_fc, overlap_qc, separation_qc                 ##
-##                                                                            ##
-################################################################################
+run_simple_test("linearities(S=) - complete separation", function(backend, solver) {
+  linearities(S = S_cs, rational = rational)
+})
+
+
 
 ## =============================================================================
 ## 1.7 reccone / rec_cone - Binary
@@ -567,18 +640,11 @@ run_simple_test("reccone(model='b') - overlap", function(backend, solver) {
   reccone(y_b_ol, X_b_ol, rational = rational, model = "b")
 })
 
-# --- Mid level: reccone with S matrix ---
-print_section("reccone with S matrix (mid level)", 3)
-
 run_simple_test("reccone(S=) - complete separation", function(backend, solver) {
-  S_cs <- X_b_cs
-  S_cs[y_b_cs == 0, ] <- -1 * S_cs[y_b_cs == 0, ]
   reccone(S = S_cs, rational = rational)
 })
 
 run_simple_test("reccone(S=) - quasi-complete separation", function(backend, solver) {
-  S_qcs <- X_b_qcs
-  S_qcs[y_b_qcs == 0, ] <- -1 * S_qcs[y_b_qcs == 0, ]
   reccone(S = S_qcs, rational = rational)
 })
 
@@ -596,6 +662,15 @@ run_simple_test("recession_cone.glm - quasi-complete separation", function(backe
 run_simple_test("recession_cone.glm - overlap", function(backend, solver) {
   recession_cone(ovl_glm, rational = rational)
 })
+
+run_simple_test("recession_cone.formula ", function(backend, solver) {
+  recession_cone(y ~ x1 + x2, data = ovldat1, model="b", rational = rational)
+})
+
+run_simple_test("recession_cone.matrix - quasi-complete separation", function(backend, solver) {
+  recession_cone(S = S_qcs, rational = rational)
+})
+
 
 ## =============================================================================
 ## 1.8 overlap_fc - Binary
@@ -632,6 +707,11 @@ run_test("overlap_fc - complete separation", function(backend, solver) {
 
 run_test("overlap_fc - quasi-complete separation", function(backend, solver) {
   overlap_fc(y_b_qcs, X_b_qcs, frac = 10, verbose = 0, rational = rational, 
+             backend = backend, solver = solver)
+})
+
+run_test("overlap_fc(S) - quasi-complete separation", function(backend, solver) {
+  overlap_fc(S_qcs, frac = 10, verbose = 0, rational = rational, 
              backend = backend, solver = solver)
 })
 
@@ -672,6 +752,11 @@ run_test("overlap_qc - overlap", function(backend, solver) {
   overlap_qc(y_b_ol, X_b_ol, rational = rational, backend = backend, solver = solver)
 })
 
+run_test("overlap_qc(S) - quasi-complete separation", function(backend, solver) {
+  overlap_qc(S_qcs, frac = 10, verbose = 0, rational = rational, 
+             backend = backend, solver = solver)
+})
+
 ## =============================================================================
 ## 1.10 separation_qc - Binary
 ## =============================================================================
@@ -709,6 +794,11 @@ run_test("separation_qc - overlap", function(backend, solver) {
   separation_qc(y_b_ol, X_b_ol, rational = rational, backend = backend, solver = solver)
 })
 
+run_test("separation_qc(S) - quasi-complete separation", function(backend, solver) {
+  separation_qc(S_qcs, frac = 10, verbose = 0, rational = rational, 
+             backend = backend, solver = solver)
+})
+
 cat("")
 cat(paste(rep("#", 78), collapse = ""), "")
 cat("##  END OF BINARY MODEL TESTS")
@@ -719,8 +809,7 @@ cat(paste(rep("#", 78), collapse = ""), "")
 
 ################################################################################
 ##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 3a: BCL MODEL TESTS                       ##
-##  Functions: checksep, checkovl, diagsep                                    ##
+##  COMPREHENSIVE TEST SUITE - PART 2: BCL MODEL TESTS                       ##             
 ##                                                                            ##
 ################################################################################
 
@@ -793,6 +882,15 @@ run_test("check_separation.multinom - quasi-complete (Alligators interaction)", 
   check_separation(allgm2, rational = rational, backend = backend, solver = solver)
 })
 
+run_test("check_separation.brmultinom - quasi-complete (Alligators interaction)", function(backend, solver) {
+  check_separation(allgm3, rational = rational, backend = backend, solver = solver)
+})
+
+run_test("check_separation.formula ", function(backend, solver) {
+  check_separation(y ~ x1 + x2, data = qcsepdatm, model="bcl", rational = rational, backend = backend, solver = solver)
+})
+
+
 ###########
 ### checkovl                                       
 #################
@@ -832,23 +930,7 @@ run_test("diagsep_bcl - complete separation", function(backend, solver) {
 run_test("diagsep_bcl - quasi-complete separation", function(backend, solver) {
   diagsep_bcl(y_bcl_qcs, X_bcl_qcs, rational = rational, backend = backend, solver = solver)
 })
-
-## seems there is an error in .divorce_sepcols_lp
-ttRCDD <- sepcols_bcl(y_bcl_qcs, X_bcl_qcs, rational = rational, backend = "rcdd")
-ttRCDD$offcols
-ttROI <- sepcols_bcl(y_bcl_qcs, X_bcl_qcs, rational = rational, backend = "ROI")
-ttROI$offcols
-## If I just fit categories 1 and 2 not tel me there is separation but 
-cROI <- checksep_bcl(y_bcl_qcs[1:6], X_bcl_qcs[1:6,], rational = rational, backend = "ROI")
-cROI
-cRCDD <- checksep_bcl(y_bcl_qcs[1:6], X_bcl_qcs[1:6,], rational = rational, backend = "rcdd")
-cRCDD
-## But ROI says no separation columns in the binary case as well
-ttROI2 <- sepcols_bcl(y_bcl_qcs[1:6], X_bcl_qcs[1:6,], rational = rational, backend = "ROI")
-ttROI2
-ttRCDD2 <- sepcols_bcl(y_bcl_qcs[1:6], X_bcl_qcs[1:6,], rational = rational, backend = "rcdd")
-ttRCDD2
-
+ 
 run_test("diagsep_bcl - overlap", function(backend, solver) {
   diagsep_bcl(y_bcl_ol, X_bcl_ol, rational = rational, backend = backend, solver = solver)
 })
@@ -891,6 +973,14 @@ run_test("diagnose_separation.multinom - overlap", function(backend, solver) {
   diagnose_separation(ovl_bcl, rational = rational, backend = backend, solver = solver)
 })
 
+run_test("diagnose_separation.brmultinom - quasi-complete separation", function(backend, solver) {
+  diagnose_separation(allgm3, rational = rational, backend = backend, solver = solver)
+})
+
+run_test("diagnose_separation.formula ", function(backend, solver) {
+  diagnose_separation(y ~ x1 + x2, data = qcsepdatm, model="bcl", rational = rational, backend = backend, solver = solver)
+})
+
 # --- print.sepmod for BCL ---
 print_section("print.sepmod (BCL)", 3)
 
@@ -903,14 +993,6 @@ run_simple_test("print.sepmod - full (BCL)", function() {
   sd1 <- diagsep_bcl(y_bcl_qcs, X_bcl_qcs, rational = rational)
   print(sd1, info = "full")
 })
-
-
-################################################################################
-##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 3b: BCL MODEL TESTS                       ##
-##  Functions: sepcols, seprows, linearities                                  ##
-##                                                                            ##
-################################################################################
 
 ## =============================================================================
 ## 2.4 sepcols / detect_sepcols - BCL
@@ -975,13 +1057,13 @@ run_test("separation_columns.multinom - no separation (Alligators)", function(ba
   separation_columns(allgm1, rational = rational, backend = backend, solver = solver)
 })
 
+run_test("separation_columns.brmultinom - no separation (Alligators)", function(backend, solver) {
+  separation_columns(allgm1, rational = rational, backend = backend, solver = solver)
+})
 
-################################################################################
-##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 3b: BCL MODEL TESTS                       ##
-##  Functions: sepcols, seprows, linearities                                  ##
-##                                                                            ##
-################################################################################
+run_test("separation_columns.formula ", function(backend, solver) {
+  separation_columns(y ~ x1 + x2, data = qcsepdatm, model="bcl", rational = rational, backend = backend, solver = solver)
+})
 
 ## =============================================================================
 ## 2.5 seprows - BCL
@@ -1046,6 +1128,16 @@ run_simple_test("separation_rows.multinom - no separation (Alligators)", functio
   separation_rows(allgm1, rational = rational)
 })
 
+
+run_simple_test("separation_rows.brmultinom - quasi-complete separation (Alligators)", function(backend, solver) {
+  separation_rows(allgm3, rational = rational)
+})
+
+
+run_simple_test("separation_rows.formula ", function(backend, solver) {
+  separation_rows(y ~ x1 + x2, data = qcsepdatm, model="bcl", rational = rational, backend = backend, solver = solver)
+})
+
 ## =============================================================================
 ## 2.6 linearities - BCL
 ## =============================================================================
@@ -1089,15 +1181,6 @@ run_simple_test("linearities(model='bcl') - quasi-complete separation", function
 run_simple_test("linearities(model='bcl') - overlap", function(backend, solver) {
   linearities(y_bcl_ol, X_bcl_ol, rational = rational, model = "bcl")
 })
-
-
-
-################################################################################
-##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 3c: BCL MODEL TESTS                       ##
-##  Functions: reccone, overlap_fc, overlap_qc, separation_qc                 ##
-##                                                                            ##
-################################################################################
 
 ## =============================================================================
 ## 2.7 reccone / rec_cone - BCL
@@ -1156,6 +1239,15 @@ run_simple_test("recession_cone.multinom - quasi-complete separation", function(
 
 run_simple_test("recession_cone.multinom - overlap", function(backend, solver) {
   recession_cone(ovl_bcl, rational = rational)
+})
+
+run_simple_test("recession_cone.brmultinom - overlap", function(backend, solver) {
+  recession_cone(allgm3, rational = rational)
+})
+
+
+run_simple_test("recession_cone.formula ", function(backend, solver) {
+  recession_cone(y ~ x1 + x2, data = qcsepdatm, model="bcl", rational = rational, backend = backend, solver = solver)
 })
 
 ## =============================================================================
@@ -1326,8 +1418,7 @@ cat(paste(rep("#", 78), collapse = ""), "")
 
 ################################################################################
 ##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 4a: CL MODEL TESTS                        ##
-##  Functions: checksep, checkovl, diagsep                                    ##
+##  COMPREHENSIVE TEST SUITE - PART 3: CL MODEL TESTS                        ##
 ##                                                                            ##
 ################################################################################
 
@@ -1382,6 +1473,10 @@ run_test("check_separation.clm - wine", function(backend, solver) {
 
 run_test("check_separation.clm - wine with bottle (singularities)", function(backend, solver) {
   check_separation(wine_clm2, rational = rational, backend = backend, solver = solver)
+})
+
+run_test("check_separation.plor - HDSS", function(backend, solver) {
+  check_separation(hdss_polr, rational = rational, backend = backend, solver = solver)
 })
 
 ## =============================================================================
@@ -1456,6 +1551,10 @@ run_test("diagnose_separation.clm - wine with bottle", function(backend, solver)
   diagnose_separation(wine_clm2, rational = rational, backend = backend, solver = solver)
 })
 
+run_test("diagnose_separation.polr - HDSS", function(backend, solver) {
+  diagnose_separation(hdss_polr, rational = rational, backend = backend, solver = solver)
+})
+
 # --- print.sepmod for CL ---
 print_section("print.sepmod (CL)", 3)
 
@@ -1520,6 +1619,10 @@ run_test("separation_columns.clm - wine with bottle", function(backend, solver) 
   separation_columns(wine_clm2, rational = rational, backend = backend, solver = solver)
 })
 
+run_test("separation_columns.polr - HDSS", function(backend, solver) {
+  separation_columns(hdss_polr, rational = rational, backend = backend, solver = solver)
+})
+
 ## =============================================================================
 ## 3.5 seprows - CL
 ## =============================================================================
@@ -1569,6 +1672,10 @@ run_simple_test("separation_rows.clm - wine", function(backend, solver) {
 
 run_simple_test("separation_rows.clm - wine with bottle", function(backend, solver) {
   separation_rows(wine_clm2, rational = rational)
+})
+
+run_simple_test("separation_rows.polr - HDSS", function(backend, solver) {
+  separation_rows(hdss_polr, rational = rational)
 })
 
 ## =============================================================================
@@ -1655,6 +1762,10 @@ run_simple_test("recession_cone.clm - wine", function(backend, solver) {
 
 run_simple_test("recession_cone.clm - wine with bottle", function(backend, solver) {
   recession_cone(wine_clm2, rational = rational)
+})
+
+run_simple_test("recession_cone.polr - HDSS", function(backend, solver) {
+  recession_cone(hdss_polr, rational = rational)
 })
 
 ## =============================================================================
@@ -1785,8 +1896,7 @@ cat(paste(rep("#", 78), collapse = ""), "")
 
 ################################################################################
 ##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 5a: ACL MODEL TESTS                       ##
-##  Functions: checksep, checkovl, diagsep                                    ##
+##  COMPREHENSIVE TEST SUITE - PART 4: ACL MODEL TESTS                       ##
 ##                                                                            ##
 ################################################################################
 
@@ -1826,6 +1936,15 @@ run_test("checksep(model='acl') - quasi-complete separation", function(backend, 
 
 run_test("checksep(model='acl') - overlap", function(backend, solver) {
   checksep(y_acl_ol, X_acl_ol, rational = rational, model = "acl", backend = backend, solver = solver)
+})
+
+### generic
+run_test("check_separation.bracl - quasi-complete", function(backend, solver) {
+  check_separation(hdss_pacl, rational = rational, backend = backend, solver = solver)
+})
+
+run_test("check_separation.bracl - quasi-complete ", function(backend, solver) {
+  check_separation(hdss_npacl, rational = rational, backend = backend, solver = solver)
 })
 
 ## =============================================================================
@@ -1888,6 +2007,16 @@ run_test("diagsep(model='acl') - overlap", function(backend, solver) {
 })
 
 
+### generic
+run_test("diagnose_separation.bracl parallel - quasi-complete", function(backend, solver) {
+  diagnose_separation(hdss_pacl, rational = rational, backend = backend, solver = solver)
+})
+
+run_test("diagnose_separation.bracl nonparallel - quasi-complete ", function(backend, solver) {
+  diagnose_separation(hdss_npacl, rational = rational, backend = backend, solver = solver)
+})
+
+
 # --- print.sepmod for ACL ---
 print_section("print.sepmod (ACL)", 3)
 
@@ -1938,6 +2067,17 @@ run_test("detect_sepcols(model='acl') - overlap", function(backend, solver) {
   detect_sepcols(y_acl_ol, X_acl_ol, rational = rational, model = "acl", backend = backend, solver = solver)
 })
 
+### generic
+run_test("separation_columns.bracl parallel - quasi-complete", function(backend, solver) {
+  separation_columns(hdss_pacl, rational = rational, backend = backend, solver = solver)
+})
+
+run_test("separation_columns.bracl nonparallel - quasi-complete ", function(backend, solver) {
+  separation_columns(hdss_npacl, rational = rational, backend = backend, solver = solver)
+})
+
+
+
 ## =============================================================================
 ## 4.5 seprows - ACL
 ## =============================================================================
@@ -1972,6 +2112,15 @@ run_simple_test("seprows(model='acl') - quasi-complete separation", function(bac
 
 run_simple_test("seprows(model='acl') - overlap", function(backend, solver) {
   seprows(y_acl_ol, X_acl_ol, rational = rational, model = "acl")
+})
+
+### generic
+run_simple_test("separation_rows.bracl parallel - quasi-complete", function(backend, solver) {
+  separation_rows(hdss_pacl, rational = rational)
+})
+
+run_simple_test("separation_rows.bracl nonparallel - quasi-complete ", function(backend, solver) {
+  separation_rows(hdss_npacl, rational = rational)
 })
 
 ## =============================================================================
@@ -2048,6 +2197,15 @@ run_simple_test("reccone(model='acl') - overlap", function(backend, solver) {
 })
 
 
+### generic
+run_simple_test("recession_cone.bracl parallel - quasi-complete", function(backend, solver) {
+  recession_cone(hdss_pacl, rational = rational)
+})
+
+run_simple_test("recession_cone.bracl nonparallel - quasi-complete ", function(backend, solver) {
+  recession_cone(hdss_npacl, rational = rational)
+})
+
 ## =============================================================================
 ## 4.8 overlap_fc - ACL
 ## =============================================================================
@@ -2122,8 +2280,7 @@ cat(paste(rep("#", 78), collapse = ""), "")
 
 ################################################################################
 ##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 6a: OSM MODEL TESTS                       ##
-##  Functions: checksep, checkovl, diagsep                                    ##
+##  COMPREHENSIVE TEST SUITE - PART 5: OSM MODEL TESTS                       ##
 ##                                                                            ##
 ################################################################################
 
@@ -2455,8 +2612,7 @@ cat(paste(rep("#", 78), collapse = ""), "")
 
 ################################################################################
 ##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 7a: SL MODEL TESTS                        ##
-##  Functions: checksep, checkovl, diagsep                                    ##
+##  COMPREHENSIVE TEST SUITE - PART 6: SL MODEL TESTS                        ##
 ##                                                                            ##
 ################################################################################
 

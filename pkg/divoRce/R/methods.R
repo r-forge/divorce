@@ -23,7 +23,7 @@ check_separation.factor <-  check_separation.default
 #' @rdname checksep
 check_separation.matrix <- function(S, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
-    checksep(S = S, rational = rational, backend = backend, solver = solver, ...)
+    return(checksep(S = S, rational = rational, backend = backend, solver = solver, ...))
 }
 
 ##### check_separation
@@ -48,7 +48,7 @@ check_separation.formula <- function(formula, data, model = c("bcl", "b", "cl", 
 #' @rdname diagsep
 diagnose_separation.default <- function(y, X, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
-    diagsep(y = y, X = X, rational=rational, backend = backend, solver = solver, ...)
+    return(diagsep(y = y, X = X, rational=rational, backend = backend, solver = solver, ...))
 }
 
 #' @export
@@ -67,7 +67,7 @@ diagnose_separation.factor <-  diagnose_separation.default
 #' @rdname diagsep
 diagnose_separation.matrix <- function(S, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
-    diagsep(S = S, rational=rational, backend = backend, solver = solver, ...)
+    return(diagsep(S = S, rational=rational, backend = backend, solver = solver, ...))
 }
 
 #' @rdname diagsep
@@ -96,7 +96,7 @@ diagnose_separation.formula <- function(formula, data, model = c("bcl", "b", "cl
 #' @rdname detect_sepcols
 separation_columns.factor <- function(y, X, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
-    sepcols(y = y, X=X, rational=rational, backend = backend, solver = solver, ...)
+    return(sepcols(y = y, X=X, rational=rational, backend = backend, solver = solver, ...))
 }
 
 #' @export
@@ -115,7 +115,7 @@ separation_columns.default <-  separation_columns.factor
 #' @rdname detect_sepcols
 separation_columns.matrix <- function(S, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
-    sepcols(S=S, rational=rational, backend = backend, solver = solver, ...)
+    return(sepcols(S=S, rational=rational, backend = backend, solver = solver, ...))
 }
 
 #' @rdname detect_sepcols
@@ -131,7 +131,7 @@ separation_columns.formula <- function(formula, data, model = c("bcl", "b", "cl"
 {
     yx <- make_yx(formula, data, contrasts) 
     if(missing(model)) model <-  NULL
-    sepcols(y = yx$y, X = yx$X, model = model, rational=rational, backend = backend, solver = solver, ...)
+    return(sepcols(y = yx$y, X = yx$X, model = model, rational=rational, backend = backend, solver = solver, ...))
 }
 
 ##### separation_rows
@@ -139,7 +139,7 @@ separation_columns.formula <- function(formula, data, model = c("bcl", "b", "cl"
 #' @rdname seprows 
 separation_rows.factor <- function(y, X, rational = FALSE, ... )
 {
-    seprows(y = y, X = X, rational=rational, ...)
+    return(seprows(y = y, X = X, rational=rational, ...))
 }
 
 #' @export
@@ -158,7 +158,7 @@ separation_rows.default <-  separation_rows.factor
 #' @rdname seprows 
 separation_rows.matrix <- function(S, rational = FALSE, ... )
 {
-    seprows(S=S, rational=rational, ...)
+    return(seprows(S=S, rational=rational, ...))
 }
 
 #' @rdname seprows
@@ -174,7 +174,7 @@ separation_rows.formula <- function(formula, data, model = c("bcl", "b", "cl", "
 {
     yx <- make_yx(formula, data, contrasts) 
     if(missing(model)) model <-  NULL
-    seprows(y = yx$y, X = yx$X, model = model, rational=rational, ...)
+    return(seprows(y = yx$y, X = yx$X, model = model, rational=rational, ...))
 }
 
 ##### recession_cone
@@ -182,7 +182,7 @@ separation_rows.formula <- function(formula, data, model = c("bcl", "b", "cl", "
 #' @rdname reccone
 recession_cone.default <- function(y, X, rational = FALSE, ... )
 {
-    reccone(y = y, X = X, rational=rational, ...)
+    return(reccone(y = y, X = X, rational=rational, ...))
 }
 
 #' @export
@@ -201,7 +201,7 @@ recession_cone.factor <-  recession_cone.default
 #' @rdname reccone
 recession_cone.matrix <- function(S, rational = FALSE,  ... )
 {
-    reccone(S = S, rational=rational, ...)
+    return(reccone(S = S, rational=rational, ...))
 }
 
 #' @rdname reccone
@@ -217,7 +217,7 @@ recession_cone.formula <- function(formula, data, model = c("bcl", "b", "cl", "a
 {
     yx <- make_yx(formula, data, contrasts) 
     if(missing(model)) model <-  NULL
-    reccone(y = yx$y, X = yx$X, model = model, rational=rational, ...)
+    return(reccone(y = yx$y, X = yx$X, model = model, rational=rational, ...))
 }
 
 
@@ -233,7 +233,7 @@ check_separation.osm <- function(object, rational = FALSE, backend = c("rcdd", "
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    checksep_osm(y=y,X=X,rational=rational, backend = backend, solver = solver)
+    return(checksep_osm(y=y,X=X,rational=rational, backend = backend, solver = solver))
 }
 
 #' @export
@@ -244,7 +244,7 @@ diagnose_separation.osm <- function(object, rational = FALSE, backend = c("rcdd"
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    diagsep_osm(y=y,X=X,rational=rational, backend = backend, solver = solver)
+    out <- diagsep_osm(y=y,X=X,rational=rational, backend = backend, solver = solver)
     out$modelcall <- x$call
     return(out)
 }
@@ -257,7 +257,7 @@ separation_columns.osm <- function(object, rational = FALSE, backend = c("rcdd",
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    sepcols_osm(y=y,X=X,rational=rational, backend = backend, solver = solver)
+    return(sepcols_osm(y=y,X=X,rational=rational, backend = backend, solver = solver))
 }
 
 #' @export
@@ -268,7 +268,7 @@ separation_rows.osm <- function(object, rational = FALSE,  ... )
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    seprows_osm(y=y,X=X,rational=rational)
+    return(seprows_osm(y=y,X=X,rational=rational))
 }
 
 #' @export
@@ -279,7 +279,7 @@ recession_cone.osm <- function(object, rational = FALSE,  ... )
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    reccone_osm(y=y,X=X,rational=rational)
+    return(reccone_osm(y=y,X=X,rational=rational))
 }
 
 #### CLM
@@ -293,7 +293,7 @@ check_separation.clm <- function(object, rational = FALSE,  backend = c("rcdd", 
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)$X
-    checksep_cl(y=y, X=X, rational=rational, backend = backend, solver = solver )
+    return(checksep_cl(y=y, X=X, rational=rational, backend = backend, solver = solver))
 }
 
 #' @export
@@ -317,7 +317,7 @@ separation_columns.clm <- function(object, rational = FALSE, backend = c("rcdd",
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)$X
-    sepcols_cl(y=y,X=X,rational=rational, backend = backend, solver = solver)
+    return(sepcols_cl(y=y,X=X,rational=rational, backend = backend, solver = solver))
 }
 
 #' @export
@@ -328,7 +328,7 @@ separation_rows.clm <- function(object, rational = FALSE, ... )
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)$X
-    seprows_cl(y=y,X=X,rational=rational)
+    return(seprows_cl(y=y,X=X,rational=rational))
 }
 
 #' @export
@@ -339,7 +339,7 @@ recession_cone.clm <- function(object, rational = FALSE,  ... )
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)$X
-    reccone_cl(y=y,X=X,rational=rational)
+    return(reccone_cl(y=y,X=X,rational=rational))
 }
 
 ###  polr
@@ -352,7 +352,7 @@ check_separation.polr <- function(object, rational = FALSE, backend = c("rcdd", 
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    checksep_cl(y=y, X=X, rational=rational, backend = backend, solver = solver)
+    return(checksep_cl(y=y, X=X, rational=rational, backend = backend, solver = solver))
 }
 
 #' @export
@@ -363,7 +363,7 @@ diagnose_separation.polr <- function(object, rational = FALSE, backend = c("rcdd
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    diagsep_cl(y=y,X=X,rational=rational, backend = backend, solver = solver)
+    out <- diagsep_cl(y=y,X=X,rational=rational, backend = backend, solver = solver)
     out$modelcall <- x$call
     return(out)
 }
@@ -376,7 +376,7 @@ separation_columns.polr <- function(object, rational = FALSE, backend = c("rcdd"
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    sepcols_cl(y=y,X=X,rational=rational, backend = backend, solver = solver)
+    return(sepcols_cl(y=y,X=X,rational=rational, backend = backend, solver = solver))
 }
 
 #' @export
@@ -387,7 +387,7 @@ separation_rows.polr <- function(object, rational = FALSE, ... )
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    seprows_cl(y=y,X=X,rational=rational)
+    return(seprows_cl(y=y,X=X,rational=rational))
 }
 
 #' @export
@@ -398,7 +398,7 @@ recession_cone.polr <- function(object, rational = FALSE,  ... )
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    reccone_cl(y=y,X=X,rational=rational)
+    return(reccone_cl(y=y,X=X,rational=rational))
 }
 
 
@@ -413,7 +413,7 @@ check_separation.multinom <- function(object, rational = FALSE, backend = c("rcd
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    checksep_bcl(y=y,X=X,rational=rational, backend = backend, solver = solver)
+    return(checksep_bcl(y=y,X=X,rational=rational, backend = backend, solver = solver))
 }
 
 #' @export
@@ -437,7 +437,7 @@ separation_columns.multinom <- function(object, rational = FALSE, backend = c("r
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    sepcols_bcl(y=y,X=X,rational=rational, backend = backend, solver = solver)
+    return(sepcols_bcl(y=y,X=X,rational=rational, backend = backend, solver = solver))
 }
 
 #' @export
@@ -448,7 +448,7 @@ separation_rows.multinom <- function(object, rational = FALSE, ... )
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    seprows_bcl(y=y,X=X,rational=rational)
+    return(seprows_bcl(y=y,X=X,rational=rational))
 }
 
 #' @export
@@ -459,7 +459,7 @@ recession_cone.multinom <- function(object, rational = FALSE,  ... )
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    reccone_bcl(y=y,X=X,rational=rational)
+    return(reccone_bcl(y=y,X=X,rational=rational))
 }
 
 
@@ -476,7 +476,7 @@ check_separation.glm <- function(object, rational = FALSE, backend = c("rcdd", "
     if(!(x$family$family %in% "binomial")) stop("This is only implemented for the binomial family.")
     y <- x$y
     X <- model.matrix(x)
-    checksep_b(y=y,X=X,rational=rational, backend = backend, solver = solver)
+    return(checksep_b(y = y, X = X, rational = rational, backend = backend, solver = solver))
 }
 
 #' @export
@@ -502,7 +502,7 @@ separation_columns.glm <- function(object, rational = FALSE, backend = c("rcdd",
     if(!(x$family$family %in% "binomial")) stop("This is only implemented for the binomial family.")
     y <- x$y
     X <- model.matrix(x)
-    sepcols_b(y=y,X=X,rational=rational, backend = backend, solver = solver) 
+    return(sepcols_b(y=y,X=X,rational=rational, backend = backend, solver = solver)) 
 }
 
 #' @export
@@ -514,7 +514,7 @@ separation_rows.glm <- function(object, rational = FALSE, ... )
     if(!(x$family$family %in% "binomial")) stop("This is only implemented for the binomial family.")
     y <- x$y
     X <- model.matrix(x)
-    seprows_b(y=y,X=X,rational=rational) 
+    return(seprows_b(y=y,X=X,rational=rational)) 
 }
 
 #' @export
@@ -526,7 +526,7 @@ recession_cone.glm <- function(object, rational = FALSE, ... )
     if(!(x$family$family %in% "binomial")) stop("This is only implemented for the binomial family.")
     y <- x$y
     X <- model.matrix(x)
-    reccone_b(y=y,X=X,rational=rational) 
+    return(reccone_b(y=y,X=X,rational=rational)) 
 }
 
 
@@ -561,7 +561,7 @@ diagnose_separation.bracl <- function(object, rational = FALSE, backend = c("rcd
         out <- diagsep_bcl(y=y,X=X,rational=rational, backend = backend, solver = solver)
     }
    out$modelcall <- object$call
-   out
+   return(out)
 }
 
 #' @export
@@ -618,7 +618,7 @@ check_separation.brmultinom <- function(object, rational = FALSE, backend = c("r
 {
     y <- model.frame(object)[,1]
     X <- model.matrix(object)
-    checksep_bcl(y=y,X=X,rational=rational, backend = backend, solver = solver)
+    return(checksep_bcl(y=y,X=X,rational=rational, backend = backend, solver = solver))
 }
 
 #' @export
@@ -643,7 +643,7 @@ separation_columns.brmultinom <- function(object, rational = FALSE, backend = c(
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    sepcols_bcl(y=y,X=X,rational=rational, backend = backend, solver = solver)
+    return(sepcols_bcl(y=y,X=X,rational=rational, backend = backend, solver = solver))
 }
 
 #' @export
@@ -654,7 +654,7 @@ separation_rows.brmultinom <- function(object, rational = FALSE, ... )
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    seprows_bcl(y=y,X=X,rational=rational)
+    return(seprows_bcl(y=y,X=X,rational=rational))
 }
 
 #' @export
@@ -665,5 +665,5 @@ recession_cone.brmultinom <- function(object, rational = FALSE, ... )
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    reccone_bcl(y=y,X=X,rational=rational)
+    return(reccone_bcl(y=y,X=X,rational=rational))
 }

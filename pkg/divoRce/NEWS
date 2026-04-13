@@ -1,5 +1,11 @@
+Version 0.6-2
+	- Bug fixes. Improved test suite. 
+	
+Version 0.6-1
+	- Bug fixes. Added some new tests and a test suite.
+
 Version 0.6-0
-	- Added new workhorse functions for the linear programs. Allowed new backends (rcdd and ROI) and any solver from the two to be used for the programs.  
+	- Added new workhorse functions for the linear programs. Added backends (rcdd and ROI) and any solver from the two to be used for the programs.   
 
 
 Version 0.5-2
