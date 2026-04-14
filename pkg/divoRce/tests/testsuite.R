@@ -119,41 +119,6 @@ run_simple_test <- function(test_name, test_fn) {
 }
 
 
-## ## Test runner with all backend/solver combinations
-## run_test <- function(test_name, test_fn) {
-##   cat(" ", test_name, "\n", sep = "")
-  
-##   for (combo in backend_solver_combos) {
-##     backend <- combo$backend
-##     solver <- combo$solver
-##     solver_str <- if (is.null(solver)) "default" else solver
-    
-##    tryCatch({
-##     result <- test_fn(backend, solver)
-##     cat(sprintf("    [%s/%s] ✓ PASSED", backend, solver_str))
-##     cat("\n","Result:","\n")
-##     print(result)
-##     },
-##     error = function(e) { cat(sprintf("    [%s/%s] ✗ FAILED: %s", backend, solver_str, conditionMessage(e)))},
-##     warning = function(w) {cat(sprintf("    [%s/%s] ⚠ WARNING: %s", backend, solver_str, conditionMessage(w)))}
-##     )
-##   }
-## }
-
-## ## Simple test runner (no backend/solver)
-## run_simple_test <- function(test_name, test_fn) {
-##   cat("", test_name, "\n", sep = "")
-##   tryCatch({
-##     result <- test_fn()
-##     cat("    ✓ PASSED")
-##     cat("\n","Result:","\n")
-##     print(result)
-##   }, error = function(e) {
-##     cat(sprintf("    ✗ FAILED: %s
-## ", conditionMessage(e)))
-##   })
-## }
-
 ## Section header printer
 print_section <- function(title, level = 1) {
   if (level == 1) {
@@ -251,8 +216,10 @@ y_bcl_allig2 <- Alligators$foodchoice
 X_bcl_allig2 <- model.matrix(allgm2)
 cat("✓ BCL: Alligators with interaction (quasi-complete separation)")
 
-allgm3 <- brglm2::brmultinom(foodchoice ~ size + lake * sex, data = Alligators)
-cat("✓ BCL: Alligators with interaction (quasi-complete separation)")
+
+
+allgm3 <- brglm2::brmultinom(y ~ x1 + x2, data = qcsepdatm, trace = FALSE)
+#allgm3 <- brglm2::brmultinom(foodchoice ~ size + lake * sex, data = Alligators)
 
 ## CL / Ordinal Data
 data(HDSS)
@@ -895,7 +862,7 @@ run_test("separation_qc - overlap", function(backend, solver) {
 })
 
 run_test("separation_qc(S) - quasi-complete separation", function(backend, solver) {
-  separation_qc(S_qcs, rational = rational, 
+  separation_qc(S=S_qcs, rational = rational, 
              backend = backend, solver = solver)
 })
 
@@ -904,8 +871,6 @@ cat(paste(rep("#", 78), collapse = ""), "")
 cat("##  END OF BINARY MODEL TESTS")
 cat(paste(rep("#", 78), collapse = ""), "")
 
-
-## TODO: Update so that warning is cool.
 
 ################################################################################
 ##                                                                            ##
@@ -936,13 +901,6 @@ run_test("checksep_bcl - overlap (ovldatm)", function(backend, solver) {
   checksep_bcl(y_bcl_ol, X_bcl_ol, rational = rational, backend = backend, solver = solver)
 })
 
-run_test("checksep_bcl - no separation (Alligators)", function(backend, solver) {
-  checksep_bcl(y_bcl_allig, X_bcl_allig, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("checksep_bcl - quasi-complete separation (Alligators interaction)", function(backend, solver) {
-  checksep_bcl(y_bcl_allig2, X_bcl_allig2, rational = rational, backend = backend, solver = solver)
-})
 
 # --- Mid level: checksep with model="bcl" ---
 print_section("checksep with model='bcl' (mid level)", 3)
@@ -982,7 +940,7 @@ run_test("check_separation.multinom - quasi-complete (Alligators interaction)", 
   check_separation(allgm2, rational = rational, backend = backend, solver = solver)
 })
 
-run_test("check_separation.brmultinom - quasi-complete (Alligators interaction)", function(backend, solver) {
+run_test("check_separation.brmultinom - quasi-complete", function(backend, solver) {
   check_separation(allgm3, rational = rational, backend = backend, solver = solver)
 })
 
@@ -1035,13 +993,6 @@ run_test("diagsep_bcl - overlap", function(backend, solver) {
   diagsep_bcl(y_bcl_ol, X_bcl_ol, rational = rational, backend = backend, solver = solver)
 })
 
-run_test("diagsep_bcl - no separation (Alligators)", function(backend, solver) {
-  diagsep_bcl(y_bcl_allig, X_bcl_allig, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("diagsep_bcl - quasi-complete (Alligators interaction)", function(backend, solver) {
-  diagsep_bcl(y_bcl_allig2, X_bcl_allig2, rational = rational, backend = backend, solver = solver)
-})
 
 # --- Mid level: diagsep with model="bcl" ---
 print_section("diagsep with model='bcl' (mid level)", 3)
@@ -1115,13 +1066,6 @@ run_test("detect_sepcols_bcl - overlap", function(backend, solver) {
   detect_sepcols_bcl(y_bcl_ol, X_bcl_ol, rational = rational, backend = backend, solver = solver)
 })
 
-run_test("detect_sepcols_bcl - no separation (Alligators)", function(backend, solver) {
-  detect_sepcols_bcl(y_bcl_allig, X_bcl_allig, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("detect_sepcols_bcl - quasi-complete (Alligators interaction)", function(backend, solver) {
-  detect_sepcols_bcl(y_bcl_allig2, X_bcl_allig2, rational = rational, backend = backend, solver = solver)
-})
 
 # --- Mid level: detect_sepcols with model="bcl" ---
 print_section("detect_sepcols with model='bcl' (mid level)", 3)
@@ -1158,7 +1102,7 @@ run_test("separation_columns.multinom - no separation (Alligators)", function(ba
 })
 
 run_test("separation_columns.brmultinom - no separation (Alligators)", function(backend, solver) {
-  separation_columns(allgm1, rational = rational, backend = backend, solver = solver)
+  separation_columns(allgm3, rational = rational, backend = backend, solver = solver)
 })
 
 run_test("separation_columns.formula ", function(backend, solver) {
@@ -1420,9 +1364,6 @@ run_test("separation_qc(model='bcl') - overlap", function(backend, solver) {
   separation_qc(y_bcl_ol, X_bcl_ol, rational = rational, model = "bcl", backend = backend, solver = solver)
 })
 
-run_test("separation_qc(model='bcl') - no separation (Alligators)", function(backend, solver) {
-  separation_qc(y_bcl_allig, X_bcl_allig, rational = rational, model = "bcl", backend = backend, solver = solver)
-})
 
 # --- Mid level: separation_qc default ---
 print_section("separation_qc default (mid level)", 3)
@@ -2916,199 +2857,6 @@ cat(paste(rep("#", 78), collapse = ""), "")
 cat("##  END OF SL MODEL TESTS")
 cat(paste(rep("#", 78), collapse = ""), "")
 
-## ################################################################################
-## ##                                                                            ##
-## ##  COMPREHENSIVE TEST SUITE - PART 8: FINAL SUMMARY AND CLEANUP              ##
-## ##                                                                            ##
-## ################################################################################
-
-## cat("
-## ")
-## cat(paste(rep("#", 78), collapse = ""), "
-## ")
-## cat("##  FINAL TEST SUMMARY
-## ")
-## cat(paste(rep("#", 78), collapse = ""), "
-## ")
-
-## ## =============================================================================
-## ## 8.1 Summary Statistics
-## ## =============================================================================
-
-## cat("
-## ")
-## cat("================================================================================
-## ")
-## cat("                           TEST EXECUTION SUMMARY                               
-## ")
-## cat("================================================================================
-## ")
-## cat("
-## ")
-
-## cat("  Test suite completed.
-## ")
-## cat("  Review output above for individual test results.
-## ")
-## cat("  Tests marked with ✓ PASSED, ✗ FAILED, or ⚠ WARNING
-## ")
-## cat("
-## ")
-
-## ## =============================================================================
-## ## 8.2 Backend/Solver Coverage Summary
-## ## =============================================================================
-
-## cat("--------------------------------------------------------------------------------
-## ")
-## cat("                        BACKEND/SOLVER COVERAGE                                 
-## ")
-## cat("--------------------------------------------------------------------------------
-## ")
-## cat("
-## ")
-
-## cat("  Backend/Solver combinations tested:
-## ")
-## for (combo in backend_solver_combos) {
-##   backend <- combo$backend
-##   solver <- if (is.null(combo$solver)) "default" else combo$solver
-##   cat(sprintf("    - %s / %s
-## ", backend, solver))
-## }
-## cat("
-## ")
-
-## ## =============================================================================
-## ## 8.3 Model Type Coverage Summary
-## ## =============================================================================
-
-## cat("--------------------------------------------------------------------------------
-## ")
-## cat("                         MODEL TYPE COVERAGE                                    
-## ")
-## cat("--------------------------------------------------------------------------------
-## ")
-## cat("
-## ")
-
-## model_types <- c(
-##   "Binary (b)"                     = "glm with binomial family",
-##   "Baseline-Category Logit (bcl)"  = "nnet::multinom, mlogit, mclogit::mblogit",
-##   "Cumulative Logit (cl)"          = "ordinal::clm",
-##   "Adjacent-Category Logit (acl)"  = "nnet::multinom (ordered)",
-##   "Ordered Stereotype Model (osm)" = "clustord::osm",
-##   "Sequential Logit (sl)"          = "custom implementation"
-## )
-
-## for (model_name in names(model_types)) {
-##   cat(sprintf("  %-35s -> %s
-## ", model_name, model_types[model_name]))
-## }
-## cat("
-## ")
-
-## ## =============================================================================
-## ## 8.4 Function Coverage Summary
-## ## =============================================================================
-
-## cat("--------------------------------------------------------------------------------
-## ")
-## cat("                         FUNCTION COVERAGE                                      
-## ")
-## cat("--------------------------------------------------------------------------------
-## ")
-## cat("
-## ")
-
-## cat("  Core Detection Functions:
-## ")
-## cat("    - checksep / checksep_*
-## ")
-## cat("    - checkovl / checkovl_*
-## ")
-## cat("    - diagsep / diagsep_*
-## ")
-## cat("
-## ")
-
-## cat("  Column/Row Analysis:
-## ")
-## cat("    - detect_sepcols / detect_sepcols_*
-## ")
-## cat("    - seprows / seprows_*
-## ")
-## cat("    - linearities / linearities_*
-## ")
-## cat("
-## ")
-
-## cat("  Cone Operations:
-## ")
-## cat("    - reccone / reccone_*
-## ")
-## cat("    - overlap_fc / overlap_fc_*
-## ")
-## cat("    - overlap_qc / overlap_qc_*
-## ")
-## cat("    - separation_qc / separation_qc_*
-## ")
-## cat("
-## ")
-
-## cat("  Generic S3 Methods:
-## ")
-## cat("    - check_separation.*
-## ")
-## cat("    - diagnose_separation.*
-## ")
-## cat("    - separation_columns.*
-## ")
-## cat("    - separation_rows.*
-## ")
-## cat("    - recession_cone.*
-## ")
-## cat("
-## ")
-
-## cat("  Utility Functions:
-## ")
-## cat("    - print.sepmod
-## ")
-## cat("    - *_Xstar functions
-## ")
-## cat("
-## ")
-
-## ## =============================================================================
-## ## 8.5 Final Status
-## ## =============================================================================
-
-## cat("
-## ")
-## cat("================================================================================
-## ")
-## cat("                        TEST SUITE EXECUTION COMPLETE                           
-## ")
-## cat("================================================================================
-## ")
-## cat("
-## ")
-## cat("  Please review the output above for any FAILED or WARNING messages.
-## ")
-## cat("
-## ")
-
-## cat(paste(rep("#", 78), collapse = ""), "
-## ")
-## cat("##  END OF COMPREHENSIVE TEST SUITE
-## ")
-## cat(paste(rep("#", 78), collapse = ""), "
-## ")
-## cat("
-## ")
-
-
 ################################################################################
 ##                                                                            ##
 ##  COMPREHENSIVE TEST SUITE - PART 8: FINAL SUMMARY AND CLEANUP              ##
@@ -3170,11 +2918,11 @@ cat("
 
 model_types <- c(
   "Binary (b)"                    = "glm with binomial family",
-  "Baseline-Category Logit (bcl)" = "nnet::multinom, mlogit, mclogit::mblogit",
-  "Cumulative Logit (cl)"         = "ordinal::clm",
-  "Adjacent-Category Logit (acl)" = "nnet::multinom (ordered)",
+  "Baseline-Category Logit (bcl)" = "nnet::multinom, brglm2::brmultinom",
+  "Cumulative Logit (cl)"         = "ordinal::clm, MASS::polr",
+  "Adjacent-Category Logit (acl)" = "brglm2::bracl",
   "Ordered Stereotype Model (osm)"= "clustord::osm",
-  "Sequential Logit (sl)"         = "custom implementation"
+  "Sequential Logit (sl)"         = "none"
 )
 
 for (model_name in names(model_types)) {
@@ -3210,9 +2958,9 @@ functions_tested <- c(
   ),
   "Cone Operations" = c(
     "reccone / reccone_*",
-    "overlap_fc / overlap_fc_*",
-    "overlap_qc / overlap_qc_*",
-    "separation_qc / separation_qc_*"
+    "overlap_fc",
+    "overlap_qc",
+    "separation_qc"
   ),
   "Generic S3 Methods" = c(
     "check_separation.*",
