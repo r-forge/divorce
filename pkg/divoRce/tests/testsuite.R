@@ -9,11 +9,22 @@
 # =============================================================================
 
 library(divoRce)  # Adjust package name as needed
-library(nnet)
-library(MASS)
-library(ordinal)
 library(rcdd)
 library(ROI)
+
+
+
+# Record start time
+start_time <- Sys.time()
+
+# Initialize test results storage
+test_results <- list(
+  passed = 0,
+  failed = 0,
+  skipped = 0,
+  log = list()
+)
+
 
 ## Set rational flag
 rational <- FALSE
@@ -27,40 +38,121 @@ backend_solver_combos <- list(
   list(backend = "ROI", solver = "highs")
 )
 
-## Test runner with all backend/solver combinations
+## Test runner with all backend/solver combinations (with tracking)
 run_test <- function(test_name, test_fn) {
-  cat(" ", test_name, "\n", sep = "")
+  cat(" ", test_name, "
+", sep = "")
   
   for (combo in backend_solver_combos) {
     backend <- combo$backend
     solver <- combo$solver
     solver_str <- if (is.null(solver)) "default" else solver
     
-   tryCatch({
-    result <- test_fn(backend, solver)
-    cat(sprintf("    [%s/%s] ✓ PASSED", backend, solver_str))
-    cat("\n","Result:","\n")
-    print(result)
+    tryCatch({
+      result <- test_fn(backend, solver)
+      cat(sprintf("    [%s/%s] ✓ PASSED", backend, solver_str))
+      cat("
+", "Result:", "
+")
+      print(result)
+      
+      # Track passed test
+      test_results$passed <<- test_results$passed + 1
+      test_results$log[[length(test_results$log) + 1]] <<- list(
+        test_name = test_name,
+        backend = backend,
+        solver = solver_str,
+        status = "PASS"
+      )
     },
-    error = function(e) { cat(sprintf("    [%s/%s] ✗ FAILED: %s", backend, solver_str, conditionMessage(e)))},
-    warning = function(w) {cat(sprintf("    [%s/%s] ⚠ WARNING: %s", backend, solver_str, conditionMessage(w)))}
-    )
+    error = function(e) {
+      cat(sprintf("    [%s/%s] ✗ FAILED: %s
+", backend, solver_str, conditionMessage(e)))
+      
+      # Track failed test
+      test_results$failed <<- test_results$failed + 1
+      test_results$log[[length(test_results$log) + 1]] <<- list(
+        test_name = test_name,
+        backend = backend,
+        solver = solver_str,
+        status = "FAIL",
+        error = conditionMessage(e)
+      )
+    },
+    warning = function(w) {
+      cat(sprintf("    [%s/%s] ⚠ WARNING: %s
+", backend, solver_str, conditionMessage(w)))
+    })
   }
 }
 
-## Simple test runner (no backend/solver)
+## Simple test runner (no backend/solver) with tracking
 run_simple_test <- function(test_name, test_fn) {
-  cat("", test_name, "\n", sep = "")
+  cat("", test_name, "
+", sep = "")
   tryCatch({
     result <- test_fn()
-    cat("    ✓ PASSED")
-    cat("\n","Result:","\n")
+    cat("    ✓ PASSED
+")
+    cat("Result:
+")
     print(result)
+    
+    # Track passed test
+    test_results$passed <<- test_results$passed + 1
+    test_results$log[[length(test_results$log) + 1]] <<- list(
+      test_name = test_name,
+      status = "PASS"
+    )
   }, error = function(e) {
     cat(sprintf("    ✗ FAILED: %s
 ", conditionMessage(e)))
+    
+    # Track failed test
+    test_results$failed <<- test_results$failed + 1
+    test_results$log[[length(test_results$log) + 1]] <<- list(
+      test_name = test_name,
+      status = "FAIL",
+      error = conditionMessage(e)
+    )
   })
 }
+
+
+## ## Test runner with all backend/solver combinations
+## run_test <- function(test_name, test_fn) {
+##   cat(" ", test_name, "\n", sep = "")
+  
+##   for (combo in backend_solver_combos) {
+##     backend <- combo$backend
+##     solver <- combo$solver
+##     solver_str <- if (is.null(solver)) "default" else solver
+    
+##    tryCatch({
+##     result <- test_fn(backend, solver)
+##     cat(sprintf("    [%s/%s] ✓ PASSED", backend, solver_str))
+##     cat("\n","Result:","\n")
+##     print(result)
+##     },
+##     error = function(e) { cat(sprintf("    [%s/%s] ✗ FAILED: %s", backend, solver_str, conditionMessage(e)))},
+##     warning = function(w) {cat(sprintf("    [%s/%s] ⚠ WARNING: %s", backend, solver_str, conditionMessage(w)))}
+##     )
+##   }
+## }
+
+## ## Simple test runner (no backend/solver)
+## run_simple_test <- function(test_name, test_fn) {
+##   cat("", test_name, "\n", sep = "")
+##   tryCatch({
+##     result <- test_fn()
+##     cat("    ✓ PASSED")
+##     cat("\n","Result:","\n")
+##     print(result)
+##   }, error = function(e) {
+##     cat(sprintf("    ✗ FAILED: %s
+## ", conditionMessage(e)))
+##   })
+## }
 
 ## Section header printer
 print_section <- function(title, level = 1) {
@@ -131,30 +223,30 @@ cat("✓ Binary: ovldat (overlap)")
 
 ## BCL / Multinomial Data
 data(csepdatm)
-csep_bcl <- multinom(y ~ x1 + x2, data = csepdatm, model = TRUE, trace = FALSE)
+csep_bcl <- nnet::multinom(y ~ x1 + x2, data = csepdatm, model = TRUE, trace = FALSE)
 y_bcl_cs <- model.response(csep_bcl$model)
 X_bcl_cs <- model.matrix(csep_bcl)
 cat("✓ BCL: csepdatm (complete separation)")
 
 data(qcsepdatm)
-qcsep_bcl <- multinom(y ~ x1 + x2, data = qcsepdatm, trace = FALSE)
+qcsep_bcl <- nnet::multinom(y ~ x1 + x2, data = qcsepdatm, trace = FALSE)
 y_bcl_qcs <- qcsepdatm$y
 X_bcl_qcs <- model.matrix(qcsep_bcl)
 cat("✓ BCL: qcsepdatm (quasi-complete separation)")
 
 data(ovldatm)
-ovl_bcl <- multinom(y ~ x1 + x2, data = ovldatm, model = TRUE, trace = FALSE)
+ovl_bcl <- nnet::multinom(y ~ x1 + x2, data = ovldatm, model = TRUE, trace = FALSE)
 y_bcl_ol <- ovl_bcl$model$y
 X_bcl_ol <- model.matrix(ovl_bcl)
 cat("✓ BCL: ovldatm (overlap)")
 
 data(Alligators)
-allgm1 <- multinom(foodchoice ~ size + lake + sex, data = Alligators, trace = FALSE)
+allgm1 <- nnet::multinom(foodchoice ~ size + lake + sex, data = Alligators, trace = FALSE)
 y_bcl_allig <- Alligators$foodchoice
 X_bcl_allig <- model.matrix(allgm1)
 cat("✓ BCL: Alligators (no separation)")
 
-allgm2 <- multinom(foodchoice ~ size + lake * sex, data = Alligators, trace = FALSE)
+allgm2 <- nnet::multinom(foodchoice ~ size + lake * sex, data = Alligators, trace = FALSE)
 y_bcl_allig2 <- Alligators$foodchoice
 X_bcl_allig2 <- model.matrix(allgm2)
 cat("✓ BCL: Alligators with interaction (quasi-complete separation)")
@@ -164,19 +256,19 @@ cat("✓ BCL: Alligators with interaction (quasi-complete separation)")
 
 ## CL / Ordinal Data
 data(HDSS)
-hdss_clm <- clm(WTSSHI ~ trustSHI * knowledge, data = HDSS)
+hdss_clm <- ordinal::clm(WTSSHI ~ trustSHI * knowledge, data = HDSS)
 hdss_polr <- MASS::polr(WTSSHI ~ trustSHI * knowledge, data = HDSS)
 y_cl_hdss <- HDSS$WTSSHI
 X_cl_hdss <- model.matrix(hdss_clm)$X
 cat("✓ CL: HDSS")
 
 data(wine, package = "ordinal")
-wine_clm <- clm(rating ~ temp + contact, data = wine)
+wine_clm <- ordinal::clm(rating ~ temp + contact, data = wine)
 y_cl_wine <- wine$rating
 X_cl_wine <- model.matrix(wine_clm)$X
 cat("✓ CL: wine")
 
-wine_clm2 <- clm(rating ~ temp + contact + bottle, data = wine)
+wine_clm2 <- ordinal::clm(rating ~ temp + contact + bottle, data = wine)
 y_cl_wine2 <- wine$rating
 X_cl_wine2 <- model.matrix(wine_clm2)$X
 cat("✓ CL: wine with bottle (singularities)")
@@ -717,9 +809,11 @@ run_test("overlap_fc - quasi-complete separation", function(backend, solver) {
 })
 
 run_test("overlap_fc(S) - quasi-complete separation", function(backend, solver) {
-  overlap_fc(S_qcs, frac = 10, verbose = 0, rational = rational, 
+  overlap_fc(S=S_qcs, frac = 10, verbose = 0, rational = rational, 
              backend = backend, solver = solver)
 })
+
+## TODO: Check here.
 
 ## =============================================================================
 ## 1.9 overlap_qc - Binary
@@ -759,7 +853,7 @@ run_test("overlap_qc - overlap", function(backend, solver) {
 })
 
 run_test("overlap_qc(S) - quasi-complete separation", function(backend, solver) {
-  overlap_qc(S_qcs, frac = 10, verbose = 0, rational = rational, 
+  overlap_qc(S=S_qcs, rational = rational, 
              backend = backend, solver = solver)
 })
 
@@ -801,7 +895,7 @@ run_test("separation_qc - overlap", function(backend, solver) {
 })
 
 run_test("separation_qc(S) - quasi-complete separation", function(backend, solver) {
-  separation_qc(S_qcs, frac = 10, verbose = 0, rational = rational, 
+  separation_qc(S_qcs, rational = rational, 
              backend = backend, solver = solver)
 })
 
@@ -1141,7 +1235,7 @@ run_simple_test("separation_rows.brmultinom - quasi-complete separation (Alligat
 
 
 run_simple_test("separation_rows.formula ", function(backend, solver) {
-  separation_rows(y ~ x1 + x2, data = qcsepdatm, model="bcl", rational = rational, backend = backend, solver = solver)
+  separation_rows(y ~ x1 + x2, data = qcsepdatm, model="bcl", rational = rational)
 })
 
 ## =============================================================================
@@ -1253,7 +1347,7 @@ run_simple_test("recession_cone.brmultinom - overlap", function(backend, solver)
 
 
 run_simple_test("recession_cone.formula ", function(backend, solver) {
-  recession_cone(y ~ x1 + x2, data = qcsepdatm, model="bcl", rational = rational, backend = backend, solver = solver)
+  recession_cone(y ~ x1 + x2, data = qcsepdatm, model="bcl", rational = rational)
 })
 
 ## =============================================================================
@@ -1262,38 +1356,6 @@ run_simple_test("recession_cone.formula ", function(backend, solver) {
 
 print_section("overlap_fc (BCL)", 2)
 
-# --- Lowest level: overlap_fc_bcl ---
-print_section("overlap_fc_bcl (lowest level)", 3)
-
-run_test("overlap_fc_bcl - complete separation (frac=1)", function(backend, solver) {
-  overlap_fc_bcl(y_bcl_cs, X_bcl_cs, frac = 1, verbose = 0, rational = rational, 
-                 backend = backend, solver = solver)
-})
-
-run_test("overlap_fc_bcl - quasi-complete separation (frac=1)", function(backend, solver) {
-  overlap_fc_bcl(y_bcl_qcs, X_bcl_qcs, frac = 1, verbose = 0, rational = rational, 
-                 backend = backend, solver = solver)
-})
-
-run_test("overlap_fc_bcl - quasi-complete separation (frac=5)", function(backend, solver) {
-  overlap_fc_bcl(y_bcl_qcs, X_bcl_qcs, frac = 5, verbose = 0, rational = rational, 
-                 backend = backend, solver = solver)
-})
-
-run_test("overlap_fc_bcl - overlap (frac=1)", function(backend, solver) {
-  overlap_fc_bcl(y_bcl_ol, X_bcl_ol, frac = 1, verbose = 0, rational = rational, 
-                 backend = backend, solver = solver)
-})
-
-run_test("overlap_fc_bcl - no separation (Alligators, frac=1)", function(backend, solver) {
-  overlap_fc_bcl(y_bcl_allig, X_bcl_allig, frac = 1, verbose = 0, rational = rational, 
-                 backend = backend, solver = solver)
-})
-
-run_test("overlap_fc_bcl - no separation (Alligators, frac=3)", function(backend, solver) {
-  overlap_fc_bcl(y_bcl_allig, X_bcl_allig, frac = 3, verbose = 0, rational = rational, 
-                 backend = backend, solver = solver)
-})
 
 # --- Mid level: overlap_fc with model="bcl" ---
 print_section("overlap_fc with model='bcl' (mid level)", 3)
@@ -1319,24 +1381,6 @@ run_test("overlap_fc(model='bcl') - overlap", function(backend, solver) {
 
 print_section("overlap_qc (BCL)", 2)
 
-# --- Lowest level: overlap_qc_bcl ---
-print_section("overlap_qc_bcl (lowest level)", 3)
-
-run_test("overlap_qc_bcl - complete separation", function(backend, solver) {
-  overlap_qc_bcl(y_bcl_cs, X_bcl_cs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("overlap_qc_bcl - quasi-complete separation", function(backend, solver) {
-  overlap_qc_bcl(y_bcl_qcs, X_bcl_qcs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("overlap_qc_bcl - overlap", function(backend, solver) {
-  overlap_qc_bcl(y_bcl_ol, X_bcl_ol, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("overlap_qc_bcl - no separation (Alligators)", function(backend, solver) {
-  overlap_qc_bcl(y_bcl_allig, X_bcl_allig, rational = rational, backend = backend, solver = solver)
-})
 
 # --- Mid level: overlap_qc with model="bcl" ---
 print_section("overlap_qc with model='bcl' (mid level)", 3)
@@ -1360,28 +1404,6 @@ run_test("overlap_qc(model='bcl') - overlap", function(backend, solver) {
 
 print_section("separation_qc (BCL)", 2)
 
-# --- Lowest level: separation_qc_bcl ---
-print_section("separation_qc_bcl (lowest level)", 3)
-
-run_test("separation_qc_bcl - complete separation", function(backend, solver) {
-  separation_qc_bcl(y_bcl_cs, X_bcl_cs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("separation_qc_bcl - quasi-complete separation", function(backend, solver) {
-  separation_qc_bcl(y_bcl_qcs, X_bcl_qcs, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("separation_qc_bcl - overlap", function(backend, solver) {
-  separation_qc_bcl(y_bcl_ol, X_bcl_ol, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("separation_qc_bcl - no separation (Alligators)", function(backend, solver) {
-  separation_qc_bcl(y_bcl_allig, X_bcl_allig, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("separation_qc_bcl - quasi-complete (Alligators interaction)", function(backend, solver) {
-  separation_qc_bcl(y_bcl_allig2, X_bcl_allig2, rational = rational, backend = backend, solver = solver)
-})
 
 # --- Mid level: separation_qc with model="bcl" ---
 print_section("separation_qc with model='bcl' (mid level)", 3)
@@ -1780,29 +1802,6 @@ run_simple_test("recession_cone.polr - HDSS", function(backend, solver) {
 
 print_section("overlap_fc (CL)", 2)
 
-# --- Lowest level: overlap_fc_cl ---
-print_section("overlap_fc_cl (lowest level)", 3)
-
-run_test("overlap_fc_cl - HDSS (frac=1)", function(backend, solver) {
-  overlap_fc_cl(y_cl_hdss, X_cl_hdss, frac = 1, verbose = 0, rational = rational, 
-                backend = backend, solver = solver)
-})
-
-run_test("overlap_fc_cl - HDSS (frac=3)", function(backend, solver) {
-  overlap_fc_cl(y_cl_hdss, X_cl_hdss, frac = 3, verbose = 0, rational = rational, 
-                backend = backend, solver = solver)
-})
-
-run_test("overlap_fc_cl - wine (frac=1)", function(backend, solver) {
-  overlap_fc_cl(y_cl_wine, X_cl_wine, frac = 1, verbose = 0, rational = rational, 
-                backend = backend, solver = solver)
-})
-
-run_test("overlap_fc_cl - wine with bottle (frac=1)", function(backend, solver) {
-  overlap_fc_cl(y_cl_wine2, X_cl_wine2, frac = 1, verbose = 0, rational = rational, 
-                backend = backend, solver = solver)
-})
-
 # --- Mid level: overlap_fc with model="cl" ---
 print_section("overlap_fc with model='cl' (mid level)", 3)
 
@@ -1827,20 +1826,6 @@ run_test("overlap_fc(model='cl') - wine with bottle", function(backend, solver) 
 
 print_section("overlap_qc (CL)", 2)
 
-# --- Lowest level: overlap_qc_cl ---
-print_section("overlap_qc_cl (lowest level)", 3)
-
-run_test("overlap_qc_cl - HDSS", function(backend, solver) {
-  overlap_qc_cl(y_cl_hdss, X_cl_hdss, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("overlap_qc_cl - wine", function(backend, solver) {
-  overlap_qc_cl(y_cl_wine, X_cl_wine, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("overlap_qc_cl - wine with bottle", function(backend, solver) {
-  overlap_qc_cl(y_cl_wine2, X_cl_wine2, rational = rational, backend = backend, solver = solver)
-})
 
 # --- Mid level: overlap_qc with model="cl" ---
 print_section("overlap_qc with model='cl' (mid level)", 3)
@@ -1863,20 +1848,6 @@ run_test("overlap_qc(model='cl') - wine with bottle", function(backend, solver) 
 
 print_section("separation_qc (CL)", 2)
 
-# --- Lowest level: separation_qc_cl ---
-print_section("separation_qc_cl (lowest level)", 3)
-
-run_test("separation_qc_cl - HDSS", function(backend, solver) {
-  separation_qc_cl(y_cl_hdss, X_cl_hdss, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("separation_qc_cl - wine", function(backend, solver) {
-  separation_qc_cl(y_cl_wine, X_cl_wine, rational = rational, backend = backend, solver = solver)
-})
-
-run_test("separation_qc_cl - wine with bottle", function(backend, solver) {
-  separation_qc_cl(y_cl_wine2, X_cl_wine2, rational = rational, backend = backend, solver = solver)
-})
 
 # --- Mid level: separation_qc with model="cl" ---
 print_section("separation_qc with model='cl' (mid level)", 3)
@@ -2945,6 +2916,199 @@ cat(paste(rep("#", 78), collapse = ""), "")
 cat("##  END OF SL MODEL TESTS")
 cat(paste(rep("#", 78), collapse = ""), "")
 
+## ################################################################################
+## ##                                                                            ##
+## ##  COMPREHENSIVE TEST SUITE - PART 8: FINAL SUMMARY AND CLEANUP              ##
+## ##                                                                            ##
+## ################################################################################
+
+## cat("
+## ")
+## cat(paste(rep("#", 78), collapse = ""), "
+## ")
+## cat("##  FINAL TEST SUMMARY
+## ")
+## cat(paste(rep("#", 78), collapse = ""), "
+## ")
+
+## ## =============================================================================
+## ## 8.1 Summary Statistics
+## ## =============================================================================
+
+## cat("
+## ")
+## cat("================================================================================
+## ")
+## cat("                           TEST EXECUTION SUMMARY                               
+## ")
+## cat("================================================================================
+## ")
+## cat("
+## ")
+
+## cat("  Test suite completed.
+## ")
+## cat("  Review output above for individual test results.
+## ")
+## cat("  Tests marked with ✓ PASSED, ✗ FAILED, or ⚠ WARNING
+## ")
+## cat("
+## ")
+
+## ## =============================================================================
+## ## 8.2 Backend/Solver Coverage Summary
+## ## =============================================================================
+
+## cat("--------------------------------------------------------------------------------
+## ")
+## cat("                        BACKEND/SOLVER COVERAGE                                 
+## ")
+## cat("--------------------------------------------------------------------------------
+## ")
+## cat("
+## ")
+
+## cat("  Backend/Solver combinations tested:
+## ")
+## for (combo in backend_solver_combos) {
+##   backend <- combo$backend
+##   solver <- if (is.null(combo$solver)) "default" else combo$solver
+##   cat(sprintf("    - %s / %s
+## ", backend, solver))
+## }
+## cat("
+## ")
+
+## ## =============================================================================
+## ## 8.3 Model Type Coverage Summary
+## ## =============================================================================
+
+## cat("--------------------------------------------------------------------------------
+## ")
+## cat("                         MODEL TYPE COVERAGE                                    
+## ")
+## cat("--------------------------------------------------------------------------------
+## ")
+## cat("
+## ")
+
+## model_types <- c(
+##   "Binary (b)"                     = "glm with binomial family",
+##   "Baseline-Category Logit (bcl)"  = "nnet::multinom, mlogit, mclogit::mblogit",
+##   "Cumulative Logit (cl)"          = "ordinal::clm",
+##   "Adjacent-Category Logit (acl)"  = "nnet::multinom (ordered)",
+##   "Ordered Stereotype Model (osm)" = "clustord::osm",
+##   "Sequential Logit (sl)"          = "custom implementation"
+## )
+
+## for (model_name in names(model_types)) {
+##   cat(sprintf("  %-35s -> %s
+## ", model_name, model_types[model_name]))
+## }
+## cat("
+## ")
+
+## ## =============================================================================
+## ## 8.4 Function Coverage Summary
+## ## =============================================================================
+
+## cat("--------------------------------------------------------------------------------
+## ")
+## cat("                         FUNCTION COVERAGE                                      
+## ")
+## cat("--------------------------------------------------------------------------------
+## ")
+## cat("
+## ")
+
+## cat("  Core Detection Functions:
+## ")
+## cat("    - checksep / checksep_*
+## ")
+## cat("    - checkovl / checkovl_*
+## ")
+## cat("    - diagsep / diagsep_*
+## ")
+## cat("
+## ")
+
+## cat("  Column/Row Analysis:
+## ")
+## cat("    - detect_sepcols / detect_sepcols_*
+## ")
+## cat("    - seprows / seprows_*
+## ")
+## cat("    - linearities / linearities_*
+## ")
+## cat("
+## ")
+
+## cat("  Cone Operations:
+## ")
+## cat("    - reccone / reccone_*
+## ")
+## cat("    - overlap_fc / overlap_fc_*
+## ")
+## cat("    - overlap_qc / overlap_qc_*
+## ")
+## cat("    - separation_qc / separation_qc_*
+## ")
+## cat("
+## ")
+
+## cat("  Generic S3 Methods:
+## ")
+## cat("    - check_separation.*
+## ")
+## cat("    - diagnose_separation.*
+## ")
+## cat("    - separation_columns.*
+## ")
+## cat("    - separation_rows.*
+## ")
+## cat("    - recession_cone.*
+## ")
+## cat("
+## ")
+
+## cat("  Utility Functions:
+## ")
+## cat("    - print.sepmod
+## ")
+## cat("    - *_Xstar functions
+## ")
+## cat("
+## ")
+
+## ## =============================================================================
+## ## 8.5 Final Status
+## ## =============================================================================
+
+## cat("
+## ")
+## cat("================================================================================
+## ")
+## cat("                        TEST SUITE EXECUTION COMPLETE                           
+## ")
+## cat("================================================================================
+## ")
+## cat("
+## ")
+## cat("  Please review the output above for any FAILED or WARNING messages.
+## ")
+## cat("
+## ")
+
+## cat(paste(rep("#", 78), collapse = ""), "
+## ")
+## cat("##  END OF COMPREHENSIVE TEST SUITE
+## ")
+## cat(paste(rep("#", 78), collapse = ""), "
+## ")
+## cat("
+## ")
+
+
 ################################################################################
 ##                                                                            ##
 ##  COMPREHENSIVE TEST SUITE - PART 8: FINAL SUMMARY AND CLEANUP              ##
@@ -2988,39 +3152,6 @@ end_time <- Sys.time()
 total_duration <- difftime(end_time, start_time, units = "mins")
 cat(sprintf("  Total execution time:    %.2f minutes
 ", as.numeric(total_duration)))
-cat("
-")
-
-## =============================================================================
-## 8.2 Backend/Solver Coverage Summary
-## =============================================================================
-
-cat("--------------------------------------------------------------------------------
-")
-cat("                        BACKEND/SOLVER COVERAGE                                 
-")
-cat("--------------------------------------------------------------------------------
-")
-cat("
-")
-
-cat("  Backends tested:
-")
-for (be in backends) {
-  status <- if (be %in% available_backends) "AVAILABLE" else "SKIPPED"
-  cat(sprintf("    - %-12s [%s]
-", be, status))
-}
-cat("
-")
-
-cat("  Solvers tested:
-")
-for (sol in solvers) {
-  status <- if (sol %in% available_solvers) "AVAILABLE" else "SKIPPED"
-  cat(sprintf("    - %-12s [%s]
-", sol, status))
-}
 cat("
 ")
 
@@ -3169,46 +3300,46 @@ if (test_results$skipped > 0) {
 ")
 }
 
-## =============================================================================
-## 8.7 Export Results (Optional)
-## =============================================================================
+## ## =============================================================================
+## ## 8.7 Export Results (Optional)
+## ## =============================================================================
 
-print_section("Export Results", 2)
+## print_section("Export Results", 2)
 
-# Create results data frame for export
-results_df <- do.call(rbind, lapply(test_results$log, function(x) {
-  data.frame(
-    test_name = x$test_name,
-    status = x$status,
-    backend = ifelse(is.null(x$backend), NA, x$backend),
-    solver = ifelse(is.null(x$solver), NA, x$solver),
-    duration = ifelse(is.null(x$duration), NA, x$duration),
-    error = ifelse(is.null(x$error), NA, x$error),
-    stringsAsFactors = FALSE
-  )
-}))
+## # Create results data frame for export
+## results_df <- do.call(rbind, lapply(test_results$log, function(x) {
+##   data.frame(
+##     test_name = x$test_name,
+##     status = x$status,
+##     backend = ifelse(is.null(x$backend), NA, x$backend),
+##     solver = ifelse(is.null(x$solver), NA, x$solver),
+##     duration = ifelse(is.null(x$duration), NA, x$duration),
+##     error = ifelse(is.null(x$error), NA, x$error),
+##     stringsAsFactors = FALSE
+##   )
+## }))
 
-# Save results to file
-results_file <- sprintf("test_results_%s.csv", format(Sys.time(), "%Y%m%d_%H%M%S"))
-tryCatch({
-  write.csv(results_df, results_file, row.names = FALSE)
-  cat(sprintf("  Results exported to: %s
-", results_file))
-}, error = function(e) {
-  cat(sprintf("  Warning: Could not export results: %s
-", e$message))
-})
+## # Save results to file
+## results_file <- sprintf("test_results_%s.csv", format(Sys.time(), "%Y%m%d_%H%M%S"))
+## tryCatch({
+##   write.csv(results_df, results_file, row.names = FALSE)
+##   cat(sprintf("  Results exported to: %s
+## ", results_file))
+## }, error = function(e) {
+##   cat(sprintf("  Warning: Could not export results: %s
+## ", e$message))
+## })
 
-# Save detailed log as RDS
-log_file <- sprintf("test_log_%s.rds", format(Sys.time(), "%Y%m%d_%H%M%S"))
-tryCatch({
-  saveRDS(test_results, log_file)
-  cat(sprintf("  Detailed log saved to: %s
-", log_file))
-}, error = function(e) {
-  cat(sprintf("  Warning: Could not save log: %s
-", e$message))
-})
+## # Save detailed log as RDS
+## log_file <- sprintf("test_log_%s.rds", format(Sys.time(), "%Y%m%d_%H%M%S"))
+## tryCatch({
+##   saveRDS(test_results, log_file)
+##   cat(sprintf("  Detailed log saved to: %s
+## ", log_file))
+## }, error = function(e) {
+##   cat(sprintf("  Warning: Could not save log: %s
+## ", e$message))
+## })
 
 ## =============================================================================
 ## 8.8 Final Status
@@ -3252,3 +3383,5 @@ cat(paste(rep("#", 78), collapse = ""), "
 ")
 cat("
 ")
+
+
