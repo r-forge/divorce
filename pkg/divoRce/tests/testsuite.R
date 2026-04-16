@@ -356,12 +356,24 @@ run_test("checksep(S=) - complete separation", function(backend, solver) {
 # --- Generic: check_separation.glm ---
 print_section("check_separation.glm (generic)", 3)
 
+run_test("check_separation (model='b') not quick - quasi-complete separation", function(backend, solver) {
+  check_separation(y_b_qcs, X_b_qcs, rational = rational, model = "b", backend = backend, solver = solver)
+})
+
+run_test("check_separation (model='b') quick - quasi-complete separation", function(backend, solver) {
+  check_separation(y_b_qcs, X_b_qcs, rational = rational, model = "b", backend = backend, solver = solver, quick = TRUE)
+})
+
 run_test("check_separation.glm - complete separation (endometrial)", function(backend, solver) {
   check_separation(endo_glm, rational = rational, backend = backend, solver = solver)
 })
 
 run_test("check_separation.glm - quasi-complete separation (nsduh)", function(backend, solver) {
   check_separation(nsduh_glm, rational = rational, backend = backend, solver = solver)
+})
+
+run_test("check_separation.glm - quasi-complete separation (nsduh)", function(backend, solver) {
+  check_separation(nsduh_glm, rational = rational, backend = backend, solver = solver, quick = TRUE)
 })
 
 run_test("check_separation.glm - quasi-complete separation (Silvapulle)", function(backend, solver) {
@@ -385,6 +397,25 @@ run_test("check_separation.matrix - complete separation", function(backend, solv
 })
 
 
+run_test("check_separation.glm quick - overlap", function(backend, solver) {
+  check_separation(ovl_glm, rational = rational, backend = backend, solver = solver, quick = TRUE)
+})
+
+run_test("check_separation.formula quick", function(backend, solver) {
+  check_separation(y ~ x1 + x2, data = ovldat1,  model="b", rational = rational, backend = backend, solver = solver, quick = TRUE)
+})
+
+run_test("check_separation.matrix quick - complete separation", function(backend, solver) {
+  check_separation(S = S_cs, rational = rational, backend = backend, solver = solver, quick = TRUE)
+})
+
+run_test("check_separation.formula not quick - long - quasi-complete separation", function(backend, solver) {
+  check_separation(her_lifetime ~ alc_agefirst + demog_age_cat6 + demog_sex, data = nsduh2019, model="b", rational = rational, backend = backend, solver = solver)
+})
+
+run_test("check_separation.formula quick - long - quasi-complete separation", function(backend, solver) {
+  check_separation(her_lifetime ~ alc_agefirst + demog_age_cat6 + demog_sex, data = nsduh2019, model="b", rational = rational, backend = backend, solver = solver, quick = TRUE)
+})
 
 ###############
 ## checkovl
@@ -940,6 +971,10 @@ run_test("check_separation.multinom - quasi-complete (Alligators interaction)", 
   check_separation(allgm2, rational = rational, backend = backend, solver = solver)
 })
 
+run_test("check_separation.multinom - quick quasi-complete (Alligators interaction)", function(backend, solver) {
+  check_separation(allgm2, rational = rational, backend = backend, solver = solver, quick = TRUE)
+})
+
 run_test("check_separation.brmultinom - quasi-complete", function(backend, solver) {
   check_separation(allgm3, rational = rational, backend = backend, solver = solver)
 })
@@ -1436,6 +1471,10 @@ run_test("check_separation.clm - HDSS", function(backend, solver) {
   check_separation(hdss_clm, rational = rational, backend = backend, solver = solver)
 })
 
+run_test("check_separation.clm - HDSS quick", function(backend, solver) {
+  check_separation(hdss_clm, rational = rational, backend = backend, solver = solver, quick = TRUE)
+})
+
 run_test("check_separation.clm - wine", function(backend, solver) {
   check_separation(wine_clm, rational = rational, backend = backend, solver = solver)
 })
@@ -1446,6 +1485,11 @@ run_test("check_separation.clm - wine with bottle (singularities)", function(bac
 
 run_test("check_separation.plor - HDSS", function(backend, solver) {
   check_separation(hdss_polr, rational = rational, backend = backend, solver = solver)
+})
+
+
+run_test("check_separation.plor - HDSS", function(backend, solver) {
+  check_separation(hdss_polr, rational = rational, backend = backend, solver = solver, quick = TRUE)
 })
 
 ## =============================================================================
@@ -1865,6 +1909,15 @@ run_test("check_separation.bracl - quasi-complete ", function(backend, solver) {
   check_separation(hdss_npacl, rational = rational, backend = backend, solver = solver)
 })
 
+
+run_test("check_separation.bracl - quasi-complete quick", function(backend, solver) {
+  check_separation(hdss_pacl, rational = rational, backend = backend, solver = solver, quick = TRUE)
+})
+
+run_test("check_separation.bracl - quasi-complete quick", function(backend, solver) {
+  check_separation(hdss_npacl, rational = rational, backend = backend, solver = solver, quick = TRUE)
+})
+
 ## =============================================================================
 ## 4.2 checkovl - ACL
 ## =============================================================================
@@ -2258,6 +2311,10 @@ print_section("checkovl with model='osm' (mid level)", 3)
 
 run_test("checkovl(model='osm') - quasi-complete separation", function(backend, solver) {
   checkovl(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm", backend = backend, solver = solver)
+})
+
+run_test("checkovl(model='osm') - quasi-complete separation quick", function(backend, solver) {
+  checkovl(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm", backend = backend, solver = solver, quick = TRUE)
 })
 
 run_test("checkovl(model='osm') - overlap", function(backend, solver) {

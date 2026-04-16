@@ -25,7 +25,7 @@ checksep(
   solver = NULL
 )
 
-check_separation(..., rational, backend, solver)
+check_separation(..., rational, backend, solver, quick)
 
 \method{check_separation}{default}(
   y,
@@ -33,6 +33,7 @@ check_separation(..., rational, backend, solver)
   rational = FALSE,
   backend = c("rcdd", "ROI"),
   solver = NULL,
+  quick = FALSE,
   ...
 )
 
@@ -41,6 +42,7 @@ check_separation(..., rational, backend, solver)
   rational = FALSE,
   backend = c("rcdd", "ROI"),
   solver = NULL,
+  quick = FALSE,
   ...
 )
 
@@ -52,6 +54,7 @@ check_separation(..., rational, backend, solver)
   contrasts = NULL,
   backend = c("rcdd", "ROI"),
   solver = NULL,
+  quick = FALSE,
   ...
 )
 
@@ -60,6 +63,7 @@ check_separation(..., rational, backend, solver)
   rational = FALSE,
   backend = c("rcdd", "ROI"),
   solver = NULL,
+  quick = FALSE,
   ...
 )
 
@@ -68,6 +72,7 @@ check_separation(..., rational, backend, solver)
   rational = FALSE,
   backend = c("rcdd", "ROI"),
   solver = NULL,
+  quick = FALSE,
   ...
 )
 
@@ -76,6 +81,7 @@ check_separation(..., rational, backend, solver)
   rational = FALSE,
   backend = c("rcdd", "ROI"),
   solver = NULL,
+  quick = FALSE,
   ...
 )
 
@@ -84,6 +90,7 @@ check_separation(..., rational, backend, solver)
   rational = FALSE,
   backend = c("rcdd", "ROI"),
   solver = NULL,
+  quick = FALSE,
   ...
 )
 
@@ -92,6 +99,7 @@ check_separation(..., rational, backend, solver)
   rational = FALSE,
   backend = c("rcdd", "ROI"),
   solver = NULL,
+  quick = FALSE,
   ...
 )
 
@@ -100,6 +108,7 @@ check_separation(..., rational, backend, solver)
   rational = FALSE,
   backend = c("rcdd", "ROI"),
   solver = NULL,
+  quick = FALSE,
   ...
 )
 
@@ -108,6 +117,7 @@ check_separation(..., rational, backend, solver)
   rational = FALSE,
   backend = c("rcdd", "ROI"),
   solver = NULL,
+  quick = FALSE,
   ...
 )
 }
@@ -127,6 +137,8 @@ check_separation(..., rational, backend, solver)
 \item{solver}{the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".}
 
 \item{...}{arguments for the generic: For pre-fit \code{y}, \code{X} with \code{y} a vector of type factor, character, logical, numeric or integer. This is the \code{y} argument of \code{checksep}. In this case one also needs to supply the argument \code{X} and optional but recommended a \code{model}. One can also supply a matrix \code{S}, in which case we treat it as the \code{S} argument to \code{checksep}. For post-fit this can currently be an object of class \code{glm}, \code{polr}, \code{clm}, \code{osm} or \code{nnet}.}
+
+\item{quick}{boolean flag whether the quick linear program is to be used or the full fledged one (default is FALSE).}
 
 \item{formula}{An object of class ‘"formula"’ (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.}
 

@@ -1,3 +1,6 @@
+Version 0.7-0
+	- Added quick argument to check_separation.
+
 Version 0.6-2
 	- Bug fixes. Improved test suite. 
 	

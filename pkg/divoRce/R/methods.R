@@ -3,9 +3,14 @@
 ##### check_separation
 #' @export
 #' @rdname checksep
-check_separation.default <- function(y, X, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
+check_separation.default <- function(y, X, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
 {
-    checksep(y = y, X = X, rational = rational, backend = backend, solver = solver, ...)
+    if(isTRUE(quick))
+    {
+        return(separation_qc(y = y, X = X, rational = rational, backend = backend, solver = solver, ...))
+    } else {
+        return(checksep(y = y, X = X, rational = rational, backend = backend, solver = solver, ...))
+    }
 }
 
 ##' @export
@@ -21,9 +26,14 @@ check_separation.factor <-  check_separation.default
 
 #' @export
 #' @rdname checksep
-check_separation.matrix <- function(S, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
+check_separation.matrix <- function(S, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
 {
-    return(checksep(S = S, rational = rational, backend = backend, solver = solver, ...))
+    if(isTRUE(quick))
+    {
+       return(separation_qc(S = S, rational = rational, backend = backend, solver = solver, ...))  
+    } else {
+       return(checksep(S = S, rational = rational, backend = backend, solver = solver, ...))
+    }
 }
 
 ##### check_separation
@@ -32,15 +42,16 @@ check_separation.matrix <- function(S, rational = FALSE, backend = c("rcdd", "RO
 #' @param data Either a standard data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.
 #' @param contrasts contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.
 #' @param model model string. One of "bcl", "b", "cl", "acl", "osm", "sl".  
+#' @param quick boolean flag whether the quick linear program is to be used or the full fledged one (default is FALSE). 
 #' 
 #' @details The `formula` method is for standard data frames and formulas that work the same way as when used with \code{\link[stats]{glm}}. It does not support extended formulas, and may not work for functions that do formula processing differently. For a data frame/matrix given as rational numbers in the \code{rcdd} definition this is recognized but the formula does not get expanded and is taken literally, so e.g. variables in formula must match exactly with the column names in data, or factors need to be converted to dummies before that (wouldn't be possible in the rational format in any other way anyway).
 #' @importFrom stats model.response is.empty.model model.matrix
 #' @export
-check_separation.formula <- function(formula, data, model = c("bcl", "b", "cl", "acl", "osm", "sl") , rational = FALSE, contrasts = NULL, backend = c("rcdd", "ROI"), solver = NULL, ... )
+check_separation.formula <- function(formula, data, model = c("bcl", "b", "cl", "acl", "osm", "sl") , rational = FALSE, contrasts = NULL, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
 {
     yx <- make_yx(formula, data, contrasts) 
     if(missing(model)) model <-  NULL
-    checksep(y = yx$y, X = yx$X, model = model, rational=rational, backend = backend, solver = solver, ...)
+    check_separation(y = yx$y, X = yx$X, model = model, rational=rational, backend = backend, solver = solver, quick = quick, ...)
 }
 
 ##### diagnose_separation
@@ -228,12 +239,12 @@ recession_cone.formula <- function(formula, data, model = c("bcl", "b", "cl", "a
 #' @importFrom stats model.frame model.matrix
 #' @rdname checksep
 #' @param object model object
-check_separation.osm <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
+check_separation.osm <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
 {
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    return(checksep_osm(y=y,X=X,rational=rational, backend = backend, solver = solver))
+    return(check_separation(y = y, X = X, model = "osm", rational = rational, backend = backend, solver = solver, quick = quick))
 }
 
 #' @export
@@ -288,12 +299,12 @@ recession_cone.osm <- function(object, rational = FALSE,  ... )
 #' @importFrom stats model.frame model.matrix
 #' @rdname checksep
 #' @param object model object
-check_separation.clm <- function(object, rational = FALSE,  backend = c("rcdd", "ROI"), solver = NULL, ... )
+check_separation.clm <- function(object, rational = FALSE,  backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
 {
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)$X
-    return(checksep_cl(y=y, X=X, rational=rational, backend = backend, solver = solver))
+    return(check_separation(y = y, X = X, model = "cl", rational = rational, quick = quick, backend = backend, solver = solver))
 }
 
 #' @export
@@ -347,12 +358,12 @@ recession_cone.clm <- function(object, rational = FALSE,  ... )
 #' @export
 #' @rdname checksep
 #' @param object model object
-check_separation.polr <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
+check_separation.polr <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
 {
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    return(checksep_cl(y=y, X=X, rational=rational, backend = backend, solver = solver))
+    return(check_separation(y = y, X = X, model = "cl", rational = rational, backend = backend, solver = solver, quick = quick))
 }
 
 #' @export
@@ -408,12 +419,12 @@ recession_cone.polr <- function(object, rational = FALSE,  ... )
 #' @importFrom stats model.frame model.matrix
 #' @rdname checksep
 #' @param object model object
-check_separation.multinom <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
+check_separation.multinom <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
 {
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    return(checksep_bcl(y=y,X=X,rational=rational, backend = backend, solver = solver))
+    return(check_separation(y = y, X = X, model = "bcl", rational = rational, backend = backend, solver = solver, quick = quick))
 }
 
 #' @export
@@ -470,13 +481,13 @@ recession_cone.multinom <- function(object, rational = FALSE,  ... )
 #' @importFrom stats model.matrix model.frame
 #' @rdname checksep
 #' @param object model object
-check_separation.glm <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
+check_separation.glm <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
 {
     x <- object
     if(!(x$family$family %in% "binomial")) stop("This is only implemented for the binomial family.")
     y <- x$y
     X <- model.matrix(x)
-    return(checksep_b(y = y, X = X, rational = rational, backend = backend, solver = solver))
+    return(check_separation(y = y, X = X, model = "b", rational = rational, backend = backend, solver = solver, quick = quick))
 }
 
 #' @export
@@ -535,15 +546,15 @@ recession_cone.glm <- function(object, rational = FALSE, ... )
 #' @importFrom stats model.matrix 
 #' @rdname checksep
 #' @param object model object
-check_separation.bracl <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
+check_separation.bracl <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
 {
     y <- as.ordered(model.frame(object)[,1])
     X <- model.matrix(object)
     if(object$parallel)
-        return(checksep_acl(y=y,X=X,rational=rational, backend = backend, solver = solver))
+        return(check_separation(y = y, X = X, model = "acl", rational = rational, backend = backend, solver = solver, quick = quick))
     if(!object$parallel) {
         y <- factor(y, ordered = FALSE)
-        return(checksep_bcl(y=y,X=X,rational=rational, backend = backend, solver = solver))
+        return(check_separation(y = y, X = X, model = "bcl", rational = rational, backend = backend, solver = solver, quick = quick))
         }
 }
 
@@ -614,11 +625,11 @@ recession_cone.bracl <- function(object, rational = FALSE,  ... )
 #' @importFrom stats model.matrix
 #' @rdname checksep
 #' @param object model object
-check_separation.brmultinom <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
+check_separation.brmultinom <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
 {
     y <- model.frame(object)[,1]
     X <- model.matrix(object)
-    return(checksep_bcl(y=y,X=X,rational=rational, backend = backend, solver = solver))
+    return(check_separation(y = y, X = X, model = "bcl", rational = rational, backend = backend, solver = solver, quick = quick))
 }
 
 #' @export

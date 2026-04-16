@@ -5,7 +5,8 @@
 #' @param ... arguments for the generic: For pre-fit \code{y}, \code{X} with \code{y} a vector of type factor, character, logical, numeric or integer. This is the \code{y} argument of \code{checksep}. In this case one also needs to supply the argument \code{X} and optional but recommended a \code{model}. One can also supply a matrix \code{S}, in which case we treat it as the \code{S} argument to \code{checksep}. For post-fit this can currently be an object of class \code{glm}, \code{polr}, \code{clm}, \code{osm} or \code{nnet}.  
 #' @param rational should rational arithmetic be used
 #' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
-#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI". 
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".
+#' @param quick boolean flag whether the quick linear program is to be used or the full fledged one. 
 #' @rdname checksep
 #' @examples
 #' 
@@ -20,7 +21,7 @@
 #' m1 <- stats::glm(y~x1+x2,data=csepdat1,family=binomial())
 #' check_separation(m1)
 #' @export
-check_separation<- function (..., rational, backend, solver) {
+check_separation<- function (..., rational, backend, solver, quick) {
     UseMethod("check_separation")
 }
 
