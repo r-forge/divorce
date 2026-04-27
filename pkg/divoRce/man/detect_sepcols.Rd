@@ -4,8 +4,12 @@
 \alias{detect_sepcols}
 \alias{sepcols}
 \alias{separation_columns}
-\alias{separation_columns.factor}
 \alias{separation_columns.default}
+\alias{separation_columns.factor}
+\alias{separation_columns.logical}
+\alias{separation_columns.numeric}
+\alias{separation_columns.integer}
+\alias{separation_columns.character}
 \alias{separation_columns.matrix}
 \alias{separation_columns.formula}
 \alias{separation_columns.osm}
@@ -39,6 +43,15 @@ sepcols(
 
 separation_columns(..., rational, backend, solver)
 
+\method{separation_columns}{default}(
+  y,
+  X,
+  rational = FALSE,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
+  ...
+)
+
 \method{separation_columns}{factor}(
   y,
   X,
@@ -49,6 +62,42 @@ separation_columns(..., rational, backend, solver)
 )
 
 \method{separation_columns}{default}(
+  y,
+  X,
+  rational = FALSE,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
+  ...
+)
+
+\method{separation_columns}{logical}(
+  y,
+  X,
+  rational = FALSE,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
+  ...
+)
+
+\method{separation_columns}{numeric}(
+  y,
+  X,
+  rational = FALSE,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
+  ...
+)
+
+\method{separation_columns}{integer}(
+  y,
+  X,
+  rational = FALSE,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
+  ...
+)
+
+\method{separation_columns}{character}(
   y,
   X,
   rational = FALSE,

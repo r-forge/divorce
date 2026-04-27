@@ -3,7 +3,14 @@
 ##### check_separation
 #' @export
 #' @rdname checksep
-check_separation.default <- function(y, X, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
+check_separation.default <- function(object, rational = FALSE, quick = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
+{
+   cat("Could not find a method for this class: ", class(object),"\n") 
+}
+
+#' @export
+#' @rdname checksep
+check_separation.factor <- function(y, X, rational = FALSE, quick = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
     if(isTRUE(quick))
     {
@@ -14,15 +21,17 @@ check_separation.default <- function(y, X, rational = FALSE, backend = c("rcdd",
 }
 
 ##' @export
-check_separation.factor <-  check_separation.default
+##' @rdname checksep
+check_separation.logical <- check_separation.factor
 ##' @export
-#check_separation.logical <- check_separation.factor
+##' @rdname checksep
+check_separation.numeric <- check_separation.factor
 ##' @export
-#check_separation.numeric <- check_separation.factor
+##' @rdname checksep
+check_separation.integer <- check_separation.factor
 ##' @export
-#check_separation.integer <- check_separation.factor
-##' @export
-#check_separation.numeric <- check_separation.factor 
+##' @rdname checksep
+check_separation.character<- check_separation.factor 
 
 #' @export
 #' @rdname checksep
@@ -57,22 +66,30 @@ check_separation.formula <- function(formula, data, model = c("bcl", "b", "cl", 
 ##### diagnose_separation
 #' @export
 #' @rdname diagsep
-diagnose_separation.default <- function(y, X, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
+diagnose_separation.default <- function(object,  rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
+{
+   cat("Could not find a method for this class: ", class(object),"\n") 
+}
+
+#' @export
+#' @rdname diagsep
+diagnose_separation.factor <- function(y, X, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
     return(diagsep(y = y, X = X, rational=rational, backend = backend, solver = solver, ...))
 }
 
 #' @export
 #' @rdname diagsep 
-diagnose_separation.factor <-  diagnose_separation.default
-## #' @export
-## diagnose_separation.logical <- diagnose_separation.factor
-## #' @export
-## diagnose_separation.numeric <- diagnose_separation.factor
-## #' @export
-## diagnose_separation.integer <- diagnose_separation.factor
-## #' @export
-## diagnose_separation.numeric <- diagnose_separation.factor 
+diagnose_separation.character <-  diagnose_separation.factor
+#' @export
+#' @rdname diagsep
+ diagnose_separation.logical <- diagnose_separation.factor
+#' @export
+#' @rdname diagsep
+ diagnose_separation.numeric <- diagnose_separation.factor
+#' @export
+#' @rdname diagsep
+diagnose_separation.integer <- diagnose_separation.factor
 
 #' @export
 #' @rdname diagsep
@@ -105,6 +122,14 @@ diagnose_separation.formula <- function(formula, data, model = c("bcl", "b", "cl
 ##### separation_columns
 #' @export
 #' @rdname detect_sepcols
+separation_columns.default <- function(object, rational = FALSE, ... )
+{
+     cat("Could not find a method for this class: ", class(object),"\n") 
+}
+
+
+#' @export
+#' @rdname detect_sepcols
 separation_columns.factor <- function(y, X, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
     return(sepcols(y = y, X=X, rational=rational, backend = backend, solver = solver, ...))
@@ -113,14 +138,18 @@ separation_columns.factor <- function(y, X, rational = FALSE, backend = c("rcdd"
 #' @export
 #' @rdname detect_sepcols
 separation_columns.default <-  separation_columns.factor
-## #' @export
-## separation_columns.logical <- separation_columns.factor
-## #' @export
-## separation_columns.numeric <- separation_columns.factor
-## #' @export
-## separation_columns.integer <- separation_columns.factor
-## #' @export
-## separation_columns.numeric <- separation_columns.factor 
+#' @export
+#' @rdname detect_sepcols
+separation_columns.logical <- separation_columns.factor
+#' @export
+#' @rdname detect_sepcols
+separation_columns.numeric <- separation_columns.factor
+#' @export
+#' @rdname detect_sepcols
+separation_columns.integer <- separation_columns.factor
+#' @export
+#' @rdname detect_sepcols
+separation_columns.character <- separation_columns.factor 
 
 #' @export
 #' @rdname detect_sepcols
@@ -148,6 +177,14 @@ separation_columns.formula <- function(formula, data, model = c("bcl", "b", "cl"
 ##### separation_rows
 #' @export
 #' @rdname seprows 
+separation_rows.default <- function(object, rational = FALSE, ... )
+{
+     cat("Could not find a method for this class: ", class(object),"\n")
+}
+
+
+#' @export
+#' @rdname seprows 
 separation_rows.factor <- function(y, X, rational = FALSE, ... )
 {
     return(seprows(y = y, X = X, rational=rational, ...))
@@ -155,15 +192,16 @@ separation_rows.factor <- function(y, X, rational = FALSE, ... )
 
 #' @export
 #' @rdname seprows 
-separation_rows.default <-  separation_rows.factor
+separation_rows.character <-  separation_rows.factor
 #' @export
-## separation_rows.logical <- separation_rows.factor
-## #' @export
-## separation_rows.numeric <- separation_rows.factor
-## #' @export
-## separation_rows.integer <- separation_rows.factor
-## #' @export
-## separation_rows.numeric <- separation_rows.factor 
+#' @rdname seprows 
+separation_rows.logical <- separation_rows.factor
+#' @export
+#' @rdname seprows
+separation_rows.numeric <- separation_rows.factor
+#' @export
+#' @rdname seprows 
+separation_rows.integer <- separation_rows.factor
 
 #' @export
 #' @rdname seprows 
@@ -191,22 +229,32 @@ separation_rows.formula <- function(formula, data, model = c("bcl", "b", "cl", "
 ##### recession_cone
 #' @export
 #' @rdname reccone
-recession_cone.default <- function(y, X, rational = FALSE, ... )
+recession_cone.default <- function(object, rational = FALSE, ... )
+{
+       cat("Could not find a method for this class: ", class(object),"\n")
+}
+
+#' @export
+#' @rdname reccone
+recession_cone.factor <- function(y, X, rational = FALSE, ... )
 {
     return(reccone(y = y, X = X, rational=rational, ...))
 }
 
+
 #' @export
 #' @rdname reccone 
-recession_cone.factor <-  recession_cone.default
-## #' @export
-## recession_cone.logical <- recession_cone.factor
-## #' @export
-## recession_cone.numeric <- recession_cone.factor
-## #' @export
-## recession_cone.integer <- recession_cone.factor
-## #' @export
-## recession_cone.numeric <- recession_cone.factor 
+recession_cone.character <-  recession_cone.factor
+#' @export
+#' @rdname reccone
+recession_cone.logical <- recession_cone.factor
+#' @export
+#' @rdname reccone
+recession_cone.numeric <- recession_cone.factor
+#' @export
+#' @rdname reccone
+recession_cone.integer <- recession_cone.factor
+
 
 #' @export
 #' @rdname reccone

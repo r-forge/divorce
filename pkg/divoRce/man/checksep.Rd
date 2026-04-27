@@ -4,6 +4,11 @@
 \alias{checksep}
 \alias{check_separation}
 \alias{check_separation.default}
+\alias{check_separation.factor}
+\alias{check_separation.logical}
+\alias{check_separation.numeric}
+\alias{check_separation.integer}
+\alias{check_separation.character}
 \alias{check_separation.matrix}
 \alias{check_separation.formula}
 \alias{check_separation.osm}
@@ -28,12 +33,61 @@ checksep(
 check_separation(..., rational, backend, solver, quick)
 
 \method{check_separation}{default}(
+  object,
+  rational = FALSE,
+  quick = FALSE,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
+  ...
+)
+
+\method{check_separation}{factor}(
   y,
   X,
   rational = FALSE,
+  quick = FALSE,
   backend = c("rcdd", "ROI"),
   solver = NULL,
+  ...
+)
+
+\method{check_separation}{logical}(
+  y,
+  X,
+  rational = FALSE,
   quick = FALSE,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
+  ...
+)
+
+\method{check_separation}{numeric}(
+  y,
+  X,
+  rational = FALSE,
+  quick = FALSE,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
+  ...
+)
+
+\method{check_separation}{integer}(
+  y,
+  X,
+  rational = FALSE,
+  quick = FALSE,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
+  ...
+)
+
+\method{check_separation}{character}(
+  y,
+  X,
+  rational = FALSE,
+  quick = FALSE,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
   ...
 )
 
@@ -140,13 +194,13 @@ check_separation(..., rational, backend, solver, quick)
 
 \item{quick}{boolean flag whether the quick linear program is to be used or the full fledged one (default is FALSE).}
 
+\item{object}{model object}
+
 \item{formula}{An object of class ‘"formula"’ (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.}
 
 \item{data}{Either a standard data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.}
 
 \item{contrasts}{contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.}
-
-\item{object}{model object}
 }
 \value{
 a Boolean; either 'TRUE' if we detected separation or 'FALSE' if not.

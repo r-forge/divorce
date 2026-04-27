@@ -261,8 +261,11 @@ hdss_npacl <- brglm2::bracl(WTSSHI ~ trustSHI * knowledge, data = HDSS, parallel
 hdss_pacl <-brglm2::bracl(WTSSHI ~ trustSHI * knowledge, data = HDSS, parallel = TRUE)
 
 ## OSM Data
-y_osm_qcs <- y_osm_wine <- as.ordered(wine$rating)
-X_osm_qcs <- X_osm_wine <- model.matrix(~ temp * contact, data = wine)[, -1]
+y_osm_qcs <- HDSS$WTSSHI
+X_osm_qcs <- model.matrix(~ trustSHI * knowledge, data = HDSS)
+
+y_osm_wine <- as.ordered(wine$rating)
+X_osm_wine <- model.matrix(~ temp * contact, data = wine)
 cat("✓ OSM: wine")
 
 wine_osm <- clustord::osm(rating~ temp * contact, data = wine)
@@ -354,7 +357,7 @@ run_test("checksep(S=) - complete separation", function(backend, solver) {
 })
 
 # --- Generic: check_separation.glm ---
-print_section("check_separation.glm (generic)", 3)
+print_section("check_separation (generic)", 3)
 
 run_test("check_separation (model='b') not quick - quasi-complete separation", function(backend, solver) {
   check_separation(y_b_qcs, X_b_qcs, rational = rational, model = "b", backend = backend, solver = solver)
@@ -416,6 +419,15 @@ run_test("check_separation.formula not quick - long - quasi-complete separation"
 run_test("check_separation.formula quick - long - quasi-complete separation", function(backend, solver) {
   check_separation(her_lifetime ~ alc_agefirst + demog_age_cat6 + demog_sex, data = nsduh2019, model="b", rational = rational, backend = backend, solver = solver, quick = TRUE)
 })
+
+## check default method
+t <- rep(1:19)
+class(t) <- "nudlaug"
+
+run_simple_test("check_separation.default", function(backend, solver) {
+  check_separation(t, rational = rational, model = "b", backend = backend, solver = solver)
+})
+
 
 ###############
 ## checkovl
@@ -510,6 +522,15 @@ run_test("diagnose_separation.matrix - complete separation", function(backend, s
   diagnose_separation(S = S_cs, rational = rational, backend = backend, solver = solver)
 })
 
+## check default method
+t <- rep(1:19)
+class(t) <- "nudlaug"
+
+run_simple_test("diagnose_separation.default", function(backend, solver) {
+  diagnose_separation(t, rational = rational, model = "b", backend = backend, solver = solver)
+})
+
+
 
 # --- print.sepmod ---
 print_section("print.sepmod (Binary)", 3)
@@ -590,6 +611,15 @@ run_test("separation_columns.matrix - complete separation", function(backend, so
   separation_columns(S = S_cs, rational = rational, backend = backend, solver = solver)
 })
 
+## check default method
+t <- rep(1:19)
+class(t) <- "nudlaug"
+
+run_test("separation_columns.default", function(backend, solver) {
+  separation_columns(t, rational = rational, model = "b", backend = backend, solver = solver)
+})
+
+
 
 ## =============================================================================
 ## 1.5 seprows - Binary
@@ -657,6 +687,15 @@ run_simple_test("separation_rows.formula ", function(backend, solver) {
 run_simple_test("separation_rows.matrix - complete separation", function(backend, solver) {
   separation_rows(S = S_cs, rational = rational)
 })
+
+## check default method
+t <- rep(1:19)
+class(t) <- "nudlaug"
+
+run_simple_test("separation_rows.default", function(backend, solver) {
+  separation_rows(t, rational = rational, model = "b", backend = backend, solver = solver)
+})
+
 
 ## =============================================================================
 ## 1.6 linearities - Binary
@@ -765,6 +804,15 @@ run_simple_test("recession_cone.formula ", function(backend, solver) {
 
 run_simple_test("recession_cone.matrix - quasi-complete separation", function(backend, solver) {
   recession_cone(S = S_qcs, rational = rational)
+})
+
+
+## check default method
+t <- rep(1:19)
+class(t) <- "nudlaug"
+
+run_simple_test("recession_cone.default", function(backend, solver) {
+  recession_cone(t, rational = rational, model = "b")
 })
 
 
@@ -2292,12 +2340,35 @@ run_test("checksep(model='osm') - overlap", function(backend, solver) {
   checksep(y_osm_ol, X_osm_ol, rational = rational, model = "osm", backend = backend, solver = solver)
 })
 
+
+
 # --- Generic: check_separation.osm ---
 print_section("check_separation.osm (generic)", 3)
 
 run_test("check_separation.osm - wine data", function(backend, solver) {
   check_separation(wine_osm, rational = rational, backend = backend, solver = solver)
 })
+
+run_test("check_separation.osm - wine data", function(backend, solver) {
+  check_separation(wine_osm, rational = rational, backend = backend, solver = solver, quick = TRUE)
+})
+
+run_test("checksep(model='osm') -  quick", function(backend, solver) {
+  check_separation(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm", backend = backend, solver = solver, quick = TRUE)
+})
+
+run_test("checksep(model='osm') - overlap quick", function(backend, solver) {
+  check_separation(y_osm_ol, X_osm_ol, rational = rational, model = "osm", backend = backend, solver = solver, quick = TRUE)
+})
+
+run_test("checksep(model='osm') - ", function(backend, solver) {
+  check_separation(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm", backend = backend, solver = solver, quick = FALSE)
+})
+
+run_test("checksep(model='osm') - overlap", function(backend, solver) {
+  check_separation(y_osm_ol, X_osm_ol, rational = rational, model = "osm", backend = backend, solver = solver, quick = FALSE)
+})
+
 
 ## =============================================================================
 ## 5.2 checkovl - OSM
@@ -2313,8 +2384,8 @@ run_test("checkovl(model='osm') - quasi-complete separation", function(backend, 
   checkovl(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm", backend = backend, solver = solver)
 })
 
-run_test("checkovl(model='osm') - quasi-complete separation quick", function(backend, solver) {
-  checkovl(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm", backend = backend, solver = solver, quick = TRUE)
+run_test("checkovl(model='osm') - quasi-complete separation", function(backend, solver) {
+  checkovl(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm", backend = backend, solver = solver)
 })
 
 run_test("checkovl(model='osm') - overlap", function(backend, solver) {

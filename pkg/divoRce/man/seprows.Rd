@@ -2,8 +2,12 @@
 % Please edit documentation in R/generics.R, R/methods.R, R/seprows.R
 \name{separation_rows}
 \alias{separation_rows}
-\alias{separation_rows.factor}
 \alias{separation_rows.default}
+\alias{separation_rows.factor}
+\alias{separation_rows.character}
+\alias{separation_rows.logical}
+\alias{separation_rows.numeric}
+\alias{separation_rows.integer}
 \alias{separation_rows.matrix}
 \alias{separation_rows.formula}
 \alias{separation_rows.osm}
@@ -19,9 +23,17 @@
 \usage{
 separation_rows(..., rational)
 
+\method{separation_rows}{default}(object, rational = FALSE, ...)
+
 \method{separation_rows}{factor}(y, X, rational = FALSE, ...)
 
-\method{separation_rows}{default}(y, X, rational = FALSE, ...)
+\method{separation_rows}{character}(y, X, rational = FALSE, ...)
+
+\method{separation_rows}{logical}(y, X, rational = FALSE, ...)
+
+\method{separation_rows}{numeric}(y, X, rational = FALSE, ...)
+
+\method{separation_rows}{integer}(y, X, rational = FALSE, ...)
 
 \method{separation_rows}{matrix}(S, rational = FALSE, ...)
 
@@ -69,6 +81,8 @@ detect_seprows(
 
 \item{rational}{should rational arithmetic be used?}
 
+\item{object}{model object}
+
 \item{y}{the categorical outcome variable. Can be binary, categorial or ordinal. Works best if it is an ordered or unordered factor but can also be numeric, boolean or character. If y is not a factor, it is treated as a nominal (categorical) outcome.}
 
 \item{X}{a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).}
@@ -82,8 +96,6 @@ detect_seprows(
 \item{model}{what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else.}
 
 \item{contrasts}{contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.}
-
-\item{object}{model object}
 }
 \description{
 This function checks which rows in X/Xstar are responsible for separation on any category. The observations need not separate the same categories.

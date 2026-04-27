@@ -1,3 +1,6 @@
+Version 0.8-0
+        - Added methods for integer, numeric, logical and character and changed default method to give an error for anything else.
+	
 Version 0.7-0
 	- Added quick argument to check_separation.
 

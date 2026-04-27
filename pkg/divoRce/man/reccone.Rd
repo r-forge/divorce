@@ -4,6 +4,10 @@
 \alias{recession_cone}
 \alias{recession_cone.default}
 \alias{recession_cone.factor}
+\alias{recession_cone.character}
+\alias{recession_cone.logical}
+\alias{recession_cone.numeric}
+\alias{recession_cone.integer}
 \alias{recession_cone.matrix}
 \alias{recession_cone.formula}
 \alias{recession_cone.osm}
@@ -18,9 +22,17 @@
 \usage{
 recession_cone(..., rational)
 
-\method{recession_cone}{default}(y, X, rational = FALSE, ...)
+\method{recession_cone}{default}(object, rational = FALSE, ...)
 
 \method{recession_cone}{factor}(y, X, rational = FALSE, ...)
+
+\method{recession_cone}{character}(y, X, rational = FALSE, ...)
+
+\method{recession_cone}{logical}(y, X, rational = FALSE, ...)
+
+\method{recession_cone}{numeric}(y, X, rational = FALSE, ...)
+
+\method{recession_cone}{integer}(y, X, rational = FALSE, ...)
 
 \method{recession_cone}{matrix}(S, rational = FALSE, ...)
 
@@ -60,6 +72,8 @@ reccone(
 
 \item{rational}{boolean flag whether rational arithmetic should be used. Default is FALSE.}
 
+\item{object}{model object}
+
 \item{y}{the outcome variable. Works best if it is a factor or ordered factor but can also be numeric, boolean or character.}
 
 \item{X}{a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).}
@@ -73,8 +87,6 @@ reccone(
 \item{model}{what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing or NULL it defaults to cumulative link for ordinal y and baseline-category for everything else.}
 
 \item{contrasts}{contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.}
-
-\item{object}{model object}
 }
 \value{
 a list with 'cone' being the recession cone, 'reccdim' being the dimensions of the recession cone, and 'index' the row index of the structure vectors that are not linearities. Note that in case of 'X' not having full column rank, the 'reccdim' value is the dimension of the recession cone due to separation plus the number of columns that are linear dependent.
