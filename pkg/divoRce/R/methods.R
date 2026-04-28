@@ -5,7 +5,7 @@
 #' @rdname checksep
 check_separation.default <- function(object, rational = FALSE, quick = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
-   cat("Could not find a method for this class: ", class(object),"\n") 
+   cat("Could not find a method for this class:", class(object),"\n") 
 }
 
 #' @export
@@ -68,7 +68,7 @@ check_separation.formula <- function(formula, data, model = c("bcl", "b", "cl", 
 #' @rdname diagsep
 diagnose_separation.default <- function(object,  rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
-   cat("Could not find a method for this class: ", class(object),"\n") 
+   cat("Could not find a method for this class:", class(object),"\n") 
 }
 
 #' @export
@@ -124,7 +124,7 @@ diagnose_separation.formula <- function(formula, data, model = c("bcl", "b", "cl
 #' @rdname detect_sepcols
 separation_columns.default <- function(object, rational = FALSE, ... )
 {
-     cat("Could not find a method for this class: ", class(object),"\n") 
+     cat("Could not find a method for this class:", class(object),"\n") 
 }
 
 
@@ -137,7 +137,7 @@ separation_columns.factor <- function(y, X, rational = FALSE, backend = c("rcdd"
 
 #' @export
 #' @rdname detect_sepcols
-separation_columns.default <-  separation_columns.factor
+separation_columns.character <-  separation_columns.factor
 #' @export
 #' @rdname detect_sepcols
 separation_columns.logical <- separation_columns.factor
@@ -147,9 +147,6 @@ separation_columns.numeric <- separation_columns.factor
 #' @export
 #' @rdname detect_sepcols
 separation_columns.integer <- separation_columns.factor
-#' @export
-#' @rdname detect_sepcols
-separation_columns.character <- separation_columns.factor 
 
 #' @export
 #' @rdname detect_sepcols
@@ -179,7 +176,7 @@ separation_columns.formula <- function(formula, data, model = c("bcl", "b", "cl"
 #' @rdname seprows 
 separation_rows.default <- function(object, rational = FALSE, ... )
 {
-     cat("Could not find a method for this class: ", class(object),"\n")
+     cat("Could not find a method for this class:", class(object),"\n")
 }
 
 
@@ -231,7 +228,7 @@ separation_rows.formula <- function(formula, data, model = c("bcl", "b", "cl", "
 #' @rdname reccone
 recession_cone.default <- function(object, rational = FALSE, ... )
 {
-       cat("Could not find a method for this class: ", class(object),"\n")
+       cat("Could not find a method for this class:", class(object),"\n")
 }
 
 #' @export
