@@ -35,7 +35,8 @@ backend_solver_combos <- list(
   list(backend = "rcdd", solver = "CrissCross"),
   list(backend = "ROI", solver = NULL),
   list(backend = "ROI", solver = "lpsolve"),
-  list(backend = "ROI", solver = "highs")
+  list(backend = "ROI", solver = "highs"),
+  list(backend = "ROI", solver = "glpk")
 )
 
 ## Test runner with all backend/solver combinations (with tracking)
