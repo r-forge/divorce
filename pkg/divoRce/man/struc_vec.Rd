@@ -2,7 +2,7 @@
 % Please edit documentation in R/struc_vec.R
 \name{struc_vec}
 \alias{struc_vec}
-\title{Function to calculate the structure vector matrix X* for categorical outcomes.}
+\title{Function to calculate the structure vector matrix S for categorical outcomes.}
 \usage{
 struc_vec(y, X, label = TRUE, rational = FALSE)
 }
@@ -19,8 +19,8 @@ struc_vec(y, X, label = TRUE, rational = FALSE)
 a matrix of structure vectors with or without labels
 }
 \description{
-Function to calculate the structure vector matrix X* for categorical outcomes.
+Function to calculate the structure vector matrix S for categorical outcomes.
 }
 \details{
-If \code{X} is given as the standard R object for design matrices (i.e., a numeric matrix), the structure vector matrix is returned the same way unless \code{rational=TRUE}; then it is returned as a character matrix of rational numbers. If \code{X} is given in rational format, it is also returned as rational format even if rational is set to \code{FALSE}. This returned matrix is like \code{-nomin_Xstar(y,X)}.
+If \code{X} is given as the standard R object for design matrices (i.e., a numeric matrix), the structure vector matrix is returned the same way unless \code{rational=TRUE}; then it is returned as a character matrix of rational numbers. If \code{X} is given in rational format, it is also returned as rational format even if rational is set to \code{FALSE}.
 }

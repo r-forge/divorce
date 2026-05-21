@@ -1,3 +1,6 @@
+Version 0.9-0
+        - Added functions for struc_vec and removed the export of Xstar functions.
+	
 Version 0.8-1
         - Increment to trigger r-forge
 	

@@ -6,10 +6,10 @@
 \alias{separation_columns}
 \alias{separation_columns.default}
 \alias{separation_columns.factor}
+\alias{separation_columns.character}
 \alias{separation_columns.logical}
 \alias{separation_columns.numeric}
 \alias{separation_columns.integer}
-\alias{separation_columns.character}
 \alias{separation_columns.matrix}
 \alias{separation_columns.formula}
 \alias{separation_columns.osm}
@@ -43,14 +43,7 @@ sepcols(
 
 separation_columns(..., rational, backend, solver)
 
-\method{separation_columns}{default}(
-  y,
-  X,
-  rational = FALSE,
-  backend = c("rcdd", "ROI"),
-  solver = NULL,
-  ...
-)
+\method{separation_columns}{default}(object, rational = FALSE, ...)
 
 \method{separation_columns}{factor}(
   y,
@@ -61,7 +54,7 @@ separation_columns(..., rational, backend, solver)
   ...
 )
 
-\method{separation_columns}{default}(
+\method{separation_columns}{character}(
   y,
   X,
   rational = FALSE,
@@ -89,15 +82,6 @@ separation_columns(..., rational, backend, solver)
 )
 
 \method{separation_columns}{integer}(
-  y,
-  X,
-  rational = FALSE,
-  backend = c("rcdd", "ROI"),
-  solver = NULL,
-  ...
-)
-
-\method{separation_columns}{character}(
   y,
   X,
   rational = FALSE,
@@ -198,13 +182,13 @@ separation_columns(..., rational, backend, solver)
 
 \item{...}{arguments for the generic: For pre-fit \code{y}, \code{X} with \code{y} a vector of type factor, character, logical, numeric or integer. This is the \code{y} argument of \code{sepcols}. In this case one also needs to supply the argument \code{X} and optional but recommended a \code{model}. One can also supply a matrix \code{S}, in which case we treat it as the \code{S} argument to \code{sepcols}. For post-fit this can currently be an object of class \code{glm}, \code{polr}, \code{clm}, \code{osm} or \code{nnet}.}
 
+\item{object}{model object}
+
 \item{formula}{An object of class ‘"formula"’ (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.}
 
 \item{data}{Either a standard data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.}
 
 \item{contrasts}{contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.}
-
-\item{object}{model object}
 }
 \description{
 This function identifies the columns in a design matrix/structure vector matrix that are responsible for separation. It calls lower level functions if given an argument or chooses based on the response type.
