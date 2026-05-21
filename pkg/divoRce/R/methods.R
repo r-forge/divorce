@@ -2,51 +2,51 @@
 
 ##### check_separation
 #' @export
-#' @rdname checksep
+#' @rdname checksep_worker
 check_separation.default <- function(object, rational = FALSE, quick = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
    cat("Could not find a method for this class:", class(object),"\n") 
 }
 
 #' @export
-#' @rdname checksep
+#' @rdname checksep_worker
 check_separation.factor <- function(y, X, rational = FALSE, quick = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
     if(isTRUE(quick))
     {
-        return(separation_qc(y = y, X = X, rational = rational, backend = backend, solver = solver, ...))
+        return(separation_quick_check(y = y, X = X, rational = rational, backend = backend, solver = solver, ...))
     } else {
-        return(checksep(y = y, X = X, rational = rational, backend = backend, solver = solver, ...))
+        return(checksep_worker(y = y, X = X, rational = rational, backend = backend, solver = solver, ...))
     }
 }
 
 ##' @export
-##' @rdname checksep
+##' @rdname checksep_worker
 check_separation.logical <- check_separation.factor
 ##' @export
-##' @rdname checksep
+##' @rdname checksep_worker
 check_separation.numeric <- check_separation.factor
 ##' @export
-##' @rdname checksep
+##' @rdname checksep_worker
 check_separation.integer <- check_separation.factor
 ##' @export
-##' @rdname checksep
+##' @rdname checksep_worker
 check_separation.character<- check_separation.factor 
 
 #' @export
-#' @rdname checksep
+#' @rdname checksep_worker
 check_separation.matrix <- function(S, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
 {
     if(isTRUE(quick))
     {
-       return(separation_qc(S = S, rational = rational, backend = backend, solver = solver, ...))  
+       return(separation_quick_check(S = S, rational = rational, backend = backend, solver = solver, ...))  
     } else {
-       return(checksep(S = S, rational = rational, backend = backend, solver = solver, ...))
+       return(checksep_worker(S = S, rational = rational, backend = backend, solver = solver, ...))
     }
 }
 
 ##### check_separation
-#' @rdname checksep
+#' @rdname checksep_worker
 #' @param formula An object of class ‘"formula"’ (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.
 #' @param data Either a standard data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.
 #' @param contrasts contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.
@@ -65,40 +65,40 @@ check_separation.formula <- function(formula, data, model = c("bcl", "b", "cl", 
 
 ##### diagnose_separation
 #' @export
-#' @rdname diagsep
+#' @rdname diagsep_worker
 diagnose_separation.default <- function(object,  rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
    cat("Could not find a method for this class:", class(object),"\n") 
 }
 
 #' @export
-#' @rdname diagsep
+#' @rdname diagsep_worker
 diagnose_separation.factor <- function(y, X, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
-    return(diagsep(y = y, X = X, rational=rational, backend = backend, solver = solver, ...))
+    return(diagsep_worker(y = y, X = X, rational=rational, backend = backend, solver = solver, ...))
 }
 
 #' @export
-#' @rdname diagsep 
+#' @rdname diagsep_worker 
 diagnose_separation.character <-  diagnose_separation.factor
 #' @export
-#' @rdname diagsep
+#' @rdname diagsep_worker
  diagnose_separation.logical <- diagnose_separation.factor
 #' @export
-#' @rdname diagsep
+#' @rdname diagsep_worker
  diagnose_separation.numeric <- diagnose_separation.factor
 #' @export
-#' @rdname diagsep
+#' @rdname diagsep_worker
 diagnose_separation.integer <- diagnose_separation.factor
 
 #' @export
-#' @rdname diagsep
+#' @rdname diagsep_worker
 diagnose_separation.matrix <- function(S, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
-    return(diagsep(S = S, rational=rational, backend = backend, solver = solver, ...))
+    return(diagsep_worker(S = S, rational=rational, backend = backend, solver = solver, ...))
 }
 
-#' @rdname diagsep
+#' @rdname diagsep_worker
 #' @param formula An object of class ‘"formula"’ (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.
 #' @param data Either a standard data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.
 #' @param contrasts contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.
@@ -110,7 +110,7 @@ diagnose_separation.formula <- function(formula, data, model = c("bcl", "b", "cl
 {
     yx <- make_yx(formula, data, contrasts) 
     if(missing(model)) model <-  NULL
-    out <- diagsep(y = yx$y, X = yx$X, model = model, rational=rational, backend = backend, solver = solver, ...)
+    out <- diagsep_worker(y = yx$y, X = yx$X, model = model, rational=rational, backend = backend, solver = solver, ...)
     out$modelcall <- formula
     if(model=="sl"){
         out$modelcall <- NULL
@@ -121,7 +121,7 @@ diagnose_separation.formula <- function(formula, data, model = c("bcl", "b", "cl
 
 ##### separation_columns
 #' @export
-#' @rdname detect_sepcols
+#' @rdname sepcols_worker
 separation_columns.default <- function(object, rational = FALSE, ... )
 {
      cat("Could not find a method for this class:", class(object),"\n") 
@@ -129,33 +129,33 @@ separation_columns.default <- function(object, rational = FALSE, ... )
 
 
 #' @export
-#' @rdname detect_sepcols
+#' @rdname sepcols_worker
 separation_columns.factor <- function(y, X, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
-    return(sepcols(y = y, X=X, rational=rational, backend = backend, solver = solver, ...))
+    return(sepcols_worker(y = y, X=X, rational=rational, backend = backend, solver = solver, ...))
 }
 
 #' @export
-#' @rdname detect_sepcols
+#' @rdname sepcols_worker
 separation_columns.character <-  separation_columns.factor
 #' @export
-#' @rdname detect_sepcols
+#' @rdname sepcols_worker
 separation_columns.logical <- separation_columns.factor
 #' @export
-#' @rdname detect_sepcols
+#' @rdname sepcols_worker
 separation_columns.numeric <- separation_columns.factor
 #' @export
-#' @rdname detect_sepcols
+#' @rdname sepcols_worker
 separation_columns.integer <- separation_columns.factor
 
 #' @export
-#' @rdname detect_sepcols
+#' @rdname sepcols_worker
 separation_columns.matrix <- function(S, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
-    return(sepcols(S=S, rational=rational, backend = backend, solver = solver, ...))
+    return(sepcols_worker(S=S, rational=rational, backend = backend, solver = solver, ...))
 }
 
-#' @rdname detect_sepcols
+#' @rdname sepcols_worker
 #' @param formula An object of class ‘"formula"’ (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.
 #' @param data Either a standard data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.
 #' @param contrasts contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.
@@ -168,12 +168,12 @@ separation_columns.formula <- function(formula, data, model = c("bcl", "b", "cl"
 {
     yx <- make_yx(formula, data, contrasts) 
     if(missing(model)) model <-  NULL
-    return(sepcols(y = yx$y, X = yx$X, model = model, rational=rational, backend = backend, solver = solver, ...))
+    return(sepcols_worker(y = yx$y, X = yx$X, model = model, rational=rational, backend = backend, solver = solver, ...))
 }
 
 ##### separation_rows
 #' @export
-#' @rdname seprows 
+#' @rdname seprows_worker 
 separation_rows.default <- function(object, rational = FALSE, ... )
 {
      cat("Could not find a method for this class:", class(object),"\n")
@@ -181,33 +181,33 @@ separation_rows.default <- function(object, rational = FALSE, ... )
 
 
 #' @export
-#' @rdname seprows 
+#' @rdname seprows_worker 
 separation_rows.factor <- function(y, X, rational = FALSE, ... )
 {
-    return(seprows(y = y, X = X, rational=rational, ...))
+    return(seprows_worker(y = y, X = X, rational=rational, ...))
 }
 
 #' @export
-#' @rdname seprows 
+#' @rdname seprows_worker 
 separation_rows.character <-  separation_rows.factor
 #' @export
-#' @rdname seprows 
+#' @rdname seprows_worker 
 separation_rows.logical <- separation_rows.factor
 #' @export
-#' @rdname seprows
+#' @rdname seprows_worker
 separation_rows.numeric <- separation_rows.factor
 #' @export
-#' @rdname seprows 
+#' @rdname seprows_worker 
 separation_rows.integer <- separation_rows.factor
 
 #' @export
-#' @rdname seprows 
+#' @rdname seprows_worker 
 separation_rows.matrix <- function(S, rational = FALSE, ... )
 {
-    return(seprows(S=S, rational=rational, ...))
+    return(seprows_worker(S=S, rational=rational, ...))
 }
 
-#' @rdname seprows
+#' @rdname seprows_worker
 #' @param formula An object of class ‘"formula"’ (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.
 #' @param data Either a standard data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.
 #' @param contrasts contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.
@@ -220,47 +220,47 @@ separation_rows.formula <- function(formula, data, model = c("bcl", "b", "cl", "
 {
     yx <- make_yx(formula, data, contrasts) 
     if(missing(model)) model <-  NULL
-    return(seprows(y = yx$y, X = yx$X, model = model, rational=rational, ...))
+    return(seprows_worker(y = yx$y, X = yx$X, model = model, rational=rational, ...))
 }
 
 ##### recession_cone
 #' @export
-#' @rdname reccone
+#' @rdname reccone_worker
 recession_cone.default <- function(object, rational = FALSE, ... )
 {
        cat("Could not find a method for this class:", class(object),"\n")
 }
 
 #' @export
-#' @rdname reccone
+#' @rdname reccone_worker
 recession_cone.factor <- function(y, X, rational = FALSE, ... )
 {
-    return(reccone(y = y, X = X, rational=rational, ...))
+    return(reccone_worker(y = y, X = X, rational=rational, ...))
 }
 
 
 #' @export
-#' @rdname reccone 
+#' @rdname reccone_worker 
 recession_cone.character <-  recession_cone.factor
 #' @export
-#' @rdname reccone
+#' @rdname reccone_worker
 recession_cone.logical <- recession_cone.factor
 #' @export
-#' @rdname reccone
+#' @rdname reccone_worker
 recession_cone.numeric <- recession_cone.factor
 #' @export
-#' @rdname reccone
+#' @rdname reccone_worker
 recession_cone.integer <- recession_cone.factor
 
 
 #' @export
-#' @rdname reccone
+#' @rdname reccone_worker
 recession_cone.matrix <- function(S, rational = FALSE,  ... )
 {
-    return(reccone(S = S, rational=rational, ...))
+    return(reccone_worker(S = S, rational=rational, ...))
 }
 
-#' @rdname reccone
+#' @rdname reccone_worker
 #' @param formula An object of class ‘"formula"’ (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.
 #' @param data Either a standard data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.
 #' @param contrasts contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.
@@ -273,7 +273,7 @@ recession_cone.formula <- function(formula, data, model = c("bcl", "b", "cl", "a
 {
     yx <- make_yx(formula, data, contrasts) 
     if(missing(model)) model <-  NULL
-    return(reccone(y = yx$y, X = yx$X, model = model, rational=rational, ...))
+    return(reccone_worker(y = yx$y, X = yx$X, model = model, rational=rational, ...))
 }
 
 
@@ -282,7 +282,7 @@ recession_cone.formula <- function(formula, data, model = c("bcl", "b", "cl", "a
 ### OSM 
 #' @export
 #' @importFrom stats model.frame model.matrix
-#' @rdname checksep
+#' @rdname checksep_worker
 #' @param object model object
 check_separation.osm <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
 {
@@ -293,7 +293,7 @@ check_separation.osm <- function(object, rational = FALSE, backend = c("rcdd", "
 }
 
 #' @export
-#' @rdname diagsep
+#' @rdname diagsep_worker
 #' @param object model object
 diagnose_separation.osm <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
@@ -306,7 +306,7 @@ diagnose_separation.osm <- function(object, rational = FALSE, backend = c("rcdd"
 }
 
 #' @export
-#' @rdname detect_sepcols
+#' @rdname sepcols_worker
 #' @param object model object
 separation_columns.osm <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
@@ -317,7 +317,7 @@ separation_columns.osm <- function(object, rational = FALSE, backend = c("rcdd",
 }
 
 #' @export
-#' @rdname seprows
+#' @rdname seprows_worker
 #' @param object model object
 separation_rows.osm <- function(object, rational = FALSE,  ... )
 {
@@ -328,7 +328,7 @@ separation_rows.osm <- function(object, rational = FALSE,  ... )
 }
 
 #' @export
-#' @rdname reccone
+#' @rdname reccone_worker
 #' @param object model object
 recession_cone.osm <- function(object, rational = FALSE,  ... )
 {
@@ -342,7 +342,7 @@ recession_cone.osm <- function(object, rational = FALSE,  ... )
 
 #' @export
 #' @importFrom stats model.frame model.matrix
-#' @rdname checksep
+#' @rdname checksep_worker
 #' @param object model object
 check_separation.clm <- function(object, rational = FALSE,  backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
 {
@@ -353,7 +353,7 @@ check_separation.clm <- function(object, rational = FALSE,  backend = c("rcdd", 
 }
 
 #' @export
-#' @rdname diagsep
+#' @rdname diagsep_worker
 #' @param object model object
 diagnose_separation.clm <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
@@ -366,7 +366,7 @@ diagnose_separation.clm <- function(object, rational = FALSE, backend = c("rcdd"
 }
 
 #' @export
-#' @rdname detect_sepcols
+#' @rdname sepcols_worker
 #' @param object model object
 separation_columns.clm <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
@@ -377,7 +377,7 @@ separation_columns.clm <- function(object, rational = FALSE, backend = c("rcdd",
 }
 
 #' @export
-#' @rdname seprows
+#' @rdname seprows_worker
 #' @param object model object
 separation_rows.clm <- function(object, rational = FALSE, ... )
 {
@@ -388,7 +388,7 @@ separation_rows.clm <- function(object, rational = FALSE, ... )
 }
 
 #' @export
-#' @rdname reccone
+#' @rdname reccone_worker
 #' @param object model object
 recession_cone.clm <- function(object, rational = FALSE,  ... )
 {
@@ -401,7 +401,7 @@ recession_cone.clm <- function(object, rational = FALSE,  ... )
 ###  polr
 
 #' @export
-#' @rdname checksep
+#' @rdname checksep_worker
 #' @param object model object
 check_separation.polr <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
 {
@@ -412,7 +412,7 @@ check_separation.polr <- function(object, rational = FALSE, backend = c("rcdd", 
 }
 
 #' @export
-#' @rdname diagsep
+#' @rdname diagsep_worker
 #' @param object model object
 diagnose_separation.polr <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
@@ -425,7 +425,7 @@ diagnose_separation.polr <- function(object, rational = FALSE, backend = c("rcdd
 }
 
 #' @export
-#' @rdname detect_sepcols
+#' @rdname sepcols_worker
 #' @param object model object
 separation_columns.polr <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
@@ -436,7 +436,7 @@ separation_columns.polr <- function(object, rational = FALSE, backend = c("rcdd"
 }
 
 #' @export
-#' @rdname seprows
+#' @rdname seprows_worker
 #' @param object model object
 separation_rows.polr <- function(object, rational = FALSE, ... )
 {
@@ -447,7 +447,7 @@ separation_rows.polr <- function(object, rational = FALSE, ... )
 }
 
 #' @export
-#' @rdname reccone
+#' @rdname reccone_worker
 #' @param object model object
 recession_cone.polr <- function(object, rational = FALSE,  ... )
 {
@@ -462,7 +462,7 @@ recession_cone.polr <- function(object, rational = FALSE,  ... )
 
 #' @export
 #' @importFrom stats model.frame model.matrix
-#' @rdname checksep
+#' @rdname checksep_worker
 #' @param object model object
 check_separation.multinom <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
 {
@@ -473,7 +473,7 @@ check_separation.multinom <- function(object, rational = FALSE, backend = c("rcd
 }
 
 #' @export
-#' @rdname diagsep
+#' @rdname diagsep_worker
 #' @param object model object
 diagnose_separation.multinom <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
@@ -486,7 +486,7 @@ diagnose_separation.multinom <- function(object, rational = FALSE, backend = c("
 }
 
 #' @export
-#' @rdname detect_sepcols
+#' @rdname sepcols_worker
 #' @param object model object
 separation_columns.multinom <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
@@ -497,7 +497,7 @@ separation_columns.multinom <- function(object, rational = FALSE, backend = c("r
 }
 
 #' @export
-#' @rdname seprows
+#' @rdname seprows_worker
 #' @param object model object
 separation_rows.multinom <- function(object, rational = FALSE, ... )
 {
@@ -508,7 +508,7 @@ separation_rows.multinom <- function(object, rational = FALSE, ... )
 }
 
 #' @export
-#' @rdname reccone
+#' @rdname reccone_worker
 #' @param object model object
 recession_cone.multinom <- function(object, rational = FALSE,  ... )
 {
@@ -524,7 +524,7 @@ recession_cone.multinom <- function(object, rational = FALSE,  ... )
 
 #' @export
 #' @importFrom stats model.matrix model.frame
-#' @rdname checksep
+#' @rdname checksep_worker
 #' @param object model object
 check_separation.glm <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
 {
@@ -536,7 +536,7 @@ check_separation.glm <- function(object, rational = FALSE, backend = c("rcdd", "
 }
 
 #' @export
-#' @rdname diagsep
+#' @rdname diagsep_worker
 #' @param object model object
 diagnose_separation.glm <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
@@ -550,7 +550,7 @@ diagnose_separation.glm <- function(object, rational = FALSE, backend = c("rcdd"
 }
 
 #' @export
-#' @rdname detect_sepcols
+#' @rdname sepcols_worker
 #' @param object model object
 separation_columns.glm <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
@@ -562,7 +562,7 @@ separation_columns.glm <- function(object, rational = FALSE, backend = c("rcdd",
 }
 
 #' @export
-#' @rdname seprows
+#' @rdname seprows_worker
 #' @param object model object
 separation_rows.glm <- function(object, rational = FALSE, ... )
 {
@@ -574,7 +574,7 @@ separation_rows.glm <- function(object, rational = FALSE, ... )
 }
 
 #' @export
-#' @rdname reccone
+#' @rdname reccone_worker
 #' @param object model object
 recession_cone.glm <- function(object, rational = FALSE, ... )
 {
@@ -589,7 +589,7 @@ recession_cone.glm <- function(object, rational = FALSE, ... )
 ########## bracl
 #' @export
 #' @importFrom stats model.matrix 
-#' @rdname checksep
+#' @rdname checksep_worker
 #' @param object model object
 check_separation.bracl <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
 {
@@ -604,7 +604,7 @@ check_separation.bracl <- function(object, rational = FALSE, backend = c("rcdd",
 }
 
 #' @export
-#' @rdname diagsep
+#' @rdname diagsep_worker
 #' @param object model object
 diagnose_separation.bracl <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
@@ -621,7 +621,7 @@ diagnose_separation.bracl <- function(object, rational = FALSE, backend = c("rcd
 }
 
 #' @export
-#' @rdname seprows
+#' @rdname seprows_worker
 #' @param object model object
 separation_rows.bracl <- function(object, rational = FALSE, ... )
 {
@@ -636,7 +636,7 @@ separation_rows.bracl <- function(object, rational = FALSE, ... )
 }
 
 #' @export
-#' @rdname detect_sepcols
+#' @rdname sepcols_worker
 #' @param object model object
 separation_columns.bracl <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
@@ -651,7 +651,7 @@ separation_columns.bracl <- function(object, rational = FALSE, backend = c("rcdd
 }
 
 #' @export
-#' @rdname reccone
+#' @rdname reccone_worker
 #' @param object model object
 recession_cone.bracl <- function(object, rational = FALSE,  ... )
 {
@@ -668,7 +668,7 @@ recession_cone.bracl <- function(object, rational = FALSE,  ... )
 ########## brmultinom
 #' @export
 #' @importFrom stats model.matrix
-#' @rdname checksep
+#' @rdname checksep_worker
 #' @param object model object
 check_separation.brmultinom <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
 {
@@ -678,7 +678,7 @@ check_separation.brmultinom <- function(object, rational = FALSE, backend = c("r
 }
 
 #' @export
-#' @rdname diagsep
+#' @rdname diagsep_worker
 #' @param object model object
 diagnose_separation.brmultinom <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ...)
 {
@@ -692,7 +692,7 @@ diagnose_separation.brmultinom <- function(object, rational = FALSE, backend = c
 
 
 #' @export
-#' @rdname detect_sepcols
+#' @rdname sepcols_worker
 #' @param object model object
 separation_columns.brmultinom <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
@@ -703,7 +703,7 @@ separation_columns.brmultinom <- function(object, rational = FALSE, backend = c(
 }
 
 #' @export
-#' @rdname seprows
+#' @rdname seprows_worker
 #' @param object model object
 separation_rows.brmultinom <- function(object, rational = FALSE, ... )
 {
@@ -714,7 +714,7 @@ separation_rows.brmultinom <- function(object, rational = FALSE, ... )
 }
 
 #' @export
-#' @rdname reccone
+#' @rdname reccone_worker
 #' @param object model object
 recession_cone.brmultinom <- function(object, rational = FALSE, ... )
 {

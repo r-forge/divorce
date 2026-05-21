@@ -2,12 +2,9 @@
 % Please edit documentation in R/seprows.R
 \name{seprows_sl}
 \alias{seprows_sl}
-\alias{detect_seprows_sl}
 \title{Detect design matrix rows with separation for sequential (continuation-ratio) ordinal response models.}
 \usage{
 seprows_sl(y, X, rational = FALSE, reduce = TRUE)
-
-detect_seprows_sl(y, X, rational = FALSE, reduce = TRUE)
 }
 \arguments{
 \item{y}{the ordinal outcome variable. Works best if it is an ordered factor but can also be numeric, boolean or character. In the latter case we internally coerce to ordered factor interpret the ordering as alphanumerically increasing (just as as.ordered is doing).}
@@ -28,11 +25,4 @@ if reduce = FALSE a list of lists with a list for each category listing offrows 
 }
 \description{
 Detect design matrix rows with separation for sequential (continuation-ratio) ordinal response models.
-}
-\examples{
-data(qcsepdato)
-y<-qcsepdato$y
-X<-qcsepdato[,2:ncol(qcsepdato)]
-seprows_sl(y,X)
-
 }

@@ -1,4 +1,4 @@
-#' General separation check.  
+#' General separation check worker function.  
 #'
 #' This function checks for (quasi-) complete separation by calling the appropriate low-level functions.
 #'
@@ -16,7 +16,7 @@
 #' @return a Boolean; either 'TRUE' if we detected separation or 'FALSE' if not.
 #'
 #' @export
-checksep <- function(y, X, S, rational=FALSE, model=c("bcl", "b","cl","acl","sl","osm"), backend = c("rcdd", "ROI"), solver = NULL){
+checksep_worker<- function(y, X, S, rational=FALSE, model=c("bcl", "b","cl","acl","sl","osm"), backend = c("rcdd", "ROI"), solver = NULL){
     backend <- .divorce_match_backend(backend)
     if(missing(S))
     {
@@ -102,7 +102,6 @@ checksep <- function(y, X, S, rational=FALSE, model=c("bcl", "b","cl","acl","sl"
 #'
 #' @import rcdd
 #' 
-#' @export
 checksep_cl<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL){
    backend <- .divorce_match_backend(backend)
    ratcols <- rat_cols(X)
@@ -110,7 +109,7 @@ checksep_cl<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver 
    if(length(unique(y))>2) { 
        Xstar <- cl_Xstar(y=y, X=X, label=FALSE, rational = rational)
    } else {
-       stop("For 2 categories, please use checksep with argument model = 'b' or checksep_b.")
+       stop("For 2 categories, please use model = 'b'.")
    }
    cal <- .divorce_check_sep_lp(
         Xstar,
@@ -135,12 +134,11 @@ checksep_cl<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver 
 #' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
 #' @return a Boolean; either 'TRUE' if we detected separation or 'FALSE' if not.
 #' @import rcdd
-#' @export
 checksep_bcl<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL){
    backend <- .divorce_match_backend(backend)
    ratcols <- rat_cols(X)
    if(ratcols) rational <- TRUE 
-   if(is.ordered(y) & length(unique(y))>2) stop("For ordered y, please specify the model argument in checksep or use the appropriate checksep_* function.") 
+   if(is.ordered(y) & length(unique(y))>2) stop("For ordered y, please specify the desired model in the model argument.") 
    Xstar <- bcl_Xstar(y=y, X=X, label=FALSE, rational = rational) 
    cal <- .divorce_check_sep_lp(
         Xstar,
@@ -164,7 +162,6 @@ checksep_bcl<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver
 #' @return a Boolean; either 'TRUE' if we detected separation or 'FALSE' if not.
 #'
 #' @import rcdd
-#' @export
 checksep_b<- checksep_bcl
 
 
@@ -180,7 +177,6 @@ checksep_b<- checksep_bcl
 #' @return a Boolean; either 'TRUE' if we detected separation or 'FALSE' if not.
 #'
 #' @import rcdd
-#' @export
 checksep_sl<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL){
    backend <- .divorce_match_backend(backend)
    ratcols <- rat_cols(X)
@@ -203,7 +199,6 @@ checksep_sl<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver 
 #' @return a Boolean; either 'TRUE' if we detected separation or 'FALSE' if not.
 #'
 #' @import rcdd
-#' @export
 checksep_acl<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL){
    backend <- .divorce_match_backend(backend) 
    ratcols <- rat_cols(X)
@@ -211,7 +206,7 @@ checksep_acl<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver
    if(length(unique(y))>2) { 
        Xstar <- acl_Xstar(y=y, X=X, label=FALSE, rational = rational)
    } else {
-       stop("For 2 categories, please use checksep with model= 'b' or checksep_b.")    
+       stop("For 2 categories, please use model = 'b'.")    
    }
    cal <- .divorce_check_sep_lp(
         Xstar,
@@ -235,7 +230,6 @@ checksep_acl<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver
 #' @return a Boolean; either 'TRUE' if we detected separation or 'FALSE' if not.
 #'
 #' @import rcdd
-#' @export
 checksep_osm<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL){
    backend <- .divorce_match_backend(backend)
    ratcols <- rat_cols(X)
@@ -243,7 +237,7 @@ checksep_osm<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver
    if(length(unique(y))>2) { 
        Xstar <- osm_Xstar(y=y, X=X, label=FALSE, rational = rational)
    } else {
-       stop("For 2 categories, please use checksep with model='b' or checksep_b.")
+       stop("For 2 categories, please use model = 'b'.")
    }   
     cal <- .divorce_check_sep_lp(
         Xstar,
@@ -259,7 +253,7 @@ checksep_osm<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver
     
 #' General overlap check.
 #'
-#' This function checks for overlap by calling the appropriate low-level functions.
+#' This function checks for overlap by calling the appropriate low-level functions. It is not generic.
 #'
 #' The function uses either a response vector y and a design matrix X or a structure vector matrix S. If S is given, y and X and model are ignored.
 #'
@@ -273,14 +267,16 @@ checksep_osm<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver
 #' @return a Boolean; either 'TRUE' if there is overlap or 'FALSE' if not.
 #'
 #' @export
-checkovl <- function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","osm"), backend = c("rcdd", "ROI"), solver = NULL){
+check_overlap <- function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","osm"), backend = c("rcdd", "ROI"), solver = NULL){
   if(missing(model)) model <- NULL
   if(missing(S)) {
-      !isTRUE(checksep(y=y, X=X, rational=rational, model = model, backend = backend, solver = solver))
+      !isTRUE(checksep_worker(y=y, X=X, rational=rational, model = model, backend = backend, solver = solver))
   } else {
-      !isTRUE(checksep(S=S, rational=rational, backend = backend, solver = solver))
+      !isTRUE(checksep_worker(S=S, rational=rational, backend = backend, solver = solver))
   }
 }
 
+
+checkovl <- check_overlap
 
 

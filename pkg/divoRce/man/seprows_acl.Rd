@@ -2,12 +2,9 @@
 % Please edit documentation in R/seprows.R
 \name{seprows_acl}
 \alias{seprows_acl}
-\alias{detect_seprows_acl}
 \title{Identify the rows in data matrix that cause separation in adjacent-category link ordinal response models.}
 \usage{
 seprows_acl(y, X, rational = FALSE)
-
-detect_seprows_acl(y, X, rational = FALSE)
 }
 \arguments{
 \item{y}{the ordinal outcome variable. Works best if it is an ordered factor but can also be numeric, boolean or character. In the latter case we corece to ordered factor and interpret the ordering as alphanumerically increasing (just as as.ordered is doing).}
@@ -25,11 +22,4 @@ a list with elements:
 }
 \description{
 This function checks which rows in X (e.g. observations) are responsible for separation.  It does this over all categories, so the observations need not separate the same categories.
-}
-\examples{
-data(qcsepdatm)
-y<-qcsepdatm$y
-X<-qcsepdatm[,2:ncol(qcsepdatm)]
-seprows_acl(y,X)
-
 }

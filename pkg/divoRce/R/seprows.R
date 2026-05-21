@@ -10,7 +10,7 @@
 #' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else.  
 #'
 #' @export
-seprows<-function(y, X, S, rational=FALSE, model = c("bcl","b","cl","acl","sl","osm")){
+seprows_worker<-function(y, X, S, rational=FALSE, model = c("bcl","b","cl","acl","sl","osm")){
  if(missing(S))
     {
     if(length(unique(y))<2) stop("There is only one value in y.")
@@ -78,9 +78,7 @@ seprows<-function(y, X, S, rational=FALSE, model = c("bcl","b","cl","acl","sl","
 }
 
 
-#' @rdname seprows
-#' @export
-detect_seprows <- seprows
+detect_seprows <- seprows_worker
 
 #' Identify the rows in data matrix that cause separation in adjacent-category link ordinal response models.
 #'
@@ -98,15 +96,9 @@ detect_seprows <- seprows
 #' \item index the index of the rows responsible for separation
 #' }
 #' 
-#' @export
 #'
 #' 
 #'
-#' @examples
-#' data(qcsepdatm)
-#' y<-qcsepdatm$y
-#' X<-qcsepdatm[,2:ncol(qcsepdatm)]
-#' seprows_acl(y,X)
 #' 
 seprows_acl<-function(y,X,rational=FALSE)
 {
@@ -154,8 +146,6 @@ seprows_acl<-function(y,X,rational=FALSE)
   out
 }
 
-#' @rdname seprows_acl
-#' @export
 detect_seprows_acl <- seprows_acl
 
 #' Identify rows in the data matrix that cause separation for binary models. 
@@ -173,13 +163,7 @@ detect_seprows_acl <- seprows_acl
 #' \item index the index of the rows responsible for separation 
 #' }'
 #' 
-#' @export
 #'
-#' @examples
-#' data(csepdat1)
-#' y<-csepdat1$y
-#' X<-cbind(1,csepdat1[,2:ncol(csepdat1)])
-#' seprows_b(y,X) #separation
 seprows_b<-function(y, X, rational=FALSE)
 {
   ratcols <- rat_cols(X)
@@ -220,8 +204,6 @@ seprows_b<-function(y, X, rational=FALSE)
   out
   }
 
-#' @rdname seprows_b
-#' @export
 detect_seprows_b <- seprows_b
 
 #' Identify the rows in the data matrix that cause separation in baseline-category link categorical response models.
@@ -240,16 +222,9 @@ detect_seprows_b <- seprows_b
 #' \item index the index of the rows responsible for separation.
 #' }
 #' 
-#' @export
 #'
 #' 
 #'
-#' @examples
-#' data(qcsepdatm)
-#' y<-qcsepdatm$y
-#' X<-qcsepdatm[,2:ncol(qcsepdatm)]
-#' seprows_bcl(y,X)
-#' 
 seprows_bcl<-function(y,X,rational=FALSE)
 {
   if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
@@ -295,8 +270,6 @@ seprows_bcl<-function(y,X,rational=FALSE)
 }
 
 
-#' @rdname seprows_bcl
-#' @export
 detect_seprows_bcl <- seprows_bcl
 
 
@@ -316,14 +289,8 @@ detect_seprows_bcl <- seprows_bcl
 #' \item index the index of the rows responsible for separation 
 #' }
 #' 
-#' @export
 #'
 #' 
-#' @examples
-#' data(qcsepdato)
-#' y<-qcsepdato$y
-#' X<-qcsepdato[,2:ncol(qcsepdato)]
-#' seprows_cl(y,X)
 #' 
 seprows_cl<-function(y,X,rational=FALSE)
 {
@@ -363,8 +330,6 @@ seprows_cl<-function(y,X,rational=FALSE)
   out
 }
 
-#' @rdname seprows_cl
-#' @export
 detect_seprows_cl <- seprows_cl
 
 #' Identify the rows in the data matrix that cause separation in ordered stereotype models.
@@ -383,15 +348,9 @@ detect_seprows_cl <- seprows_cl
 #' \item index the index of the rows responsible for separation
 #' }
 #' 
-#' @export
 #'
 #' 
 #'
-#' @examples
-#' data(qcsepdatm)
-#' y<-qcsepdatm$y
-#' X<-qcsepdatm[,2:ncol(qcsepdatm)]
-#' seprows_osm(y,X)
 #' 
 seprows_osm<-function(y,X,rational=FALSE)
 {
@@ -435,8 +394,6 @@ seprows_osm<-function(y,X,rational=FALSE)
 }
 
 
-#' @rdname seprows_osm
-#' @export
 detect_seprows_osm <- seprows_osm
 
 #' Detect design matrix rows with separation for sequential (continuation-ratio) ordinal response models.
@@ -456,14 +413,7 @@ detect_seprows_osm <- seprows_osm
 #' if reduce = FALSE a list of lists with a list for each category listing offrows and index as above but category specific
 #' 
 #' 
-#' @export
 #'
-#' 
-#' @examples
-#' data(qcsepdato)
-#' y<-qcsepdato$y
-#' X<-qcsepdato[,2:ncol(qcsepdato)]
-#' seprows_sl(y,X)
 #' 
 seprows_sl<-function(y,X,rational=FALSE,reduce=TRUE)
 {
@@ -490,6 +440,4 @@ seprows_sl<-function(y,X,rational=FALSE,reduce=TRUE)
 }
 
 
-#' @rdname seprows_sl
-#' @export
 detect_seprows_sl <- seprows_sl

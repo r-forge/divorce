@@ -26,12 +26,38 @@
 #' @export
 #'
 #' @examples
+#'
+#' # binary data
+#' data(csepdat1)
+#' y<-csepdat1$y
+#' X<-cbind(1,csepdat1[,2:ncol(csepdat1)])
+#' diagsep_worker(y, X, model = "b") 
+#'
+#' # nominal data 
+#' # BCL
 #' data(qcsepdatm)
 #' y<-qcsepdatm$y
 #' X<-cbind(1,qcsepdatm[,2:ncol(qcsepdatm)])
-#' diagsep(y,X,model="bcl")
+#' diagsep_worker(y,X,model="bcl")
+#'
+#' # ordinal data
+#' data(qcsepdato)
+#' y<-qcsepdato$y
+#' X<-qcsepdato[,2:ncol(qcsepdato)]
 #' 
-diagsep<-function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","osm"), backend = c("rcdd", "ROI"), solver = NULL)
+#' # SL
+#' diagsep_worker(y, X, model = "sl")
+#'
+#' # OSM
+#' diagsep_worker(y, X, model = "osm")
+#' 
+#' # ACL
+#' diagsep_worker(y, X, model= "acl")
+#'
+#' # CL
+#' diagsep_worker(y, X, model = "cl")
+#' 
+diagsep_worker<-function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","osm"), backend = c("rcdd", "ROI"), solver = NULL)
 {
   if(missing(S))
   {
@@ -62,10 +88,10 @@ diagsep<-function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","os
   } else {
         model <- "strucvec"
         lout <- linearities(S=S,rational=rational)$index
-        offrows <- seprows(S=S,rational=rational)$offrows
+        offrows <- seprows_worker(S=S,rational=rational)$offrows
         typ<-ifelse(length(lout)>0,ifelse(length(lout)==dim(S)[1],"Overlap","Quasi-Complete Separation"),"Complete Separation")
-        reccdim <- reccone(S=S,rational=rational)$reccdim
-        offcols <- sepcols(S=S,rational=rational, backend = backend, solver = solver)$offcols 
+        reccdim <- reccone_worker(S=S,rational=rational)$reccdim
+        offcols <- sepcols_worker(S=S,rational=rational, backend = backend, solver = solver)$offcols 
         out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols, modelclass = model)
         class(out) <- out$class <- "sepmod"
         return(out)
@@ -74,32 +100,6 @@ diagsep<-function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","os
 
 
 
-## diagsepOLD<-function(y,X,rational=FALSE)
-## {
-##   if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
-##   ratcols <- rat_cols(X)
-##   if(ratcols) rational <- TRUE
-##   if(is.ordered(y) & length(unique(y))>2) { #TODO: Do we have any other way to check whether y is ordinal?
-##         Xstar <- cl_Xstar(y, X, label=TRUE, rational=rational) # for ordinal
-##     } else {
-##         Xstar <- bcl_Xstar(y, X, label=TRUE, rational=rational) #for all nominal and binary
-##   }
-##   lout <- linearities(y,X,rational=rational)$index
-##   if(ratcols(Xstar)) Xstar <- rcdd::q2d(Xstar)
-##   if (length(lout)==0){
-##       offobs <-  Xstar
-##       attr(offobs,"assign") <- NULL
-##     } else {
-##       offobs <- Xstar[-lout,,drop=FALSE]
-##       attr(offobs,"assign") <- NULL
-##     }
-##   typ<-ifelse(length(lout)>0,ifelse(length(lout)==dim(Xstar)[1],"Overlap","Quasi-Complete Separation"),"Complete Separation")
-##   reccdim <- reccone(y,X,rational=rational)$reccdim
-##   offcols <- detect_sepcols(y,X,rational=rational)$offcols 
-##   out <- list(separation=(typ!="Overlap"),septype=typ,nr.offobs=dim(offobs)[1],reccdim=reccdim,offobs=offobs,nr.offcols=length(offcols),offcols=offcols)
-##   class(out) <- out$class <- "sepmod"
-##   out
-## }
 
 #' Detailed separation diagnostic for sequential (continuation-ratio) ordinal response models.
 #'
@@ -122,14 +122,7 @@ diagsep<-function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","os
 #' \item offcols columns of the design matrix that have separation. It is given as category::effect.  
 #' }
 #' 
-#' @export
 #'
-#' 
-#' @examples
-#' data(qcsepdato)
-#' y<-qcsepdato$y
-#' X<-qcsepdato[,2:ncol(qcsepdato)]
-#' diagsep_sl(y,X)
 #' 
 diagsep_sl<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 {
@@ -165,14 +158,7 @@ diagsep_sl<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NU
 #' \item offcols columns of the design matrix that have separation. It is given as category::effect.  
 #' }
 #' 
-#' @export
 #'
-#' 
-#' @examples
-#' data(qcsepdato)
-#' y<-qcsepdato$y
-#' X<-qcsepdato[,2:ncol(qcsepdato)]
-#' diagsep_osm(y,X)
 #' 
 diagsep_osm<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 {
@@ -184,7 +170,7 @@ diagsep_osm<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = N
   offrows <- seprows_osm(y=y,X=X,rational=rational)$offrows
   typ<-ifelse(length(lout)>0,ifelse(length(lout)==dim(Xstar)[1],"Overlap","Quasi-Complete Separation"),"Complete Separation") 
   reccdim <-  reccone_osm(y=y,X=X,rational=rational)$reccdim
-  offcols <- detect_sepcols_osm(y=y,X=X,rational=rational, backend = backend, solver = solver)$offcols 
+  offcols <- sepcols_osm(y=y,X=X,rational=rational, backend = backend, solver = solver)$offcols 
   out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols, modelclass = "osm")
   class(out) <- out$class <- "sepmod"
   return(out)
@@ -212,14 +198,8 @@ diagsep_osm<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = N
 #' \item offcols columns of the design matrix that have separation. It is given as category::effect.  
 #' }
 #' 
-#' @export
 #'
 #' 
-#' @examples
-#' data(qcsepdato)
-#' y<-qcsepdato$y
-#' X<-qcsepdato[,2:ncol(qcsepdato)]
-#' diagsep_acl(y,X)
 #' 
 diagsep_acl<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 {
@@ -231,7 +211,7 @@ diagsep_acl<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = N
   offrows <- seprows_acl(y=y,X=X,rational=rational)$offrows
   typ<-ifelse(length(lout)>0,ifelse(length(lout)==dim(Xstar)[1],"Overlap","Quasi-Complete Separation"),"Complete Separation") 
   reccdim <-  reccone_acl(y=y,X=X,rational=rational)$reccdim
-  offcols <- detect_sepcols_acl(y=y,X=X,rational=rational, backend = backend, solver = solver)$offcols 
+  offcols <- sepcols_acl(y=y,X=X,rational=rational, backend = backend, solver = solver)$offcols 
   out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols, modelclass = "acl")
   class(out) <- out$class <- "sepmod"
   out
@@ -257,13 +237,7 @@ diagsep_acl<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = N
 #' \item offcols columns of the design matrix that have separation. It is given as category::effect.  
 #' }
 #' 
-#' @export
 #'
-#' @examples
-#' data(qcsepdatm)
-#' y<-qcsepdatm$y
-#' X<-qcsepdatm[,2:ncol(qcsepdatm)]
-#' diagsep_bcl(y,X)
 #' 
 diagsep_bcl<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 {
@@ -277,7 +251,7 @@ diagsep_bcl<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = N
   offrows <- seprows_bcl(y=y,X=X,rational=rational)$offrows
   typ<-ifelse(length(lout)>0,ifelse(length(lout)==dim(Xstar)[1],"Overlap","Quasi-Complete Separation"),"Complete Separation")
   reccdim <- reccone_bcl(y=y,X=X,rational=rational)$reccdim
-  offcols <- detect_sepcols_bcl(y=y,X=X,rational=rational, backend = backend, solver = solver)$offcols 
+  offcols <- sepcols_bcl(y=y,X=X,rational=rational, backend = backend, solver = solver)$offcols 
   out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols, modelclass = "bcl")
   class(out) <- out$class <- "sepmod"
   out
@@ -304,13 +278,7 @@ diagsep_bcl<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = N
 #' }
 #'
 #' 
-#' @export
 #'
-#' @examples
-#' data(csepdat1)
-#' y<-csepdat1$y
-#' X<-cbind(1,csepdat1[,2:ncol(csepdat1)])
-#' diagsep_b(y,X) #separation
 diagsep_b<-function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 {
   ratcols <- rat_cols(X)
@@ -333,7 +301,7 @@ diagsep_b<-function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver = N
   }
   typ<-ifelse(length(lout)>0,ifelse(length(lout)==dim(Xstar)[1],"Overlap","Quasi-Complete Separation"),"Complete Separation") 
   reccdim <- dim(Xstar)[2]-qr(Xstar[lout,])$rank 
-  offcols <- detect_sepcols_b(y=y,X=X,rational=rational, backend = backend, solver = solver)$offcols 
+  offcols <- sepcols_b(y=y,X=X,rational=rational, backend = backend, solver = solver)$offcols 
   out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols, modelclass = "b")
   class(out) <- out$class <- "sepmod"
   out
@@ -361,14 +329,8 @@ diagsep_b<-function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver = N
 #' \item offcols columns of the design matrix that have separation. It is given as category::effect.  
 #' }
 #' 
-#' @export
 #'
 #' 
-#' @examples
-#' data(qcsepdato)
-#' y<-qcsepdato$y
-#' X<-qcsepdato[,2:ncol(qcsepdato)]
-#' diagsep_cl(y,X)
 #' 
 diagsep_cl<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 {
@@ -382,7 +344,7 @@ diagsep_cl<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NU
   offrows <- seprows_cl(y=y,X=X,rational=rational)$offrows
   typ<-ifelse(length(lout)>0,ifelse(length(lout)==dim(Xstar)[1],"Overlap","Quasi-Complete Separation"),"Complete Separation") 
   reccdim <-  reccone_cl(y=y,X=X,rational=rational)$reccdim
-  offcols <- detect_sepcols_cl(y=y,X=X,rational=rational, backend = backend, solver = solver)$offcols 
+  offcols <- sepcols_cl(y=y,X=X,rational=rational, backend = backend, solver = solver)$offcols 
   out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols, modelclass = "cl")
   class(out) <- out$class <- "sepmod"
   out

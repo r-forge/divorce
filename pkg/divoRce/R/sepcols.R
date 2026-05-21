@@ -10,7 +10,7 @@
 #' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
 #' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by \code{ROI_applicable_solver()} for "ROI".  
 #' @export
-detect_sepcols <- function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","osm"), backend = c("rcdd", "ROI"), solver = NULL) {
+sepcols_worker<- function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","osm"), backend = c("rcdd", "ROI"), solver = NULL) {
     backend <- .divorce_match_backend(backend)
     if(missing(S))
     {
@@ -24,19 +24,19 @@ detect_sepcols <- function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl"
        warning("Default model class used.","\n")
        if(is.ordered(y) & length(unique(y))>2)
         {
-            return(detect_sepcols_cl(y=y,X=X,rational=rational, backend=backend, solver=solver))
+            return(sepcols_cl(y=y,X=X,rational=rational, backend=backend, solver=solver))
         } else {
-            return(detect_sepcols_bcl(y=y,X=X,rational=rational, backend=backend, solver=solver))
+            return(sepcols_bcl(y=y,X=X,rational=rational, backend=backend, solver=solver))
         }
     }
     model <- match.arg(model,several.ok=FALSE)
     switch(model,
-           b = detect_sepcols_b(y=y,X=X,rational=rational, backend=backend, solver=solver),
-           bcl = detect_sepcols_bcl(y=y,X=X,rational=rational, backend=backend, solver=solver),
-           cl = detect_sepcols_cl(y=y,X=X,rational=rational, backend=backend, solver=solver),
-           acl = detect_sepcols_acl(y=y,X=X,rational=rational, backend=backend, solver=solver),       
-           sl =detect_sepcols_sl(y=y,X=X,rational=rational, backend=backend, solver=solver),
-           osm =detect_sepcols_osm(y=y,X=X,rational=rational, backend=backend, solver=solver)
+           b = sepcols_b(y=y,X=X,rational=rational, backend=backend, solver=solver),
+           bcl = sepcols_bcl(y=y,X=X,rational=rational, backend=backend, solver=solver),
+           cl = sepcols_cl(y=y,X=X,rational=rational, backend=backend, solver=solver),
+           acl = sepcols_acl(y=y,X=X,rational=rational, backend=backend, solver=solver),       
+           sl =sepcols_sl(y=y,X=X,rational=rational, backend=backend, solver=solver),
+           osm =sepcols_osm(y=y,X=X,rational=rational, backend=backend, solver=solver)
            )
     } else {
         # for S given
@@ -89,9 +89,7 @@ detect_sepcols <- function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl"
    }
  }
 
-#' @rdname detect_sepcols
-#' @export
-sepcols <- detect_sepcols
+detect_sepcols <- sepcols_worker
 
 
 #' Identify separation columns for binary models
@@ -105,8 +103,7 @@ sepcols <- detect_sepcols
 #' @param rational should rational arithmetic be used.
 #' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
 #' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
-#' @export
-detect_sepcols_b<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL) { 
+sepcols_b<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL) { 
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
     y <- as.factor(y)
     backend <- .divorce_match_backend(backend)
@@ -131,9 +128,7 @@ detect_sepcols_b<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), so
    out
 }
 
-#' @rdname detect_sepcols_b
-#' @export
-sepcols_b <- detect_sepcols_b
+detect_sepcols_b <- sepcols_b 
 
 #' Identify separation columns in sequential models
 #'
@@ -146,8 +141,7 @@ sepcols_b <- detect_sepcols_b
 #' @param rational should rational arithmetic be used.
 #' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
 #' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
-#' @export
-detect_sepcols_sl <- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)
+sepcols_sl <- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 {
   backend <- .divorce_match_backend(backend)
   ratcols <- rat_cols(X)
@@ -158,9 +152,7 @@ detect_sepcols_sl <- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), so
   return(seqout)
 }
 
-#' @rdname detect_sepcols_sl
-#' @export
-sepcols_sl<- detect_sepcols_sl
+detect_sepcols_sl<- sepcols_sl
 
 #' Identify separation columns in baseline-category models
 #'
@@ -173,8 +165,7 @@ sepcols_sl<- detect_sepcols_sl
 #' @param rational should rational arithmetic be used.
 #' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
 #' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
-#' @export
-detect_sepcols_bcl<- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL) {
+sepcols_bcl<- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL) {
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
     y <- as.factor(y)
     backend <- .divorce_match_backend(backend)
@@ -196,10 +187,7 @@ detect_sepcols_bcl<- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), so
    return(out)
    }
 
-#' @rdname detect_sepcols_bcl
-#' @export
-sepcols_bcl<- detect_sepcols_bcl
-
+detect_sepcols_bcl <- sepcols_bcl 
 
 #' Identify separation columns in cumulative link models
 #'
@@ -212,8 +200,7 @@ sepcols_bcl<- detect_sepcols_bcl
 #' @param rational should rational arithmetic be used.
 #' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
 #' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
-#' @export
-detect_sepcols_cl<- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL) {
+sepcols_cl<- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL) {
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
     y <- as.ordered(y)
     backend <- .divorce_match_backend(backend)
@@ -235,9 +222,8 @@ detect_sepcols_cl<- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), sol
    return(out)
 }
 
-#' @rdname detect_sepcols_cl
-#' @export
-sepcols_cl<- detect_sepcols_cl
+
+detect_sepcols_cl <- sepcols_cl
 
 
 
@@ -252,8 +238,7 @@ sepcols_cl<- detect_sepcols_cl
 #' @param rational boolean flag whether rational arithmetic should be used. Default is FALSE.
 #' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
 #' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
-#' @export
-detect_sepcols_acl <- function(y,X,rational=FALSE,backend = c("rcdd", "ROI"), solver = NULL)
+sepcols_acl <- function(y,X,rational=FALSE,backend = c("rcdd", "ROI"), solver = NULL)
     {
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
     y <- as.ordered(y)
@@ -276,9 +261,7 @@ detect_sepcols_acl <- function(y,X,rational=FALSE,backend = c("rcdd", "ROI"), so
    return(out)
  }
 
-#' @rdname detect_sepcols_acl
-#' @export
-sepcols_acl<- detect_sepcols_acl
+detect_sepcols_acl<- sepcols_acl
 
 #' Identify separation columns in ordered stereotype models
 #'
@@ -291,8 +274,7 @@ sepcols_acl<- detect_sepcols_acl
 #' @param rational boolean flag whether rational arithmetic should be used. Default is FALSE.
 #' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
 #' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
-#' @export
-detect_sepcols_osm <- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)
+sepcols_osm <- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 {
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
     y <- as.ordered(y)
@@ -315,6 +297,5 @@ detect_sepcols_osm <- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), s
    return(out)
    }
 
-#' @rdname detect_sepcols_osm
-#' @export
-sepcols_osm <- detect_sepcols_osm
+
+detect_sepcols_osm <- sepcols_osm

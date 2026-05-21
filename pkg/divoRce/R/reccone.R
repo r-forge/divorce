@@ -14,7 +14,7 @@
 #' @return a list with 'cone' being the recession cone, 'reccdim' being the dimensions of the recession cone, and 'index' the row index of the structure vectors that are not linearities. Note that in case of 'X' not having full column rank, the 'reccdim' value is the dimension of the recession cone due to separation plus the number of columns that are linear dependent.   
 #' 
 #' @export
-reccone <- function(y, X, S, rational=FALSE, model=c("b","bcl","acl","cl","sl","osm")){
+reccone_worker<- function(y, X, S, rational=FALSE, model=c("b","bcl","acl","cl","sl","osm")){
     if(missing(S))
     {
     if(length(unique(y))<2) stop("There is only one value in y.")
@@ -88,7 +88,6 @@ reccone <- function(y, X, S, rational=FALSE, model=c("b","bcl","acl","cl","sl","
 #' 
 #' @return a list with 'cone' being the recession cone, 'reccdim' being the dimensions of the recession cone, and 'index' the row index of the structure vectors that are not linearities. Note that in case of 'X' not having full column rank, the 'reccdim' value is the dimension of the recession cone due to separation plus the number of columns that are linear dependent.   
 #' 
-#' @export
 reccone_bcl<- function(y,X,rational=FALSE)
 {
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
@@ -116,7 +115,6 @@ reccone_bcl<- function(y,X,rational=FALSE)
 }
 
 #'@rdname reccone_bcl
-#'@export
 reccone_b <- reccone_bcl
 
 #' Calculates recession cone for cumulative link models.
@@ -130,7 +128,6 @@ reccone_b <- reccone_bcl
 #' 
 #' @return a list with 'cone' being the recession cone, 'reccdim' being the dimensions of the recession cone, and 'index' the row index of the structure vectors that are not linearities. Note that in case of 'X' not having full column rank, the 'reccdim' value is the dimension of the recession cone due to separation plus the number of columns that are linear dependent.   
 #' 
-#' @export
 reccone_cl<- function(y,X,rational=FALSE)
 {
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
@@ -168,7 +165,6 @@ reccone_cl<- function(y,X,rational=FALSE)
 #' 
 #' @return a list with 'cone' being the recession cone, 'reccdim' being the dimensions of the recession cone, and 'index' the row index of the structure vectors that are not linearities. Note that in case of 'X' not having full column rank, the 'reccdim' value is the dimension of the recession cone due to separation plus the number of columns that are linear dependent.   
 #' 
-#' @export
 reccone_acl<- function(y,X,rational=FALSE)
 {
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
@@ -206,7 +202,6 @@ reccone_acl<- function(y,X,rational=FALSE)
 #' 
 #' @return a list with 'cone' being the recession cone, 'reccdim' being the dimensions of the recession cone, and 'index' the row index of the structure vectors that are not linearities. Note that in case of 'X' not having full column rank, the 'reccdim' value is the dimension of the recession cone due to separation plus the number of columns that are linear dependent.   
 #' 
-#' @export
 reccone_osm<- function(y,X,rational=FALSE)
 {
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
@@ -245,7 +240,6 @@ reccone_osm<- function(y,X,rational=FALSE)
 #' 
 #' @return a list (or list of lists if 'reduced=FALSE') with 'cone' being the recession cone over all categories ('reduced=TRUE') or per category ('reduced=FALSE'), 'reccdim' being the dimension of the recession cone for each category (reduced=FALSE) or the dimension of the largest recession cone of any category ('reduced=TRUE'), and 'index' the row index of the structure vectors that are not linearities for each category ('reduced=FALSE') or over all categories ('reduced=TRUE'). Note that in case of 'X' not having full column rank, the 'reccdim' value is the dimension of the recession cone due to separation plus the number of columns that are linear dependent.   
 #' 
-#' @export
 reccone_sl<- function(y, X, rational=FALSE,reduced=TRUE)
 {
    ratcols <- rat_cols(X)

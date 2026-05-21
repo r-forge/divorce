@@ -2,12 +2,9 @@
 % Please edit documentation in R/seprows.R
 \name{seprows_osm}
 \alias{seprows_osm}
-\alias{detect_seprows_osm}
 \title{Identify the rows in the data matrix that cause separation in ordered stereotype models.}
 \usage{
 seprows_osm(y, X, rational = FALSE)
-
-detect_seprows_osm(y, X, rational = FALSE)
 }
 \arguments{
 \item{y}{the ordinal outcome variable. Works best if it is an ordered factor but can also be numeric, boolean or character. In the latter case we corece to ordered factor and interpret the ordering as alphanumerically increasing (just as as.ordered is doing).}
@@ -25,11 +22,4 @@ a list with elements:
 }
 \description{
 This function checks which rows in the data matrix given by X (e.g., observations) are responsible for separation on any category.
-}
-\examples{
-data(qcsepdatm)
-y<-qcsepdatm$y
-X<-qcsepdatm[,2:ncol(qcsepdatm)]
-seprows_osm(y,X)
-
 }

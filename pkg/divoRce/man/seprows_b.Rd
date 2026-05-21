@@ -2,12 +2,9 @@
 % Please edit documentation in R/seprows.R
 \name{seprows_b}
 \alias{seprows_b}
-\alias{detect_seprows_b}
 \title{Identify rows in the data matrix that cause separation for binary models.}
 \usage{
 seprows_b(y, X, rational = FALSE)
-
-detect_seprows_b(y, X, rational = FALSE)
 }
 \arguments{
 \item{y}{the binary outcome variable. Works best if it is a factor or ordered factor but can also be numeric, boolean or character. We coerce to factor internally.}
@@ -25,10 +22,4 @@ a list with elements:
 }
 \description{
 This function checks which rows in X cause the separation (or none).
-}
-\examples{
-data(csepdat1)
-y<-csepdat1$y
-X<-cbind(1,csepdat1[,2:ncol(csepdat1)])
-seprows_b(y,X) #separation
 }

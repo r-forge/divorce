@@ -74,7 +74,6 @@ linearities <- function(y, X, S, rational=FALSE, model=c("b","bcl","acl","cl","s
 #'
 #' @return a list with elements $lins which lists the rows vectors that are linearities for any category and $index which gives the row index of the linearities. If there is complete separation they are both empty set. If their length/row dimension is number of categories*dim(X)[1], there is overlap. Anything in between is quasi-complete separation.
 #'
-#' @export
 linearities_bcl<- function(y, X, rational=FALSE)
 {
    ratcols <- rat_cols(X)
@@ -99,7 +98,6 @@ linearities_bcl<- function(y, X, rational=FALSE)
 #' @param rational boolean flag whether rational arithmetic should be used. Default is FALSE.
 #'
 #' @return a list with elements $lins which lists the rows vectors that are linearities for any category and $index which gives the row index of the linearities. If there is complete separation they are both empty set. If their length/row dimension is number of categories*dim(X)[1], there is overlap. Anything in between is quasi-complete separation.  
-#' @export
 linearities_cl<- function(y, X, rational=FALSE)
 {
    ratcols <- rat_cols(X)
@@ -124,7 +122,6 @@ linearities_cl<- function(y, X, rational=FALSE)
 #' @param rational boolean flag whether rational arithmetic should be used. Default is FALSE
 #'
 #' @return a list with elements $lins which lists the rows vectors that are linearities for any category and $index which gives the row index of the linearities. If there is complete separation they are both empty set. If their length/row dimension is number of categories*dim(X)[1], there is overlap. Anything in between is quasi-complete separation.  
-#' @export
 linearities_osm<- function(y, X, rational=FALSE)
 {
    ratcols <- rat_cols(X)
@@ -143,7 +140,6 @@ linearities_osm<- function(y, X, rational=FALSE)
 
 
 #' @rdname linearities_bcl 
-#' @export
 linearities_b <- linearities_bcl
 
 #' This function calculates the linearities in the negative structure vector matrix X* for an adjacent-category link model, so the row vectors for which there is no separation. If this is an empty set or of length 0, then we have overlap. 
@@ -153,7 +149,6 @@ linearities_b <- linearities_bcl
 #' @param rational boolean flag whether rational arithmetic should be used. Default is FALSE
 #'
 #' @return a list with elements $lins which lists the rows vectors that are linearities for any category and $index which gives the row index of the linearities. If there is complete separation they are both empty set. If their length/row dimension is number of categories*dim(X)[1], there is overlap. Anything in between is quasi-complete separation.  
-#' @export
 linearities_acl<- function(y, X, rational=FALSE)
 {
    ratcols <- rat_cols(X)
@@ -178,7 +173,6 @@ linearities_acl<- function(y, X, rational=FALSE)
 #' @param reduced If TRUE (default) the per category results are merged into one objct and duplicates removed. If FALSE, the result is given for each category separately.   
 #'
 #' @return a list with elements $lins which lists the rows vectors that are linearities for any category (reduced=TRUE) or by category (reduced=FALSE), and $index which gives the row index of the linearities for any or by category. If there is complete separation they are both empty set. If their length/row dimension is number of categories*dim(X)[1], there is overlap. Anything in between is quasi-complete separation.  
-#' @export
 linearities_sl<- function(y, X, rational=FALSE,reduced=TRUE)
 {
    ratcols <- rat_cols(X)

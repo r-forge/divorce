@@ -31,9 +31,3 @@ an object of class 'sepmod' that is a list with the components:
 \description{
 This function checks whether there is (quasi-) complete separation, which type if any, gives the dimension of the recession cone, lists the number of columns in the design matrix that give rise to the separation as well as the columns names and lists the rows in X for which we have separation.
 }
-\examples{
-data(csepdat1)
-y<-csepdat1$y
-X<-cbind(1,csepdat1[,2:ncol(csepdat1)])
-diagsep_b(y,X) #separation
-}
