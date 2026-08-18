@@ -87,6 +87,8 @@ return(!any(sepcols_worker(S=S, rational = rational, backend = backend, solver =
         }
 }
 
+#'
+overlap_qc <- overlap_quick_check
 
 #' A quick check for separation.
 #'
@@ -110,4 +112,6 @@ return(any(sepcols_worker(y=y,X=X,rational=rational,model=model, backend = backe
  }
 }
 
+#'
+separation_qc <- separation_quick_check
 
