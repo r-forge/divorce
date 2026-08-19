@@ -8,7 +8,7 @@
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
 #' @param S a matrix of structure vectors
 #' @param rational should rational arithmetic be used?
-#' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else.  
+#' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "os" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else.  
 #' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
 #' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
 #'
@@ -49,7 +49,7 @@
 #' diagsep_worker(y, X, model = "sl")
 #'
 #' # OSM
-#' diagsep_worker(y, X, model = "osm")
+#' diagsep_worker(y, X, model = "os")
 #' 
 #' # ACL
 #' diagsep_worker(y, X, model= "acl")
@@ -57,7 +57,7 @@
 #' # CL
 #' diagsep_worker(y, X, model = "cl")
 #' 
-diagsep_worker<-function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","osm"), backend = c("rcdd", "ROI"), solver = NULL)
+diagsep_worker<-function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","os"), backend = c("rcdd", "ROI"), solver = NULL)
 {
   if(missing(S))
   {
@@ -83,7 +83,7 @@ diagsep_worker<-function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","
            cl= diagsep_cl(y=y,X=X,rational=rational, backend = backend, solver = solver),
            acl= diagsep_acl(y=y,X=X,rational=rational, backend = backend, solver = solver),       
            sl=diagsep_sl(y=y,X=X,rational=rational, backend = backend, solver = solver),
-           osm=diagsep_osm(y=y,X=X,rational=rational, backend = backend, solver = solver)
+           os=diagsep_os(y=y,X=X,rational=rational, backend = backend, solver = solver)
            )
   } else {
         model <- "strucvec"
@@ -160,18 +160,18 @@ diagsep_sl<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NU
 #' 
 #'
 #' 
-diagsep_osm<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)
+diagsep_os<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 {
   ratcols <- rat_cols(X)
   if(ratcols) rational <- TRUE
   if(!is.ordered(y)) y <- as.ordered(y)
-  Xstar <- osm_Xstar(y=y,X=X,label=TRUE,rational=rational) #ordinal
-  lout <- linearities_osm(y=y,X=X,rational=rational)$index
-  offrows <- seprows_osm(y=y,X=X,rational=rational)$offrows
+  Xstar <- os_Xstar(y=y,X=X,label=TRUE,rational=rational) #ordinal
+  lout <- linearities_os(y=y,X=X,rational=rational)$index
+  offrows <- seprows_os(y=y,X=X,rational=rational)$offrows
   typ<-ifelse(length(lout)>0,ifelse(length(lout)==dim(Xstar)[1],"Overlap","Quasi-Complete Separation"),"Complete Separation") 
-  reccdim <-  reccone_osm(y=y,X=X,rational=rational)$reccdim
-  offcols <- sepcols_osm(y=y,X=X,rational=rational, backend = backend, solver = solver)$offcols 
-  out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols, modelclass = "osm")
+  reccdim <-  reccone_os(y=y,X=X,rational=rational)$reccdim
+  offcols <- sepcols_os(y=y,X=X,rational=rational, backend = backend, solver = solver)$offcols 
+  out <- list(separation=(typ!="Overlap"),septype=typ,nr.offrows=dim(offrows)[1],reccdim=reccdim,offrows=offrows,nr.offcols=length(offcols),offcols=offcols, modelclass = "os")
   class(out) <- out$class <- "sepmod"
   return(out)
 }

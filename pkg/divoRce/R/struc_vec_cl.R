@@ -49,7 +49,6 @@ cl_Xstar <- function(y, X, label=TRUE, rational=FALSE){
 #' 
 #' @return a matrix of structure vectors with or without labels
 #'
-#' @export
 struc_vec_cl <- function(y, X, label=TRUE, rational=FALSE){
    X <- as.matrix(X)
    if(is.null(rownames(X))) rownames(X) <- seq(1,dim(X)[1],by=1)

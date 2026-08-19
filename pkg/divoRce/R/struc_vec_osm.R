@@ -9,7 +9,7 @@
 #'@details If \code{X} is given as the standard R object for design matrices (i.e., a numeric matrix) or as a data frame, they are returned the same way unless \code{rational=TRUE}; then it is returned as a character matrix of rational numbers. If \code{X} is given in rational format, it is also returned as rational format even if rational is set to \code{FALSE}. OSM checks do not need to consider the reference category. 
 #' 
 #' @return a matrix of negative structure vectors with or without labels
-osm_Xstar <- function(y, X, label=TRUE, rational=FALSE){
+os_Xstar <- function(y, X, label=TRUE, rational=FALSE){
   X <- as.matrix(X)
   y <- droplevels(as.factor(y))
 
@@ -69,8 +69,7 @@ osm_Xstar <- function(y, X, label=TRUE, rational=FALSE){
 #' 
 #' @return a matrix of structure vectors with or without labels
 #'
-#' @export
-struc_vec_osm <- function(y, X, label=TRUE, rational=FALSE){
+struc_vec_os <- function(y, X, label=TRUE, rational=FALSE){
   X <- as.matrix(X)
   y <- droplevels(as.factor(y))
 

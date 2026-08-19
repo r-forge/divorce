@@ -16,7 +16,7 @@ print.sepmod <- function(x, info = c("minimal","full"),...)
                                 cl = "Cumulative Link Model",
                                 acl = "Adjacent-Category Link Model",
                                 sl = "Sequential Link Model",
-                                osm = "Ordered Stereotype Model",
+                                os = "Ordered Stereotype Model",
                                 strucvec= "Structure Vectors")
        , "\n")
      cat("\n")

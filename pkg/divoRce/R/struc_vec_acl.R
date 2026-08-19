@@ -9,7 +9,6 @@
 #'@details If \code{X} is given as the standard R object for design matrices (i.e., a numeric matrix) or as a data frame, they are returned the same way unless \code{rational=TRUE}; then it is returned as a character matrix of rational numbers. If \code{X} is given in rational format, it is also returned as rational format even if rational is set to \code{FALSE}.
 #' 
 #' @return a matrix of structure vectors with or without labels
-#'
 acl_Xstar <- function(y,X,label=TRUE,rational=FALSE)
 {
   X <- as.matrix(X)
@@ -69,7 +68,6 @@ acl_Xstar <- function(y,X,label=TRUE,rational=FALSE)
 #'@details If \code{X} is given as the standard R object for design matrices (i.e., a numeric matrix) or as a data frame, they are returned the same way unless \code{rational=TRUE}; then it is returned as a character matrix of rational numbers. If \code{X} is given in rational format, it is also returned as rational format even if rational is set to \code{FALSE}.
 #' 
 #' @return a matrix of structure vectors with or without labels
-#' @export
 struc_vec_acl <- function(y,X,label=TRUE,rational=FALSE)
 {
   X <- as.matrix(X)

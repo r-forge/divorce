@@ -7,16 +7,16 @@
 #' 
 #'
 #' @param y a categorical outcome vector 
-#' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynominals). 
+#' @param X a design matrix, e.g. generated via a call to \code{\link{model.matrix}}. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials). 
 #' @param S a matrix of structure vectors
 #' @param rational should rational arithmetic be used
-#' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing or NULL it defaults to cumulative link for ordinal y and baseline-category for everything else.
+#' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "os" for ordered stereotype model. If missing or NULL it defaults to cumulative link for ordinal y and baseline-category for everything else.
 #' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
 #' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
 #' @return a Boolean; either 'TRUE' if we detected separation or 'FALSE' if not.
 #'
 #' @export
-checksep_worker<- function(y, X, S, rational=FALSE, model=c("bcl", "b","cl","acl","sl","osm"), backend = c("rcdd", "ROI"), solver = NULL){
+checksep_worker<- function(y, X, S, rational=FALSE, model=c("bcl", "b","cl","acl","sl","os"), backend = c("rcdd", "ROI"), solver = NULL){
     backend <- .divorce_match_backend(backend)
     if(missing(S))
     {
@@ -43,7 +43,7 @@ checksep_worker<- function(y, X, S, rational=FALSE, model=c("bcl", "b","cl","acl
            cl= checksep_cl(y=y,X=X,rational=rational, backend=backend, solver=solver),
            acl= checksep_acl(y=y,X=X,rational=rational, backend=backend, solver=solver),       
            sl=checksep_sl(y=y,X=X,rational=rational, backend=backend, solver=solver),
-           osm=checksep_osm(y=y,X=X,rational=rational, backend=backend, solver=solver)
+           os=checksep_os(y=y,X=X,rational=rational, backend=backend, solver=solver)
            )
     } else {
         # for S given
@@ -230,12 +230,12 @@ checksep_acl<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver
 #' @return a Boolean; either 'TRUE' if we detected separation or 'FALSE' if not.
 #'
 #' @import rcdd
-checksep_osm<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL){
+checksep_os<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL){
    backend <- .divorce_match_backend(backend)
    ratcols <- rat_cols(X)
    if(ratcols) rational <- TRUE 
    if(length(unique(y))>2) { 
-       Xstar <- osm_Xstar(y=y, X=X, label=FALSE, rational = rational)
+       Xstar <- os_Xstar(y=y, X=X, label=FALSE, rational = rational)
    } else {
        stop("For 2 categories, please use model = 'b'.")
    }   
@@ -261,13 +261,13 @@ checksep_osm<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver
 #' @param X design matrix
 #' @param S structure vector matrix
 #' @param rational should rational arithmetic be used.
-#' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing or NULL it defaults to cumulative link for ordinal y and baseline-category for everything else.
+#' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "os" for ordered stereotype model. If missing or NULL it defaults to cumulative link for ordinal y and baseline-category for everything else.
 #' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
 #' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI". 
 #' @return a Boolean; either 'TRUE' if there is overlap or 'FALSE' if not.
 #'
 #' @export
-check_overlap <- function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","osm"), backend = c("rcdd", "ROI"), solver = NULL){
+check_overlap <- function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","os"), backend = c("rcdd", "ROI"), solver = NULL){
   if(missing(model)) model <- NULL
   if(missing(S)) {
       !isTRUE(checksep_worker(y=y, X=X, rational=rational, model = model, backend = backend, solver = solver))

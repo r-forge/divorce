@@ -10,7 +10,7 @@ linearities(
   X,
   S,
   rational = FALSE,
-  model = c("b", "bcl", "acl", "cl", "sl", "osm")
+  model = c("b", "bcl", "acl", "cl", "sl", "os")
 )
 }
 \arguments{
@@ -22,7 +22,7 @@ linearities(
 
 \item{rational}{boolean flag whether rational arithmetic should be used. Default is FALSE.}
 
-\item{model}{what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing or NULL it defaults to cumulative link for ordinal y and baseline-category for everything else.}
+\item{model}{what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "os" for ordered stereotype model. If missing or NULL it defaults to cumulative link for ordinal y and baseline-category for everything else.}
 }
 \value{
 a list with elements $lins which lists the row vectors that are linearities for any category and $index which gives the row index of the linearities. If there is complete separation they are both empty set. If their length/row dimension is number of categories*dim(X)[1], there is overlap. Anything in between is quasi-complete separation.

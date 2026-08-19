@@ -261,19 +261,19 @@ data(HDSS)
 hdss_npacl <- brglm2::bracl(WTSSHI ~ trustSHI * knowledge, data = HDSS, parallel = FALSE)
 hdss_pacl <-brglm2::bracl(WTSSHI ~ trustSHI * knowledge, data = HDSS, parallel = TRUE)
 
-## OSM Data
-y_osm_qcs <- HDSS$WTSSHI
-X_osm_qcs <- model.matrix(~ trustSHI * knowledge, data = HDSS)
+## OS Data
+y_os_qcs <- HDSS$WTSSHI
+X_os_qcs <- model.matrix(~ trustSHI * knowledge, data = HDSS)
 
-y_osm_wine <- as.ordered(wine$rating)
-X_osm_wine <- model.matrix(~ temp * contact, data = wine)
-cat("✓ OSM: wine")
+y_os_wine <- as.ordered(wine$rating)
+X_os_wine <- model.matrix(~ temp * contact, data = wine)
+cat("✓ OS: wine")
 
-wine_osm <- clustord::osm(rating~ temp * contact, data = wine)
+wine_os <- clustord::osm(rating~ temp * contact, data = wine)
 
-y_osm_ol <- as.ordered(ovldatm$y)
-X_osm_ol <- as.matrix(ovldatm[, 2:ncol(ovldatm)])
-cat("✓ OSM: ovldatm (overlap)")
+y_os_ol <- as.ordered(ovldatm$y)
+X_os_ol <- as.matrix(ovldatm[, 2:ncol(ovldatm)])
+cat("✓ OS: ovldatm (overlap)")
 
 ## SL Data
 y_sl_cs <- y_acl_cs
@@ -763,7 +763,6 @@ run_test("overlap_fraction_check(S) - quasi-complete separation", function(backe
              backend = backend, solver = solver)
 })
 
-## TODO: Check here.
 
 ## =============================================================================
 ## 1.9 overlap_quick_check - Binary
@@ -848,6 +847,27 @@ run_test("separation_quick_check(S) - quasi-complete separation", function(backe
   separation_quick_check(S=S_qcs, rational = rational, 
              backend = backend, solver = solver)
 })
+
+
+## =============================================================================
+## structure vectors 
+## =============================================================================
+
+print_section("structure_vectors (Binary)", 2)
+
+
+run_simple_test("structure_vectors with label", function() {
+  structure_vectors(y_b_cs, X_b_cs, model = "b", rational = rational)
+})
+
+run_simple_test("structure_vectors without labels", function() {
+  structure_vectors(y_b_cs, X_b_cs, model = "b", rational = rational, label = FALSE)
+})
+
+run_simple_test("structure_vectors with label from formula", function() {
+  structure_vectors(HG ~ NV + PI + EH, data = endometrial ,  model = "b", rational = rational)
+})
+
 
 cat("")
 cat(paste(rep("#", 78), collapse = ""), "")
@@ -1253,6 +1273,27 @@ run_test("separation_quick_check - overlap", function(backend, solver) {
   separation_quick_check(y_bcl_ol, X_bcl_ol, rational = rational, backend = backend, solver = solver)
 })
 
+
+## =============================================================================
+## structure vectors 
+## =============================================================================
+
+print_section("structure_vectors (BCL)", 2)
+
+
+run_simple_test("structure_vectors with label", function() {
+  structure_vectors(y_bcl_ol, X_bcl_ol, model = "bcl", rational = rational)
+})
+
+run_simple_test("structure_vectors without labels", function() {
+  structure_vectors(y_bcl_ol, X_bcl_ol, model = "bcl", rational = rational, label = FALSE)
+})
+
+run_simple_test("structure_vectors with label from formula", function() {
+  structure_vectors(y ~ x1 + x2, data = ovldatm,  model = "bcl", rational = rational)
+})
+
+
 cat("")
 cat(paste(rep("#", 78), collapse = ""), "")
 cat("##  END OF BCL MODEL TESTS")
@@ -1602,6 +1643,27 @@ run_test("separation_quick_check(model='cl') - wine with bottle", function(backe
   separation_quick_check(y_cl_wine2, X_cl_wine2, rational = rational, model = "cl", backend = backend, solver = solver)
 })
 
+
+## =============================================================================
+## structure vectors 
+## =============================================================================
+
+print_section("structure_vectors (CL)", 2)
+
+
+run_simple_test("structure_vectors with label", function() {
+  structure_vectors(y_cl_wine2, X_cl_wine2, model = "cl", rational = rational)
+})
+
+run_simple_test("structure_vectors without labels", function() {
+  structure_vectors(y_cl_wine2, X_cl_wine2, model = "cl", rational = rational, label = FALSE)
+})
+
+run_simple_test("structure_vectors with label from formula", function() {
+  structure_vectors( rating ~ temp + contact + bottle, data = wine, model = "cl", rational = rational)
+})
+
+
 cat("")
 cat(paste(rep("#", 78), collapse = ""), "")
 cat("##  END OF CL MODEL TESTS")
@@ -1912,6 +1974,26 @@ run_test("separation_quick_check(model='acl') - overlap", function(backend, solv
   separation_quick_check(y_acl_ol, X_acl_ol, rational = rational, model = "acl", backend = backend, solver = solver)
 })
 
+## =============================================================================
+## structure vectors 
+## =============================================================================
+
+print_section("structure_vectors (AL)", 2)
+
+
+run_simple_test("structure_vectors with label", function() {
+  structure_vectors(y_cl_wine2, X_cl_wine2, model = "acl", rational = rational)
+})
+
+run_simple_test("structure_vectors without labels", function() {
+  structure_vectors(y_cl_wine2, X_cl_wine2, model = "acl", rational = rational, label = FALSE)
+})
+
+run_simple_test("structure_vectors with label from formula", function() {
+  structure_vectors( rating ~ temp + contact + bottle, data = wine, model = "acl", rational = rational)
+})
+
+
 cat("")
 cat(paste(rep("#", 78), collapse = ""), "")
 cat("##  END OF ACL MODEL TESTS")
@@ -1920,31 +2002,31 @@ cat(paste(rep("#", 78), collapse = ""), "")
 
 ################################################################################
 ##                                                                            ##
-##  COMPREHENSIVE TEST SUITE - PART 5: OSM MODEL TESTS                       ##
+##  COMPREHENSIVE TEST SUITE - PART 5: OS MODEL TESTS                       ##
 ##                                                                            ##
 ################################################################################
 
-print_section("Ordered Stereotype Model Tests (osm)")
+print_section("Ordered Stereotype Model Tests (os)")
 
 ## TODO: Are these results weird? 
 
 
 ## =============================================================================
-## 5.1 checksep_worker - OSM
+## 5.1 checksep_worker - OS
 ## =============================================================================
 
-print_section("checksep_worker (OSM)", 2)
+print_section("checksep_worker (OS)", 2)
 
 
-# --- Mid level: checksep_worker with model="osm" ---
-print_section("checksep_worker with model='osm' (mid level)", 3)
+# --- Mid level: checksep_worker with model="os" ---
+print_section("checksep_worker with model='os' (mid level)", 3)
 
-run_test("checksep_worker(model='osm') - quasi-complete separation", function(backend, solver) {
-  checksep_worker(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm", backend = backend, solver = solver)
+run_test("checksep_worker(model='os') - quasi-complete separation", function(backend, solver) {
+  checksep_worker(y_os_qcs, X_os_qcs, rational = rational, model = "os", backend = backend, solver = solver)
 })
 
-run_test("checksep_worker(model='osm') - overlap", function(backend, solver) {
-  checksep_worker(y_osm_ol, X_osm_ol, rational = rational, model = "osm", backend = backend, solver = solver)
+run_test("checksep_worker(model='os') - overlap", function(backend, solver) {
+  checksep_worker(y_os_ol, X_os_ol, rational = rational, model = "os", backend = backend, solver = solver)
 })
 
 
@@ -1953,240 +2035,260 @@ run_test("checksep_worker(model='osm') - overlap", function(backend, solver) {
 print_section("check_separation.osm (generic)", 3)
 
 run_test("check_separation.osm - wine data", function(backend, solver) {
-  check_separation(wine_osm, rational = rational, backend = backend, solver = solver)
+  check_separation(wine_os, rational = rational, backend = backend, solver = solver)
 })
 
 run_test("check_separation.osm - wine data", function(backend, solver) {
-  check_separation(wine_osm, rational = rational, backend = backend, solver = solver, quick = TRUE)
+  check_separation(wine_os, rational = rational, backend = backend, solver = solver, quick = TRUE)
 })
 
-run_test("checksep_worker(model='osm') -  quick", function(backend, solver) {
-  check_separation(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm", backend = backend, solver = solver, quick = TRUE)
+run_test("checksep_worker(model='os') -  quick", function(backend, solver) {
+  check_separation(y_os_qcs, X_os_qcs, rational = rational, model = "os", backend = backend, solver = solver, quick = TRUE)
 })
 
-run_test("checksep_worker(model='osm') - overlap quick", function(backend, solver) {
-  check_separation(y_osm_ol, X_osm_ol, rational = rational, model = "osm", backend = backend, solver = solver, quick = TRUE)
+run_test("checksep_worker(model='os') - overlap quick", function(backend, solver) {
+  check_separation(y_os_ol, X_os_ol, rational = rational, model = "os", backend = backend, solver = solver, quick = TRUE)
 })
 
-run_test("checksep_worker(model='osm') - ", function(backend, solver) {
-  check_separation(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm", backend = backend, solver = solver, quick = FALSE)
+run_test("checksep_worker(model='os') - ", function(backend, solver) {
+  check_separation(y_os_qcs, X_os_qcs, rational = rational, model = "os", backend = backend, solver = solver, quick = FALSE)
 })
 
-run_test("checksep_worker(model='osm') - overlap", function(backend, solver) {
-  check_separation(y_osm_ol, X_osm_ol, rational = rational, model = "osm", backend = backend, solver = solver, quick = FALSE)
+run_test("checksep_worker(model='os') - overlap", function(backend, solver) {
+  check_separation(y_os_ol, X_os_ol, rational = rational, model = "os", backend = backend, solver = solver, quick = FALSE)
 })
 
 
 ## =============================================================================
-## 5.2 check_overlap - OSM
+## 5.2 check_overlap - OS
 ## =============================================================================
 
-print_section("check_overlap (OSM)", 2)
+print_section("check_overlap (OS)", 2)
 
 
-# --- Mid level: check_overlap with model="osm" ---
-print_section("check_overlap with model='osm' (mid level)", 3)
+# --- Mid level: check_overlap with model="os" ---
+print_section("check_overlap with model='os' (mid level)", 3)
 
-run_test("check_overlap(model='osm') - quasi-complete separation", function(backend, solver) {
-  check_overlap(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm", backend = backend, solver = solver)
+run_test("check_overlap(model='os') - quasi-complete separation", function(backend, solver) {
+  check_overlap(y_os_qcs, X_os_qcs, rational = rational, model = "os", backend = backend, solver = solver)
 })
 
-run_test("check_overlap(model='osm') - quasi-complete separation", function(backend, solver) {
-  check_overlap(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm", backend = backend, solver = solver)
+run_test("check_overlap(model='os') - quasi-complete separation", function(backend, solver) {
+  check_overlap(y_os_qcs, X_os_qcs, rational = rational, model = "os", backend = backend, solver = solver)
 })
 
-run_test("check_overlap(model='osm') - overlap", function(backend, solver) {
-  check_overlap(y_osm_ol, X_osm_ol, rational = rational, model = "osm", backend = backend, solver = solver)
+run_test("check_overlap(model='os') - overlap", function(backend, solver) {
+  check_overlap(y_os_ol, X_os_ol, rational = rational, model = "os", backend = backend, solver = solver)
 })
 
 ## =============================================================================
-## 5.3 diagsep_worker - OSM
+## 5.3 diagsep_worker - OS
 ## =============================================================================
 
-print_section("diagsep_worker (OSM)", 2)
+print_section("diagsep_worker (OS)", 2)
 
-# --- Mid level: diagsep_worker with model="osm" ---
-print_section("diagsep_worker with model='osm' (mid level)", 3)
+# --- Mid level: diagsep_worker with model="os" ---
+print_section("diagsep_worker with model='os' (mid level)", 3)
 
-run_test("diagsep_worker(model='osm') - quasi-complete separation", function(backend, solver) {
-  diagsep_worker(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm", backend = backend, solver = solver)
+run_test("diagsep_worker(model='os') - quasi-complete separation", function(backend, solver) {
+  diagsep_worker(y_os_qcs, X_os_qcs, rational = rational, model = "os", backend = backend, solver = solver)
 })
 
-run_test("diagsep_worker(model='osm') - overlap", function(backend, solver) {
-  diagsep_worker(y_osm_ol, X_osm_ol, rational = rational, model = "osm", backend = backend, solver = solver)
+run_test("diagsep_worker(model='os') - overlap", function(backend, solver) {
+  diagsep_worker(y_os_ol, X_os_ol, rational = rational, model = "os", backend = backend, solver = solver)
 })
 
 # --- Generic: diagnose_separation.osm ---
 print_section("diagnose_separation.osm (generic)", 3)
 
 run_test("diagnose_separation.osm - wine data", function(backend, solver) {
-  diagnose_separation(wine_osm, rational = rational, backend = backend, solver = solver)
+  diagnose_separation(wine_os, rational = rational, backend = backend, solver = solver)
 })
 
-# --- print.sepmod for OSM ---
-print_section("print.sepmod (OSM)", 3)
+# --- print.sepmod for OS ---
+print_section("print.sepmod (OS)", 3)
 
-run_simple_test("print.sepmod - default (OSM)", function() {
-  sd1 <- diagsep_worker(y_osm_qcs, X_osm_qcs, model="osm", rational = rational)
+run_simple_test("print.sepmod - default (OS)", function() {
+  sd1 <- diagsep_worker(y_os_qcs, X_os_qcs, model="os", rational = rational)
   print(sd1)
 })
 
-run_simple_test("print.sepmod - full (OSM)", function() {
-  sd1 <- diagsep_worker(y_osm_qcs, X_osm_qcs, model="osm", rational = rational)
+run_simple_test("print.sepmod - full (OS)", function() {
+  sd1 <- diagsep_worker(y_os_qcs, X_os_qcs, model="os", rational = rational)
   print(sd1, info = "full")
 })
 
 ## =============================================================================
-## 5.4 sepcols / sepcols_worker - OSM
+## 5.4 sepcols / sepcols_worker - OS
 ## =============================================================================
 
-print_section("sepcols / sepcols_worker (OSM)", 2)
+print_section("sepcols / sepcols_worker (OS)", 2)
 
 
-# --- Mid level: sepcols_worker with model="osm" ---
-print_section("sepcols_worker with model='osm' (mid level)", 3)
+# --- Mid level: sepcols_worker with model="os" ---
+print_section("sepcols_worker with model='os' (mid level)", 3)
 
 
-run_test("sepcols_worker(model='osm') - quasi-complete separation", function(backend, solver) {
-  sepcols_worker(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm", backend = backend, solver = solver)
+run_test("sepcols_worker(model='os') - quasi-complete separation", function(backend, solver) {
+  sepcols_worker(y_os_qcs, X_os_qcs, rational = rational, model = "os", backend = backend, solver = solver)
 })
 
-run_test("sepcols_worker(model='osm') - overlap", function(backend, solver) {
-  sepcols_worker(y_osm_ol, X_osm_ol, rational = rational, model = "osm", backend = backend, solver = solver)
+run_test("sepcols_worker(model='os') - overlap", function(backend, solver) {
+  sepcols_worker(y_os_ol, X_os_ol, rational = rational, model = "os", backend = backend, solver = solver)
 })
 
 # --- Generic: separation_columns.osm ---
 print_section("separation_columns.osm (generic)", 3)
 
 run_test("separation_columns.osm - wine data", function(backend, solver) {
-  separation_columns(wine_osm, rational = rational, backend = backend, solver = solver)
+  separation_columns(wine_os, rational = rational, backend = backend, solver = solver)
 })
 
 ## =============================================================================
-## 5.5 seprows_worker - OSM
+## 5.5 seprows_worker - OS
 ## =============================================================================
 
-print_section("seprows_worker (OSM)", 2)
+print_section("seprows_worker (OS)", 2)
 
 
-# --- Mid level: seprows_worker with model="osm" ---
-print_section("seprows_worker with model='osm' (mid level)", 3)
+# --- Mid level: seprows_worker with model="os" ---
+print_section("seprows_worker with model='os' (mid level)", 3)
 
-run_simple_test("seprows_worker(model='osm') - quasi-complete separation", function(backend, solver) {
-  seprows_worker(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm")
+run_simple_test("seprows_worker(model='os') - quasi-complete separation", function(backend, solver) {
+  seprows_worker(y_os_qcs, X_os_qcs, rational = rational, model = "os")
 })
 
-run_simple_test("seprows_worker(model='osm') - overlap", function(backend, solver) {
-  seprows_worker(y_osm_ol, X_osm_ol, rational = rational, model = "osm")
+run_simple_test("seprows_worker(model='os') - overlap", function(backend, solver) {
+  seprows_worker(y_os_ol, X_os_ol, rational = rational, model = "os")
 })
 
 # --- Generic: separation_rows.osm ---
 print_section("separation_rows.osm (generic)", 3)
 
 run_simple_test("separation_rows.osm - wine data", function(backend, solver) {
-  separation_rows(wine_osm, rational = rational)
+  separation_rows(wine_os, rational = rational)
 })
 
 ## =============================================================================
-## 5.6 linearities - OSM
+## 5.6 linearities - OS
 ## =============================================================================
 
-print_section("linearities (OSM)", 2)
+print_section("linearities (OS)", 2)
 
 
-# --- Mid level: linearities with model="osm" ---
-print_section("linearities with model='osm' (mid level)", 3)
+# --- Mid level: linearities with model="os" ---
+print_section("linearities with model='os' (mid level)", 3)
 
-run_simple_test("linearities(model='osm') - quasi-complete separation", function(backend, solver) {
-  linearities(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm")
+run_simple_test("linearities(model='os') - quasi-complete separation", function(backend, solver) {
+  linearities(y_os_qcs, X_os_qcs, rational = rational, model = "os")
 })
 
-run_simple_test("linearities(model='osm') - overlap", function(backend, solver) {
-  linearities(y_osm_ol, X_osm_ol, rational = rational, model = "osm")
+run_simple_test("linearities(model='os') - overlap", function(backend, solver) {
+  linearities(y_os_ol, X_os_ol, rational = rational, model = "os")
 })
 
 ## =============================================================================
-## 5.7 reccone_worker / rec_cone - OSM
+## 5.7 reccone_worker / rec_cone - OS
 ## =============================================================================
 
-print_section("reccone_worker / rec_cone (OSM)", 2)
+print_section("reccone_worker / rec_cone (OS)", 2)
 
 
-# --- Mid level: reccone_worker with model="osm" ---
-print_section("reccone_worker with model='osm' (mid level)", 3)
+# --- Mid level: reccone_worker with model="os" ---
+print_section("reccone_worker with model='os' (mid level)", 3)
 
-run_simple_test("reccone_worker(model='osm') - quasi-complete separation", function(backend, solver) {
-  reccone_worker(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm")
+run_simple_test("reccone_worker(model='os') - quasi-complete separation", function(backend, solver) {
+  reccone_worker(y_os_qcs, X_os_qcs, rational = rational, model = "os")
 })
 
-run_simple_test("reccone_worker(model='osm') - overlap", function(backend, solver) {
-  reccone_worker(y_osm_ol, X_osm_ol, rational = rational, model = "osm")
+run_simple_test("reccone_worker(model='os') - overlap", function(backend, solver) {
+  reccone_worker(y_os_ol, X_os_ol, rational = rational, model = "os")
 })
 
 # --- Generic: recession_cone.osm ---
 print_section("recession_cone.osm (generic)", 3)
 
 run_simple_test("recession_cone.osm - wine data", function(backend, solver) {
-  recession_cone(wine_osm, rational = rational)
+  recession_cone(wine_os, rational = rational)
 })
 
 ## =============================================================================
-## 5.8 overlap_fraction_check - OSM
+## 5.8 overlap_fraction_check - OS
 ## =============================================================================
 
-print_section("overlap_fraction_check (OSM)", 2)
+print_section("overlap_fraction_check (OS)", 2)
 
-# --- Mid level: overlap_fraction_check with model="osm" ---
-print_section("overlap_fraction_check with model='osm' (mid level)", 3)
+# --- Mid level: overlap_fraction_check with model="os" ---
+print_section("overlap_fraction_check with model='os' (mid level)", 3)
 
 
-run_test("overlap_fraction_check(model='osm') - quasi-complete separation", function(backend, solver) {
-  overlap_fraction_check(y_osm_qcs, X_osm_qcs, frac = 1, verbose = 0, rational = rational, 
-             model = "osm", backend = backend, solver = solver)
+run_test("overlap_fraction_check(model='os') - quasi-complete separation", function(backend, solver) {
+  overlap_fraction_check(y_os_qcs, X_os_qcs, frac = 1, verbose = 0, rational = rational, 
+             model = "os", backend = backend, solver = solver)
 })
 
-run_test("overlap_fraction_check(model='osm') - overlap", function(backend, solver) {
-  overlap_fraction_check(y_osm_ol, X_osm_ol, frac = 1, verbose = 0, rational = rational, 
-             model = "osm", backend = backend, solver = solver)
-})
-
-## =============================================================================
-## 5.9 overlap_quick_check - OSM
-## =============================================================================
-
-# --- Mid level: overlap_quick_check with model="osm" ---
-print_section("overlap_quick_check with model='osm' (mid level)", 3)
-
-
-run_test("overlap_quick_check(model='osm') - quasi-complete separation", function(backend, solver) {
-  overlap_quick_check(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm", backend = backend, solver = solver)
-})
-
-run_test("overlap_quick_check(model='osm') - overlap", function(backend, solver) {
-  overlap_quick_check(y_osm_ol, X_osm_ol, rational = rational, model = "osm", backend = backend, solver = solver)
+run_test("overlap_fraction_check(model='os') - overlap", function(backend, solver) {
+  overlap_fraction_check(y_os_ol, X_os_ol, frac = 1, verbose = 0, rational = rational, 
+             model = "os", backend = backend, solver = solver)
 })
 
 ## =============================================================================
-## 5.10 separation_quick_check - OSM
+## 5.9 overlap_quick_check - OS
 ## =============================================================================
 
-print_section("separation_quick_check (OSM)", 2)
-
-# --- Mid level: separation_quick_check with model="osm" ---
-print_section("separation_quick_check with model='osm' (mid level)", 3)
+# --- Mid level: overlap_quick_check with model="os" ---
+print_section("overlap_quick_check with model='os' (mid level)", 3)
 
 
-run_test("separation_quick_check(model='osm') - quasi-complete separation", function(backend, solver) {
-  separation_quick_check(y_osm_qcs, X_osm_qcs, rational = rational, model = "osm", backend = backend, solver = solver)
+run_test("overlap_quick_check(model='os') - quasi-complete separation", function(backend, solver) {
+  overlap_quick_check(y_os_qcs, X_os_qcs, rational = rational, model = "os", backend = backend, solver = solver)
 })
 
-run_test("separation_quick_check(model='osm') - overlap", function(backend, solver) {
-  separation_quick_check(y_osm_ol, X_osm_ol, rational = rational, model = "osm", backend = backend, solver = solver)
+run_test("overlap_quick_check(model='os') - overlap", function(backend, solver) {
+  overlap_quick_check(y_os_ol, X_os_ol, rational = rational, model = "os", backend = backend, solver = solver)
 })
+
+## =============================================================================
+## 5.10 separation_quick_check - OS
+## =============================================================================
+
+print_section("separation_quick_check (OS)", 2)
+
+# --- Mid level: separation_quick_check with model="os" ---
+print_section("separation_quick_check with model='os' (mid level)", 3)
+
+
+run_test("separation_quick_check(model='os') - quasi-complete separation", function(backend, solver) {
+  separation_quick_check(y_os_qcs, X_os_qcs, rational = rational, model = "os", backend = backend, solver = solver)
+})
+
+run_test("separation_quick_check(model='os') - overlap", function(backend, solver) {
+  separation_quick_check(y_os_ol, X_os_ol, rational = rational, model = "os", backend = backend, solver = solver)
+})
+
+#####################
+##  structure vectors
+##############################
+
+print_section("structure_vectors (OS)", 2)
+
+
+run_simple_test("structure_vectors with label", function() {
+  structure_vectors(y_cl_wine2, X_cl_wine2, model = "os", rational = rational)
+})
+
+run_simple_test("structure_vectors without labels", function() {
+  structure_vectors(y_cl_wine2, X_cl_wine2, model = "os", rational = rational, label = FALSE)
+})
+
+run_simple_test("structure_vectors with label from formula", function() {
+  structure_vectors( rating ~ temp + contact + bottle, data = wine, model = "os", rational = rational)
+})
+
 
 cat("")
 cat(paste(rep("#", 78), collapse = ""), "")
-cat("##  END OF OSM MODEL TESTS")
+cat("##  END OF OS MODEL TESTS")
 cat(paste(rep("#", 78), collapse = ""), "")
 
 ################################################################################
@@ -2427,6 +2529,26 @@ run_test("separation_quick_check(model='sl') - overlap", function(backend, solve
   separation_quick_check(y_sl_ol, X_sl_ol, rational = rational, model = "sl", backend = backend, solver = solver)
 })
 
+#####################
+##  structure vectors
+##############################
+
+print_section("structure_vectors (SL)", 2)
+
+
+run_simple_test("structure_vectors with label", function() {
+  structure_vectors(y_cl_wine2, X_cl_wine2, model = "sl", rational = rational)
+})
+
+run_simple_test("structure_vectors without labels", function() {
+  structure_vectors(y_cl_wine2, X_cl_wine2, model = "sl", rational = rational, label = FALSE)
+})
+
+run_simple_test("structure_vectors with label from formula", function() {
+  structure_vectors( rating ~ temp + contact + bottle, data = wine, model = "sl", rational = rational)
+})
+
+
 cat("")
 cat(paste(rep("#", 78), collapse = ""), "")
 cat("##  END OF SL MODEL TESTS")
@@ -2496,7 +2618,7 @@ model_types <- c(
   "Baseline-Category Logit (bcl)" = "nnet::multinom, brglm2::brmultinom",
   "Cumulative Logit (cl)"         = "ordinal::clm, MASS::polr",
   "Adjacent-Category Logit (acl)" = "brglm2::bracl",
-  "Ordered Stereotype Model (osm)"= "clustord::osm",
+  "Ordered Stereotype Model (os)"= "clustord::osm",
   "Sequential Logit (sl)"         = "none"
 )
 

@@ -7,12 +7,12 @@
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
 #' @param S a matrix of structure vectors
 #' @param rational boolean flag whether rational arithmetic should be used. Default is FALSE.
-#' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing or NULL it defaults to cumulative link for ordinal y and baseline-category for everything else.  
+#' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "os" for ordered stereotype model. If missing or NULL it defaults to cumulative link for ordinal y and baseline-category for everything else.  
 #' @return a list with elements $lins which lists the row vectors that are linearities for any category and $index which gives the row index of the linearities. If there is complete separation they are both empty set. If their length/row dimension is number of categories*dim(X)[1], there is overlap. Anything in between is quasi-complete separation.
 #'
 #' @importFrom rcdd linearity q2d d2q 
 #' @export
-linearities <- function(y, X, S, rational=FALSE, model=c("b","bcl","acl","cl","sl","osm")){
+linearities <- function(y, X, S, rational=FALSE, model=c("b","bcl","acl","cl","sl","os")){
     if(missing(S))
     {
     if(length(unique(y))<2) stop("There is only one value in y.")
@@ -37,7 +37,7 @@ linearities <- function(y, X, S, rational=FALSE, model=c("b","bcl","acl","cl","s
            cl = linearities_cl(y=y,X=X,rational=rational),
            acl = linearities_acl(y=y,X=X,rational=rational),       
            sl = linearities_sl(y=y,X=X,rational=rational),
-           osm = linearities_osm(y=y,X=X,rational=rational)
+           os = linearities_os(y=y,X=X,rational=rational)
            )
     } else {
        # for S given
@@ -122,11 +122,11 @@ linearities_cl<- function(y, X, rational=FALSE)
 #' @param rational boolean flag whether rational arithmetic should be used. Default is FALSE
 #'
 #' @return a list with elements $lins which lists the rows vectors that are linearities for any category and $index which gives the row index of the linearities. If there is complete separation they are both empty set. If their length/row dimension is number of categories*dim(X)[1], there is overlap. Anything in between is quasi-complete separation.  
-linearities_osm<- function(y, X, rational=FALSE)
+linearities_os<- function(y, X, rational=FALSE)
 {
    ratcols <- rat_cols(X)
    if(ratcols) rational <- TRUE 
-   Xstar <- osm_Xstar(y=y, X=X, label=TRUE, rational=rational)
+   Xstar <- os_Xstar(y=y, X=X, label=TRUE, rational=rational)
    vrep <- cbind(0, 0, Xstar)
    if(rational && !rat_cols(Xstar)) vrep <- rcdd::d2q(vrep) 
    lout <- rcdd::linearity(vrep, rep = "V")

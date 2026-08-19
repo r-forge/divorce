@@ -7,10 +7,10 @@
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
 #' @param S a matrix of structure vectors. If given, \code{y} and \code{X} and \code{model} are ignored. 
 #' @param rational should rational arithmetic be used?
-#' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "osm" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else.  
+#' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "os" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else.  
 #'
 #' @export
-seprows_worker<-function(y, X, S, rational=FALSE, model = c("bcl","b","cl","acl","sl","osm")){
+seprows_worker<-function(y, X, S, rational=FALSE, model = c("bcl","b","cl","acl","sl","os")){
  if(missing(S))
     {
     if(length(unique(y))<2) stop("There is only one value in y.")
@@ -35,7 +35,7 @@ seprows_worker<-function(y, X, S, rational=FALSE, model = c("bcl","b","cl","acl"
            cl= seprows_cl(y=y,X=X,rational=rational),
            acl=seprows_acl(y=y,X=X,rational=rational),       
            sl=seprows_sl(y=y,X=X,rational=rational),
-           osm=seprows_osm(y=y,X=X,rational=rational)
+           os=seprows_os(y=y,X=X,rational=rational)
            )
     } else {
         # for S given
@@ -352,7 +352,7 @@ detect_seprows_cl <- seprows_cl
 #' 
 #'
 #' 
-seprows_osm<-function(y,X,rational=FALSE)
+seprows_os<-function(y,X,rational=FALSE)
 {
   if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
   ratcols <- rat_cols(X)
@@ -360,8 +360,8 @@ seprows_osm<-function(y,X,rational=FALSE)
   if(is.null(row.names(X))) row.names(X) <- rn
   if(ratcols) rational <- TRUE
   y <- as.factor(y)
-  Xstar <- osm_Xstar(y=y,X=X,label=TRUE,rational=rational) 
-  lout <- linearities_osm(y=y,X=X,rational=rational)$index
+  Xstar <- os_Xstar(y=y,X=X,label=TRUE,rational=rational) 
+  lout <- linearities_os(y=y,X=X,rational=rational)$index
   idx <-seq(1,length(y),by=1)
   if (length(lout)==0){
 #      if(rational) X <- rcdd::d2q(X)
@@ -394,7 +394,7 @@ seprows_osm<-function(y,X,rational=FALSE)
 }
 
 
-detect_seprows_osm <- seprows_osm
+detect_seprows_os <- seprows_os
 
 #' Detect design matrix rows with separation for sequential (continuation-ratio) ordinal response models.
 #'

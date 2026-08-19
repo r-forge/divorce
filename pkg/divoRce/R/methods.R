@@ -50,13 +50,13 @@ check_separation.matrix <- function(S, rational = FALSE, backend = c("rcdd", "RO
 #' @param formula An object of class ‘"formula"’ (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.
 #' @param data Either a standard data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.
 #' @param contrasts contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.
-#' @param model model string. One of "bcl", "b", "cl", "acl", "osm", "sl".  
+#' @param model model string. One of "bcl", "b", "cl", "acl", "os", "sl".  
 #' @param quick boolean flag whether the quick linear program is to be used or the full fledged one (default is FALSE). 
 #' 
 #' @details The `formula` method is for standard data frames and formulas that work the same way as when used with \code{\link[stats]{glm}}. It does not support extended formulas, and may not work for functions that do formula processing differently. For a data frame/matrix given as rational numbers in the \code{rcdd} definition this is recognized but the formula does not get expanded and is taken literally, so e.g. variables in formula must match exactly with the column names in data, or factors need to be converted to dummies before that (wouldn't be possible in the rational format in any other way anyway).
 #' @importFrom stats model.response is.empty.model model.matrix
 #' @export
-check_separation.formula <- function(formula, data, model = c("bcl", "b", "cl", "acl", "osm", "sl") , rational = FALSE, contrasts = NULL, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
+check_separation.formula <- function(formula, data, model = c("bcl", "b", "cl", "acl", "os", "sl") , rational = FALSE, contrasts = NULL, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
 {
     yx <- make_yx(formula, data, contrasts) 
     if(missing(model)) model <-  NULL
@@ -102,11 +102,11 @@ diagnose_separation.matrix <- function(S, rational = FALSE, backend = c("rcdd", 
 #' @param formula An object of class ‘"formula"’ (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.
 #' @param data Either a standard data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.
 #' @param contrasts contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.
-#' @param model model string. One of "bcl", "b", "cl", "acl", "osm", "sl".  
+#' @param model model string. One of "bcl", "b", "cl", "acl", "os", "sl".  
 #' 
 #' @details The `formula` method is for standard data frames and formulas that work the same way as when used with \code{\link[stats]{glm}}. It does not support extended formulas, and may not work for functions that do formula processing differently. For a data frame/matrix given as rational numbers in the \code{rcdd} definition this is recognized but the formula does not get expanded and is taken literally, so e.g. variables in formula must match exactly with the column names in data, or factors need to be converted to dummies before that (wouldn't be possible in the rational format in any other way anyway).
 #' @export
-diagnose_separation.formula <- function(formula, data, model = c("bcl", "b", "cl", "acl", "osm", "sl") , rational = FALSE, contrasts = NULL,  backend = c("rcdd", "ROI"), solver = NULL, ... )
+diagnose_separation.formula <- function(formula, data, model = c("bcl", "b", "cl", "acl", "os", "sl") , rational = FALSE, contrasts = NULL,  backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
     yx <- make_yx(formula, data, contrasts) 
     if(missing(model)) model <-  NULL
@@ -159,12 +159,12 @@ separation_columns.matrix <- function(S, rational = FALSE, backend = c("rcdd", "
 #' @param formula An object of class ‘"formula"’ (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.
 #' @param data Either a standard data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.
 #' @param contrasts contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.
-#' @param model model string. One of "bcl", "b", "cl", "acl", "osm", "sl".  
+#' @param model model string. One of "bcl", "b", "cl", "acl", "os", "sl".  
 #' 
 #' @details The `formula` method is for standard data frames and formulas that work the same way as when used with \code{\link[stats]{glm}}. It does not support extended formulas, and may not work for functions that do formula processing differently. For a data frame/matrix given as rational numbers in the \code{rcdd} definition this is recognized but the formula does not get expanded and is taken literally, so e.g. variables in formula must match exactly with the column names in data, or factors need to be converted to dummies before that (wouldn't be possible in the rational format in any other way anyway).
 #' @importFrom stats model.response is.empty.model model.matrix
 #' @export
-separation_columns.formula <- function(formula, data, model = c("bcl", "b", "cl", "acl", "osm", "sl") , rational = FALSE, contrasts = NULL, backend = c("rcdd", "ROI"), solver = NULL, ... )
+separation_columns.formula <- function(formula, data, model = c("bcl", "b", "cl", "acl", "os", "sl") , rational = FALSE, contrasts = NULL, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
     yx <- make_yx(formula, data, contrasts) 
     if(missing(model)) model <-  NULL
@@ -211,12 +211,12 @@ separation_rows.matrix <- function(S, rational = FALSE, ... )
 #' @param formula An object of class ‘"formula"’ (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.
 #' @param data Either a standard data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.
 #' @param contrasts contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.
-#' @param model model string. One of "bcl", "b", "cl", "acl", "osm", "sl".  
+#' @param model model string. One of "bcl", "b", "cl", "acl", "os", "sl".  
 #' 
 #' @details The `formula` method is for standard data frames and formulas that work the same way as when used with \code{\link[stats]{glm}}. It does not support extended formulas, and may not work for functions that do formula processing differently. For a data frame/matrix given as rational numbers in the \code{rcdd} definition this is recognized but the formula does not get expanded and is taken literally, so e.g. variables in formula must match exactly with the column names in data, or factors need to be converted to dummies before that (wouldn't be possible in the rational format in any other way anyway).
 #' @importFrom stats model.response is.empty.model model.matrix
 #' @export
-separation_rows.formula <- function(formula, data, model = c("bcl", "b", "cl", "acl", "osm", "sl") , rational = FALSE, contrasts = NULL, ... )
+separation_rows.formula <- function(formula, data, model = c("bcl", "b", "cl", "acl", "os", "sl") , rational = FALSE, contrasts = NULL, ... )
 {
     yx <- make_yx(formula, data, contrasts) 
     if(missing(model)) model <-  NULL
@@ -264,12 +264,12 @@ recession_cone.matrix <- function(S, rational = FALSE,  ... )
 #' @param formula An object of class ‘"formula"’ (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.
 #' @param data Either a standard data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.
 #' @param contrasts contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.
-#' @param model model string of the model to be checked. One of "bcl", "b", "cl", "acl", "osm", "sl".  
+#' @param model model string of the model to be checked. One of "bcl", "b", "cl", "acl", "os", "sl".  
 #' 
 #' @details The `formula` method is for standard data frames and formulas that work the same way as when used with \code{\link[stats]{glm}}. It does not support extended formulas, and may not work for functions that do formula processing differently. For a data frame/matrix given as rational numbers in the \code{rcdd} definition this is recognized but the formula does not get expanded and is taken literally, so e.g. variables in formula must match exactly with the column names in data, or factors need to be converted to dummies before that (wouldn't be possible in the rational format in any other way anyway).
 #' @importFrom stats model.response is.empty.model model.matrix
 #' @export
-recession_cone.formula <- function(formula, data, model = c("bcl", "b", "cl", "acl", "osm", "sl") , rational = FALSE, contrasts = NULL,  ... )
+recession_cone.formula <- function(formula, data, model = c("bcl", "b", "cl", "acl", "os", "sl") , rational = FALSE, contrasts = NULL,  ... )
 {
     yx <- make_yx(formula, data, contrasts) 
     if(missing(model)) model <-  NULL
@@ -289,7 +289,7 @@ check_separation.osm <- function(object, rational = FALSE, backend = c("rcdd", "
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    return(check_separation(y = y, X = X, model = "osm", rational = rational, backend = backend, solver = solver, quick = quick))
+    return(check_separation(y = y, X = X, model = "os", rational = rational, backend = backend, solver = solver, quick = quick))
 }
 
 #' @export
@@ -300,7 +300,7 @@ diagnose_separation.osm <- function(object, rational = FALSE, backend = c("rcdd"
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    out <- diagsep_osm(y=y,X=X,rational=rational, backend = backend, solver = solver)
+    out <- diagsep_os(y=y,X=X,rational=rational, backend = backend, solver = solver)
     out$modelcall <- x$call
     return(out)
 }
@@ -313,7 +313,7 @@ separation_columns.osm <- function(object, rational = FALSE, backend = c("rcdd",
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    return(sepcols_osm(y=y,X=X,rational=rational, backend = backend, solver = solver))
+    return(sepcols_os(y=y,X=X,rational=rational, backend = backend, solver = solver))
 }
 
 #' @export
@@ -324,7 +324,7 @@ separation_rows.osm <- function(object, rational = FALSE,  ... )
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    return(seprows_osm(y=y,X=X,rational=rational))
+    return(seprows_os(y=y,X=X,rational=rational))
 }
 
 #' @export
@@ -335,7 +335,7 @@ recession_cone.osm <- function(object, rational = FALSE,  ... )
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    return(reccone_osm(y=y,X=X,rational=rational))
+    return(reccone_os(y=y,X=X,rational=rational))
 }
 
 #### CLM
@@ -722,4 +722,63 @@ recession_cone.brmultinom <- function(object, rational = FALSE, ... )
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
     return(reccone_bcl(y=y,X=X,rational=rational))
+}
+
+
+
+########### Pre-fit
+
+##### structure_vectors
+#' @export
+#' @rdname structure_vectors
+#' @param X a design matrix, e.g. generated via a call to \code{\link{model.matrix}}. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynominals).
+#' 
+structure_vectors.default <- function(y, X, model = c("bcl", "b", "cl", "acl", "os", "sl"), label = TRUE, rational = FALSE, ... )
+{
+    if(length(unique(y))<2) stop("There is only one value in y.")
+    if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
+    ratcols <- rat_cols(X)
+    if(ratcols) rational <- TRUE 
+    if(missing(model)) model <- NULL
+    if(is.null(model))
+    {
+        warning("Default model class used.","\n")
+        if(is.ordered(y) & length(unique(y))>2)
+        {
+            return(struc_vec_cl(y=y, X=X, label = label, rational=rational))
+        } else {
+            return(struc_vec_bcl(y=y, X=X, label = label, rational=rational))
+            
+        }
+    }
+    model <- match.arg(model,several.ok=FALSE)
+    switch(model,
+           b= struc_vec_b(y=y, X=X, label = label, rational=rational),
+           bcl= struc_vec_bcl(y=y, X=X, label = label, rational=rational),
+           cl= struc_vec_cl(y=y, X=X, label = label, rational=rational),
+           acl= struc_vec_acl(y=y, X=X, label = label, rational=rational),       
+           sl=struc_vec_sl(y=y, X=X, label = label, rational=rational),
+           os=struc_vec_os(y=y, X=X, label = label, rational=rational)
+           )
+}
+
+#' Structure Vectors Formula Method
+#'
+#' Method for \code{structure_vectors} when the input is a formula and data frame.
+#' 
+#' @rdname structure_vectors
+#' @param y An object of class \code{"formula"} (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.
+#' @param data A data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.
+#' @param contrasts Contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.
+#' @param model Model string. One of "bcl", "b", "cl", "acl", "os", "sl".
+#' @param label If TRUE rows and columns are labeled 
+#' @details The `formula` method is for standard data frames and formulas that work the same way as when used with \code{\link[stats]{glm}}. It does not support extended formulas, and may not work for functions that do formula processing differently. For a data frame/matrix given as rational numbers in the \code{rcdd} definition this is recognized but the formula does not get expanded and is taken literally, so e.g. variables in formula must match exactly with the column names in data, or factors need to be converted to dummies before that (wouldn't be possible in the rational format in any other way anyway).
+#' @importFrom stats model.response is.empty.model model.matrix
+#' @export
+structure_vectors.formula <- function(y, data, contrasts = NULL, model = c("bcl", "b", "cl", "acl", "os", "sl"), label = TRUE,  rational = FALSE, ... )
+{
+    formula <- y
+    yx <- make_yx(formula, data, contrasts) 
+    if(missing(model)) model <-  NULL
+    structure_vectors(y = yx$y, X = yx$X, model = model, label = label, rational=rational, ...)
 }
