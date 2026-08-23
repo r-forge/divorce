@@ -1,3 +1,7 @@
+Version 0.11-0
+        - Rewrote the linear porgrams to use S instead of Xstar = -S. Chnaged all functions to use structure_vectors apart form linearities(). seprows_b is also still based on Xstar. Eventually all the _foo functions should be able to be merged, now that we have one single framework.
+
+
 Version 0.10-1
         - Renamed all osm to os, which includes as arguments and in function names.
 	- added structure_vectors generic and methods

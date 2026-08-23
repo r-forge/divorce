@@ -1,7 +1,9 @@
 #' This function calculates the linearities in the negative structure vector matrix X*, so the row vectors for which there is no separation. 
-#' If this is an empty set or of length 0, then we have overlap. 
+#' If this is an empty set or of length 0, then we have overlap.
 #'
-#' The function uses either a response vector y and a design matrix X, or a structure vector matrix S. If S is given, y and X and model are ignored. 
+#' #' The function uses either a response vector y and a design matrix X, or a structure vector matrix S. If S is given, y and X and model are ignored.
+#' 
+#'
 #' 
 #' @param y the outcome variable. Can be factor, ordered, numeric, character or boolean. Works best if it is a factor or ordered factor. If it is not an (ordered) factor, we treat the outcome as nominal.    
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
@@ -13,6 +15,7 @@
 #' @importFrom rcdd linearity q2d d2q 
 #' @export
 linearities <- function(y, X, S, rational=FALSE, model=c("b","bcl","acl","cl","sl","os")){
+# Note the calculations are done on the negative structure vectors, Xstar. 
     if(missing(S))
     {
     if(length(unique(y))<2) stop("There is only one value in y.")
@@ -61,7 +64,6 @@ linearities <- function(y, X, S, rational=FALSE, model=c("b","bcl","acl","cl","s
           Xstar <- rcdd::q2d(Xstar)
        }
        out <- list(lins=Xstar[lout,,drop=FALSE], index=lout)
-   #TODO: Maybe return nothing in lins for overlap? will be categories*dim(X)[1] of length 
       out
     }
 }
@@ -87,7 +89,6 @@ linearities_bcl<- function(y, X, rational=FALSE)
        Xstar <- rcdd::q2d(Xstar)
        }
    out <- list(lins=Xstar[lout,,drop=FALSE], index=lout)
-   #TODO: Maybe return nothing in lins for overlap? will be categories*dim(X)[1] of length 
    return(out)
 }
                        

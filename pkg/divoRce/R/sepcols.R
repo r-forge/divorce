@@ -43,47 +43,15 @@ sepcols_worker<- function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl",
         if(!is.matrix(S)) stop("S must be a matrix.")
         ratcols <- rat_cols(S)
         if(ratcols) rational <- TRUE
-        if(ratcols) {
-            # to turn a rational S into a rational Xstar we need to convert to floating and multiply with -1
-            Stmp <- rcdd::q2d(S) 
-            Xstar <- -1*Stmp
-            Xstar <- rcdd::d2q(Xstar)
-            #row.names(Xstar) <- row.names(S)
-            #colnames(Xstar) <- colnames(S)
-        } else {
-            Xstar <- -1*S
-        }
-     ## matrix of constraints for \code{lpcdd} must be of the form A1 * \beta \leq b1. We combine the constraints into one big A1 for the left hand side and a vector b1 of the right hand side scalars.
-    ## left hand side just inequalities to folow the linear program in the apper
-    #A1<- rbind(-Xstar,              # the first ineqs -Xstar*beta <=0           
-    #           - diag(ncol(Xstar)), # lower bounds -beta <= 1
-    #             diag(ncol(Xstar))) # upper bounds beta <= 1
-    ## the right hand side are scalars 
-    #b1<- c(rep(0,dim(Xstar)[1]), #the right hand side is 0
-    #       rep(1,ncol(Xstar)),   #the right hand side is 1
-    #       rep(1,ncol(Xstar))    #the right hand side is 1
-    #       )
-    #if(rational){
-    #    A1 <- rcdd::d2q(A1)
-    #    b1 <- rcdd::d2q(b1)
-    #}
-    ## making the H rep 
-    #hrep<-rcdd::makeH(a1=A1,b1=b1)
-    ## objective function
-   #a<-t(rep(1,dim(Xstar)[1]))%*%Xstar
-   #a <- as.numeric(a)
-   #if(rational) a <- rcdd::d2q(a)
-   ### maximization with lpcdd
-   #lso <- rcdd::lpcdd(hrep,a,minimize=FALSE)$primal.solution
-                                        #if(rational) lso <- rcdd::q2d(lso)
-    lso <- .divorce_detect_sepcols_lp(
-       Xstar,
-       rational = rational,
-       backend = backend,
-       solver = solver
+        lso <- .divorce_detect_sepcols_lp(
+                  S,
+                  rational = rational,
+                  backend = backend,
+                  solver = solver
    )
    offflag <- sapply(lso,function(x) !isTRUE(all.equal(x,0)))
-   offcols <- colnames(Xstar)[offflag]
+   if(is.null(colnames(S))) colnames(S) <- paste0("Col",seq(1,dim(S)[2]))
+   offcols <- colnames(S)[offflag]
    out <- list(ls=lso,offcols=offcols,colnrs=which(offflag),separated=offflag)
    return(out)    
    }
@@ -109,7 +77,7 @@ sepcols_b<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver = 
     backend <- .divorce_match_backend(backend)
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
-    Xstar <- b_Xstar(y=y, X=X, label=TRUE, rational=rational)
+    S <- structure_vectors(y=y, X=X, label=TRUE, rational=rational, model = "b")
     ##here we check whether X has full column rank otherwise this check won't work properly.
     if(ratcols) X <- rcdd::q2d(X)
     if(qr(X)$rank<dim(X)[2]) warning("X doesn't have full column rank. Results of this check are unreliable.")     
@@ -117,13 +85,13 @@ sepcols_b<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver = 
     ## matrix of constraints for \code{lpcdd} must be of the form A1 * \beta \leq b1. We combine the constraints into one big A1 for the left hand side and a vector b1 of the right hand side scalars.
     ## left hand side just inequalities to folow the linear program in the paper
     lso <- .divorce_detect_sepcols_lp(
-       Xstar,
+       S,
        rational = rational,
        backend = backend,
        solver = solver
     )
    offflag <- sapply(lso,function(x) !isTRUE(all.equal(x,0)))
-   offcols <- colnames(Xstar)[offflag]
+   offcols <- colnames(S)[offflag]
    out <- list(ls=lso,offcols=offcols,colnrs=which(offflag),separated=offflag)
    out
 }
@@ -148,7 +116,7 @@ sepcols_sl <- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = 
   if(ratcols) rational <- TRUE
   y <- as.ordered(y)
   splitdat <- create_bseq(y=y,X=X)
-  seqout <- lapply(splitdat,function(l) detect_sepcols_b(y=l$y,X=l$X,rational=rational, backend=backend, solver=solver))
+  seqout <- lapply(splitdat,function(l) sepcols_b(y=l$y,X=l$X, rational=rational, backend=backend, solver=solver))
   return(seqout)
 }
 
@@ -171,18 +139,18 @@ sepcols_bcl<- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = 
     backend <- .divorce_match_backend(backend)
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
-    Xstar <- bcl_Xstar(y=y,X=X,label=TRUE,rational=rational)
+    S <- structure_vectors(y=y, X=X, label=TRUE, rational=rational, model = "bcl") 
     ##here we check whether X has full column rank otherwise this check won't work properly.
     if(ratcols) X <- rcdd::q2d(X)
     if(qr(X)$rank<dim(X)[2]) warning("X doesn't have full column rank. Results of this check are unreliable.")      
     lso <- .divorce_detect_sepcols_lp(
-       Xstar,
+       S,
        rational = rational,
        backend = backend,
        solver = solver
    )
    offflag <- sapply(lso,function(x) !isTRUE(all.equal(x,0)))
-   offcols <- colnames(Xstar)[offflag]
+   offcols <- colnames(S)[offflag]
    out <- list(ls=lso,offcols=offcols,colnrs=which(offflag),separated=offflag)
    return(out)
    }
@@ -206,18 +174,18 @@ sepcols_cl<- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = N
     backend <- .divorce_match_backend(backend)
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
-    Xstar <- cl_Xstar(y=y,X=X,label=TRUE,rational=rational)
+    S <- structure_vectors(y=y, X=X, label=TRUE, rational=rational, model = "cl") 
     if(ratcols) X <- rcdd::q2d(X)
     if(qr(X)$rank<dim(X)[2]) warning("X doesn't have full column rank. Results of this check are unreliable.")    
     lso <- .divorce_detect_sepcols_lp(
-       Xstar,
+       S,
        rational = rational,
        backend = backend,
        solver = solver
    )
    ## If not equal to 0 it is separation column, else not 
    offflag <- sapply(lso,function(x) !isTRUE(all.equal(x,0))) # we need to test with tolerance
-   offcols <- colnames(Xstar)[offflag]
+   offcols <- colnames(S)[offflag]
    out <- list(ls=lso,offcols=offcols,colnrs=which(offflag),separated=offflag)
    return(out)
 }
@@ -245,18 +213,18 @@ sepcols_acl <- function(y,X,rational=FALSE,backend = c("rcdd", "ROI"), solver = 
     backend <- .divorce_match_backend(backend)
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
-    Xstar <- acl_Xstar(y=y,X=X,label=TRUE,rational=rational)
+    S <- structure_vectors(y=y, X=X, label=TRUE, rational=rational, model = "acl")
     if(ratcols) X <- rcdd::q2d(X)
     if(qr(X)$rank<dim(X)[2]) warning("X doesn't have full column rank. Results of this check are unreliable.")    
-     lso <- .divorce_detect_sepcols_lp(
-       Xstar,
+    lso <- .divorce_detect_sepcols_lp(
+       S,
        rational = rational,
        backend = backend,
        solver = solver
    )
    ## If not equal to 0 it is separation column, else not 
    offflag <- sapply(lso,function(x) !isTRUE(all.equal(x,0))) # we need to test with tolerance
-   offcols <- colnames(Xstar)[offflag]
+   offcols <- colnames(S)[offflag]
    out <- list(ls=lso,offcols=offcols,colnrs=which(offflag),separated=offflag)
    return(out)
  }
@@ -281,18 +249,18 @@ sepcols_os <- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = 
     backend <- .divorce_match_backend(backend)
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
-    Xstar <- os_Xstar(y=y,X=X,label=TRUE,rational=rational)
+    S <- structure_vectors(y=y, X=X, label=TRUE, rational=rational, model = "os")
     if(ratcols) X <- rcdd::q2d(X)
     if(qr(X)$rank<dim(X)[2]) warning("X doesn't have full column rank. Results of this check are unreliable.")    
     lso <- .divorce_detect_sepcols_lp(
-       Xstar,
+       S,
        rational = rational,
        backend = backend,
        solver = solver
    )
    ## If not equal to 0 it is separation column, else not 
    offflag <- sapply(lso,function(x) !isTRUE(all.equal(x,0))) # we need to test with tolerance
-   offcols <- colnames(Xstar)[offflag]
+   offcols <- colnames(S)[offflag]
    out <- list(ls=lso,offcols=offcols,colnrs=which(offflag),separated=offflag)
    return(out)
    }

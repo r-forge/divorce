@@ -173,16 +173,16 @@
     list(result = result, solver = solver)
 }
 
-.divorce_check_sep_lp <- function(Xstar, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL) {
+.divorce_check_sep_lp <- function(S, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL) {
     backend <- .divorce_match_backend(backend)
     
     if (backend == "ROI") {
-        .divorce_stop_if_roi_rational(rational, Xstar)
-        a1 <- rbind(cbind(-diag(nrow(Xstar)), -1), c(rep(0, nrow(Xstar)), -1))
-        b1 <- c(rep(-1, each = nrow(Xstar)), 0)
-        a2 <- cbind(t(Xstar), 0)
-        b2 <- rep(0, ncol(Xstar))
-        objgrd <- c(rep(0, nrow(Xstar)), 1)
+        .divorce_stop_if_roi_rational(rational, S)
+        a1 <- rbind(cbind(-diag(nrow(S)), -1), c(rep(0, nrow(S)), -1))
+        b1 <- c(rep(-1, each = nrow(S)), 0)
+        a2 <- cbind(t(S), 0)
+        b2 <- rep(0, ncol(S))
+        objgrd <- c(rep(0, nrow(S)), 1)
         op <- .divorce_roi_make_op(
             objective = objgrd,
             L = rbind(a1, a2),
@@ -195,15 +195,15 @@
     }
     if (backend == "rcdd") {
          if(is.null(solver)) solver <- "DualSimplex"
-         a1 <- rbind(cbind(-diag(nrow(Xstar)), -1), c(rep(0, nrow(Xstar)), -1))
+         a1 <- rbind(cbind(-diag(nrow(S)), -1), c(rep(0, nrow(S)), -1))
          if (rational) a1 <- rcdd::d2q(a1)
-         b1 <- c(rep(-1, each = nrow(Xstar)), 0)
+         b1 <- c(rep(-1, each = nrow(S)), 0)
          if (rational) b1 <- rcdd::d2q(b1)
-         a2 <- cbind(t(Xstar), 0)
-         if (rational && !rat_cols(Xstar)) a2 <- rcdd::d2q(a2)
-         b2 <- rep(0, ncol(Xstar))
+         a2 <- cbind(t(S), 0)
+         if (rational && !rat_cols(S)) a2 <- rcdd::d2q(a2)
+         b2 <- rep(0, ncol(S))
          if (rational) b2 <- rcdd::d2q(b2)
-         objgrd <- c(rep(0, nrow(Xstar)), 1)
+         objgrd <- c(rep(0, nrow(S)), 1)
          if (rational) objgrd <- rcdd::d2q(objgrd)
          cali <- rcdd::lpcdd(
                            rcdd::makeH(a1 = a1, b1 = b1, a2 = a2, b2 = b2),
@@ -218,19 +218,19 @@
     }
 }
 
-.divorce_detect_sepcols_lp <- function(Xstar, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL) {
+.divorce_detect_sepcols_lp <- function(S, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL) {
     backend <- .divorce_match_backend(backend)
 
     if (backend == "ROI") {
-        .divorce_stop_if_roi_rational(rational, Xstar)
-        A1 <- -Xstar
-        b1 <- rep(0, nrow(Xstar))
-        a <- as.numeric(t(rep(1, nrow(Xstar))) %*% Xstar)
+        .divorce_stop_if_roi_rational(rational, S)
+        A1 <- -S
+        b1 <- rep(0, nrow(S))
+        a <- as.numeric(t(rep(1, nrow(S))) %*% S)
         bounds <- ROI::V_bound(
-            li = seq_len(ncol(Xstar)),
-            ui = seq_len(ncol(Xstar)),
-            lb = rep(-1, ncol(Xstar)),
-            ub = rep(1, ncol(Xstar))
+            li = seq_len(ncol(S)),
+            ui = seq_len(ncol(S)),
+            lb = rep(-1, ncol(S)),
+            ub = rep(1, ncol(S))
         )
         op <- .divorce_roi_make_op(
             objective = a,
@@ -245,23 +245,23 @@
     }
     if (backend == "rcdd") {
     if(is.null(solver)) solver <- "DualSimplex"
-    if (rational) Xstar <- rcdd::q2d(Xstar)
+    if (rational) S <- rcdd::q2d(S)
     A1 <- rbind(
-        -Xstar,
-        -diag(ncol(Xstar)),
-        diag(ncol(Xstar))
+        -S,
+        -diag(ncol(S)),
+        diag(ncol(S))
     )
     b1 <- c(
-        rep(0, nrow(Xstar)),
-        rep(1, ncol(Xstar)),
-        rep(1, ncol(Xstar))
+        rep(0, nrow(S)),
+        rep(1, ncol(S)),
+        rep(1, ncol(S))
     )
     if (rational) {
         A1 <- rcdd::d2q(A1)
         b1 <- rcdd::d2q(b1)
     }
     hrep <- rcdd::makeH(a1 = A1, b1 = b1)
-    a <- as.numeric(t(rep(1, nrow(Xstar))) %*% Xstar)
+    a <- as.numeric(t(rep(1, nrow(S))) %*% S)
     if (rational) a <- rcdd::d2q(a)
     lsoi <- rcdd::lpcdd(hrep, a, minimize = FALSE, solver = solver)
     if(lsoi$solution.type != "Optimal") stop(sprintf(

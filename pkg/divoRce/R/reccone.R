@@ -15,6 +15,7 @@
 #' 
 #' @export
 reccone_worker<- function(y, X, S, rational=FALSE, model=c("b","bcl","acl","cl","sl","os")){
+    #note: the calculations are done on the negative structure vector matrix (legacy) 
     if(missing(S))
     {
     if(length(unique(y))<2) stop("There is only one value in y.")
@@ -70,8 +71,7 @@ reccone_worker<- function(y, X, S, rational=FALSE, model=c("b","bcl","acl","cl",
           ind <- ind[-lout]
           cone <- Xstar[ind,,drop=FALSE]
         }
-     out <- list(cone=-cone, reccdim=reccdim, index=ind)
-    #TODO: So we return rows the negative of the rows in Xstar that are not linearities and the row index. If we have complete separation, then lout is integer(0) and we return all X (as all are not linearities) and the full index vector. In overlap we return an empty X and index. Maye we should return nothing for overlap?
+     out <- list(cone=-cone, reccdim=reccdim, index=ind) #these are the structure vectors. but calculation is on the negative structure vectors Xstar
      if(reccdim>length(ind)) warning("The dimension of the recession cone is artificially higher due to X not having full rank.")
      return(out)
     }

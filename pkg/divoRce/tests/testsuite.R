@@ -17,6 +17,9 @@ library(ROI)
 # Record start time
 start_time <- Sys.time()
 
+si <- sessionInfo()
+print(si, print.eval=TRUE)
+
 # Initialize test results storage
 test_results <- list(
   passed = 0,

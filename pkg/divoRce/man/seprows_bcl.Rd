@@ -21,5 +21,5 @@ a list with elements:
 }
 }
 \description{
-This function checks which rows in X/Xstar are responsible for separation on any category. The observations need not separate the same categories.
+This function checks which rows in X/S are responsible for separation on any category. The observations need not separate the same categories.
 }

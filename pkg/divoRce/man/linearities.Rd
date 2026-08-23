@@ -28,5 +28,5 @@ linearities(
 a list with elements $lins which lists the row vectors that are linearities for any category and $index which gives the row index of the linearities. If there is complete separation they are both empty set. If their length/row dimension is number of categories*dim(X)[1], there is overlap. Anything in between is quasi-complete separation.
 }
 \description{
-The function uses either a response vector y and a design matrix X, or a structure vector matrix S. If S is given, y and X and model are ignored.
+#' The function uses either a response vector y and a design matrix X, or a structure vector matrix S. If S is given, y and X and model are ignored.
 }

@@ -49,36 +49,9 @@ checksep_worker<- function(y, X, S, rational=FALSE, model=c("bcl", "b","cl","acl
         # for S given
         if(!is.matrix(S)) stop("S must be a matrix.")
         ratcols <- rat_cols(S)
-        if(ratcols) {
-            rational <- TRUE    
-            # to turn a rational S into a rational Xstar we need to convert to floating and multiply with -1
-            Stmp <- rcdd::q2d(S) 
-            Xstar <- -1*Stmp
-            Xstar <- rcdd::d2q(Xstar)
-            #row.names(Xstar) <- row.names(S)
-            #colnames(Xstar) <- colnames(S)
-        } else {
-            Xstar <- -1*S
-        }
-        #a1 <- rbind(cbind(-diag(nrow(Xstar)),-1), c(rep(0,nrow(Xstar)),-1))
-        #if(rational) a1 <- rcdd::d2q(a1)
-        #b1 <- c(rep(-1 ,each=nrow(Xstar)),0)
-        #if(rational) b1 <- rcdd::d2q(b1)
-        #a2 <- cbind(t(Xstar),0)
-        #if(rational && !rat_cols(Xstar)) a2 <- rcdd::d2q(a2) #here we need to check also if Xstar is rational, because t(Xstar) uses Xstar as character if it is.  
-        #b2 <- rep(0,ncol(Xstar))
-        #if(rational) b2 <- rcdd::d2q(b2)
-        #objgrd <- c(rep(0,nrow(Xstar)),1)
-        #if(rational) objgrd <- rcdd::d2q(objgrd)
-        #cal <- rcdd::lpcdd(rcdd::makeH(a1 = a1,
-        #             b1 = b1,
-        #             a2 = a2,
-        #             b2 = b2),
-        #             objgrd=objgrd,
-        #             minimize = TRUE)$optimal.value
-                                        #if(rational) cal <- rcdd::q2d(cal)
+        if(ratcols) rational <- TRUE    
         cal <- .divorce_check_sep_lp(
-        Xstar,
+        S,
         rational = rational,
         backend = backend,
         solver = solver
@@ -107,17 +80,16 @@ checksep_cl<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver 
    ratcols <- rat_cols(X)
    if(ratcols) rational <- TRUE 
    if(length(unique(y))>2) { 
-       Xstar <- cl_Xstar(y=y, X=X, label=FALSE, rational = rational)
+       S <- structure_vectors(y=y, X=X, label=FALSE, rational = rational, model = "cl")
    } else {
        stop("For 2 categories, please use model = 'b'.")
    }
    cal <- .divorce_check_sep_lp(
-        Xstar,
+        S,
         rational = rational,
         backend = backend,
         solver = solver
     )
-   #if(rational) cal <- rcdd::q2d(cal)
    out <- ifelse(isTRUE(all.equal(cal,1)),TRUE,FALSE)
    return(out)
 }
@@ -139,9 +111,9 @@ checksep_bcl<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver
    ratcols <- rat_cols(X)
    if(ratcols) rational <- TRUE 
    if(is.ordered(y) & length(unique(y))>2) stop("For ordered y, please specify the desired model in the model argument.") 
-   Xstar <- bcl_Xstar(y=y, X=X, label=FALSE, rational = rational) 
+   S <- structure_vectors(y=y, X=X, label=FALSE, rational = rational, model = "bcl")
    cal <- .divorce_check_sep_lp(
-        Xstar,
+        S,
         rational = rational,
         backend = backend,
         solver = solver
@@ -204,12 +176,12 @@ checksep_acl<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver
    ratcols <- rat_cols(X)
    if(ratcols) rational <- TRUE 
    if(length(unique(y))>2) { 
-       Xstar <- acl_Xstar(y=y, X=X, label=FALSE, rational = rational)
+   S <- structure_vectors(y=y, X=X, label=FALSE, rational = rational, model = "acl")
    } else {
        stop("For 2 categories, please use model = 'b'.")    
    }
    cal <- .divorce_check_sep_lp(
-        Xstar,
+        S,
         rational = rational,
         backend = backend,
         solver = solver
@@ -235,12 +207,12 @@ checksep_os<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver 
    ratcols <- rat_cols(X)
    if(ratcols) rational <- TRUE 
    if(length(unique(y))>2) { 
-       Xstar <- os_Xstar(y=y, X=X, label=FALSE, rational = rational)
+   S <- structure_vectors(y=y, X=X, label=FALSE, rational = rational, model = "os")
    } else {
        stop("For 2 categories, please use model = 'b'.")
    }   
     cal <- .divorce_check_sep_lp(
-        Xstar,
+        S,
         rational = rational,
         backend = backend,
         solver = solver
