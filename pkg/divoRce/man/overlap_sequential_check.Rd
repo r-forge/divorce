@@ -2,9 +2,22 @@
 % Please edit documentation in R/overlap_sequential_check.R
 \name{overlap_sequential_check}
 \alias{overlap_sequential_check}
+\alias{overlap_fraction_check}
 \title{A sequential check for overlap.}
 \usage{
 overlap_sequential_check(
+  y,
+  X,
+  S,
+  frac = 10L,
+  verbose = FALSE,
+  rational = FALSE,
+  model = c("b", "bcl", "cl", "acl", "sl", "os"),
+  backend = c("rcdd", "ROI"),
+  solver = NULL
+)
+
+overlap_fraction_check(
   y,
   X,
   S,

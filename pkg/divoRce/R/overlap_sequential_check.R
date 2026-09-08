@@ -63,4 +63,6 @@ overlap_sequential_check <- function(y, X, S, frac=10L, verbose=FALSE, rational=
  }
 }
      
-
+#' @rdname overlap_sequential_check
+#' @export
+overlap_fraction_check <- overlap_sequential_check
