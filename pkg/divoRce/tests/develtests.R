@@ -125,7 +125,38 @@ check_separation(Sqcs,rational=rational)
 sloop::s3_dispatch(check_separation(Sqcs))
 sloop::s3_class(Sqcs)
 
-## 
+##
+check_overlap(yqcs,Xqcs,model="b")
+check_overlap_sequential(yqcs,Xqcs,model="b",nss=4, verbose = 1)
+## This is true for nss and 1:20
+
+
+
+library("detectseparation")
+data("endometrial", package = "detectseparation")
+endo_glm <- glm(HG ~ NV + PI + EH, family = binomial(), data = endometrial)
+yqcs <- endometrial$HG
+Xqcs <- model.matrix(endo_glm)
+yss <- yqcs[1:20]
+Xss <- Xqcs[1:20,]
+
+Xss[,2] <- 0
+
+check_separation(yqcs,Xqcs, model = "b", rational = TRUE)
+check_separation(yss,Xss, model = "b", quick = TRUE)
+
+
+check_overlap_parallel(yqcs,Xqcs[,-2],model="b",nc=1,nss=10, verbose = 1)
+
+
+check_separation(yqcs[1:18],Xqcs[1:18,], model = "b")
+check_separation(yqcs[1:21],Xqcs[1:21,], model = "b")
+
+check_separation(yqcs[1:18],Xqcs[1:18,], model = "b")
+check_separation(yqcs[1:21],Xqcs[1:21,], model = "b")
+check_separation(yqcs[1:22],Xqcs[1:22,], model = "b")
+
+
 
 ##quasi complete separation --- CHECKS OUT
 load("./Data/Silvapulle.rda")

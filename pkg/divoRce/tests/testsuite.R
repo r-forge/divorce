@@ -856,20 +856,20 @@ run_test("separation_quick_check(S) - quasi-complete separation", function(backe
 ## ## structure vectors 
 ## ## =============================================================================
 
-## print_section("structure_vectors (Binary)", 2)
+print_section("structure_vectors (Binary)", 2)
 
 
-## run_simple_test("structure_vectors with label", function() {
-##   structure_vectors(y_b_cs, X_b_cs, model = "b", rational = rational)
-## })
+run_simple_test("structure_vectors with label", function() {
+  structure_vectors(y_b_cs, X_b_cs, model = "b", rational = rational)
+})
 
-## run_simple_test("structure_vectors without labels", function() {
-##   structure_vectors(y_b_cs, X_b_cs, model = "b", rational = rational, label = FALSE)
-## })
+run_simple_test("structure_vectors without labels", function() {
+  structure_vectors(y_b_cs, X_b_cs, model = "b", rational = rational, label = FALSE)
+})
 
-## run_simple_test("structure_vectors with label from formula", function() {
-##   structure_vectors(HG ~ NV + PI + EH, data = endometrial ,  model = "b", rational = rational)
-## })
+run_simple_test("structure_vectors with label from formula", function() {
+  structure_vectors(HG ~ NV + PI + EH, data = endometrial ,  model = "b", rational = rational)
+})
 
 
 cat("")
@@ -1281,20 +1281,20 @@ run_test("separation_quick_check - overlap", function(backend, solver) {
 ## ## structure vectors 
 ## ## =============================================================================
 
-## print_section("structure_vectors (BCL)", 2)
+print_section("structure_vectors (BCL)", 2)
 
 
-## run_simple_test("structure_vectors with label", function() {
-##   structure_vectors(y_bcl_ol, X_bcl_ol, model = "bcl", rational = rational)
-## })
+run_simple_test("structure_vectors with label", function() {
+  structure_vectors(y_bcl_ol, X_bcl_ol, model = "bcl", rational = rational)
+})
 
-## run_simple_test("structure_vectors without labels", function() {
-##   structure_vectors(y_bcl_ol, X_bcl_ol, model = "bcl", rational = rational, label = FALSE)
-## })
+run_simple_test("structure_vectors without labels", function() {
+  structure_vectors(y_bcl_ol, X_bcl_ol, model = "bcl", rational = rational, label = FALSE)
+})
 
-## run_simple_test("structure_vectors with label from formula", function() {
-##   structure_vectors(y ~ x1 + x2, data = ovldatm,  model = "bcl", rational = rational)
-## })
+run_simple_test("structure_vectors with label from formula", function() {
+  structure_vectors(y ~ x1 + x2, data = ovldatm,  model = "bcl", rational = rational)
+})
 
 
 cat("")
@@ -1651,20 +1651,20 @@ run_test("separation_quick_check(model='cl') - wine with bottle", function(backe
 ## ## structure vectors 
 ## ## =============================================================================
 
-## print_section("structure_vectors (CL)", 2)
+print_section("structure_vectors (CL)", 2)
 
 
-## run_simple_test("structure_vectors with label", function() {
-##   structure_vectors(y_cl_wine2, X_cl_wine2, model = "cl", rational = rational)
-## })
+run_simple_test("structure_vectors with label", function() {
+  structure_vectors(y_cl_wine2, X_cl_wine2, model = "cl", rational = rational)
+})
 
-## run_simple_test("structure_vectors without labels", function() {
-##   structure_vectors(y_cl_wine2, X_cl_wine2, model = "cl", rational = rational, label = FALSE)
-## })
+run_simple_test("structure_vectors without labels", function() {
+  structure_vectors(y_cl_wine2, X_cl_wine2, model = "cl", rational = rational, label = FALSE)
+})
 
-## run_simple_test("structure_vectors with label from formula", function() {
-##   structure_vectors( rating ~ temp + contact + bottle, data = wine, model = "cl", rational = rational)
-## })
+run_simple_test("structure_vectors with label from formula", function() {
+  structure_vectors( rating ~ temp + contact + bottle, data = wine, model = "cl", rational = rational)
+})
 
 
 cat("")
@@ -1981,20 +1981,20 @@ run_test("separation_quick_check(model='acl') - overlap", function(backend, solv
 ## ## structure vectors 
 ## ## =============================================================================
 
-## print_section("structure_vectors (AL)", 2)
+print_section("structure_vectors (AL)", 2)
 
 
-## run_simple_test("structure_vectors with label", function() {
-##   structure_vectors(y_cl_wine2, X_cl_wine2, model = "acl", rational = rational)
-## })
+run_simple_test("structure_vectors with label", function() {
+  structure_vectors(y_cl_wine2, X_cl_wine2, model = "acl", rational = rational)
+})
 
-## run_simple_test("structure_vectors without labels", function() {
-##   structure_vectors(y_cl_wine2, X_cl_wine2, model = "acl", rational = rational, label = FALSE)
-## })
+run_simple_test("structure_vectors without labels", function() {
+  structure_vectors(y_cl_wine2, X_cl_wine2, model = "acl", rational = rational, label = FALSE)
+})
 
-## run_simple_test("structure_vectors with label from formula", function() {
-##   structure_vectors( rating ~ temp + contact + bottle, data = wine, model = "acl", rational = rational)
-## })
+run_simple_test("structure_vectors with label from formula", function() {
+  structure_vectors( rating ~ temp + contact + bottle, data = wine, model = "acl", rational = rational)
+})
 
 
 cat("")
@@ -2273,20 +2273,20 @@ run_test("separation_quick_check(model='os') - overlap", function(backend, solve
 ## ##  structure vectors
 ## ##############################
 
-## print_section("structure_vectors (OS)", 2)
+print_section("structure_vectors (OS)", 2)
 
 
-## run_simple_test("structure_vectors with label", function() {
-##   structure_vectors(y_cl_wine2, X_cl_wine2, model = "os", rational = rational)
-## })
+run_simple_test("structure_vectors with label", function() {
+  structure_vectors(y_cl_wine2, X_cl_wine2, model = "os", rational = rational)
+})
 
-## run_simple_test("structure_vectors without labels", function() {
-##   structure_vectors(y_cl_wine2, X_cl_wine2, model = "os", rational = rational, label = FALSE)
-## })
+run_simple_test("structure_vectors without labels", function() {
+  structure_vectors(y_cl_wine2, X_cl_wine2, model = "os", rational = rational, label = FALSE)
+})
 
-## run_simple_test("structure_vectors with label from formula", function() {
-##   structure_vectors( rating ~ temp + contact + bottle, data = wine, model = "os", rational = rational)
-## })
+run_simple_test("structure_vectors with label from formula", function() {
+  structure_vectors( rating ~ temp + contact + bottle, data = wine, model = "os", rational = rational)
+})
 
 
 cat("")
@@ -2536,20 +2536,20 @@ run_test("separation_quick_check(model='sl') - overlap", function(backend, solve
 ## ##  structure vectors
 ## ##############################
 
-## print_section("structure_vectors (SL)", 2)
+print_section("structure_vectors (SL)", 2)
 
 
-## run_simple_test("structure_vectors with label", function() {
-##   structure_vectors(y_cl_wine2, X_cl_wine2, model = "sl", rational = rational)
-## })
+run_simple_test("structure_vectors with label", function() {
+  structure_vectors(y_cl_wine2, X_cl_wine2, model = "sl", rational = rational)
+})
 
-## run_simple_test("structure_vectors without labels", function() {
-##   structure_vectors(y_cl_wine2, X_cl_wine2, model = "sl", rational = rational, label = FALSE)
-## })
+run_simple_test("structure_vectors without labels", function() {
+  structure_vectors(y_cl_wine2, X_cl_wine2, model = "sl", rational = rational, label = FALSE)
+})
 
-## run_simple_test("structure_vectors with label from formula", function() {
-##   structure_vectors( rating ~ temp + contact + bottle, data = wine, model = "sl", rational = rational)
-## })
+run_simple_test("structure_vectors with label from formula", function() {
+  structure_vectors( rating ~ temp + contact + bottle, data = wine, model = "sl", rational = rational)
+})
 
 
 cat("")

@@ -1,3 +1,6 @@
+Version 0.12-0
+        - Added mid-levels check_overlap_parallel and check_overlap_sequential. The latter supercedes the overlap_fraction_check. Added a check_overlap generic that allows to call the new mid-levels.
+
 Version 0.11-2
         - Copied overlap_fraction_check to overlap_sequential_check. 
 
