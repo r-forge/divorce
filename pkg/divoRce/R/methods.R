@@ -806,15 +806,21 @@ structure_vectors.formula <- function(y, data, contrasts = NULL, model = c("bcl"
 ########### Pre-fit
 
 ##### check_overlap
-#' @rdname check_overlap_worker
+#' @rdname check_overlap
 #' @export
+#' @param object an R object
 check_overlap.default <- function(object, rational = FALSE, quick = FALSE, sequential= FALSE, parallel = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
    cat("Could not find a method for this class:", class(object),"\n") 
 }
 
 #' @export
-#' @rdname check_overlap_worker
+#' @rdname check_overlap
+#' @param y outcome vector 
+#' @param X design matrix
+#' @param nc number of cores to be used for parallel execution. Defaults to 'getOption("mc.cores", 1L)'.
+#' @param nss number of subsets for parallel or sequneital execution. Defaults to 'nc' for parallel and 10 for sequential. If nss is below 1 or above n-1, it uses 'nss'=1. 
+#' @param ... additional arguments to be passed to other functions (e.g. to mclappy in parallel execution)
 check_overlap.factor <- function(y, X, rational = FALSE, quick = FALSE, sequential= FALSE, parallel = FALSE, backend = c("rcdd", "ROI"), solver = NULL, nc = NULL, nss = NULL, ... ) {
     if (isTRUE(parallel) && isTRUE(sequential)) {
         warning("Both 'parallel' and 'sequential' are TRUE. ",
@@ -836,20 +842,21 @@ check_overlap.factor <- function(y, X, rational = FALSE, quick = FALSE, sequenti
 }
 
 ##' @export
-##' @rdname check_overlap_worker
+##' @rdname check_overlap
 check_overlap.logical <- check_overlap.factor
 ##' @export
-##' @rdname check_overlap_worker 
+##' @rdname check_overlap
 check_overlap.numeric <- check_overlap.factor
 ##' @export
-##' @rdname check_overlap_worker
+##' @rdname check_overlap
 check_overlap.integer <- check_overlap.factor
 ##' @export
-##' @rdname check_overlap_worker
+##' @rdname check_overlap
 check_overlap.character<- check_overlap.factor 
 
 #' @export
-#' @rdname check_overlap_worker
+#' @rdname check_overlap
+#' @param S structure vector matrix
 check_overlap.matrix <- function(S, rational = FALSE, quick = FALSE, sequential = FALSE, parallel = FALSE, backend = c("rcdd", "ROI"), solver = NULL, nc = NULL, nss = NULL, ... ){
     if (isTRUE(parallel) && isTRUE(sequential)) {
         warning("Both 'parallel' and 'sequential' are TRUE. ",
@@ -871,7 +878,7 @@ check_overlap.matrix <- function(S, rational = FALSE, quick = FALSE, sequential 
 }
 
 ##### check_overlap
-#' @rdname check_overlap_worker
+#' @rdname check_overlap
 #' @param formula An object of class ‘"formula"’ (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.
 #' @param data Either a standard data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.
 #' @param contrasts contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.
