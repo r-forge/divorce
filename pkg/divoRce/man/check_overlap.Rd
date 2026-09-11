@@ -178,9 +178,7 @@ check_overlap(y = outc, X = desma, model = "b")
 # Nominal data 
 # Baseline-category link
 data(qcsepdatm)
-y<-qcsepdatm$y
-X<-cbind(1,qcsepdatm[,2:ncol(qcsepdatm)])
-check_overlap(y = y, X = X, model = "bcl")
+check_overlap(y ~ x1 + x2, data = qcsepdatm, model = "bcl")
 
 # Ordinal data
 data(qcsepdato)
@@ -188,16 +186,16 @@ yo<-qcsepdato$y
 Xo<-qcsepdato[,2:ncol(qcsepdato)]
 
 # Sequential link
-check_overlap(yo, Xo, model = "sl")
+check_overlap(yo, Xo, model = "sl", rational = TRUE)
 
 # Ordered stereotype
-check_overlap(yo, Xo, model = "os")
+check_overlap(yo, Xo, model = "os", sequential = TRUE, nss =2)
 
 # Adjacent-category link
-check_overlap(yo, Xo, model= "acl")
+check_overlap(yo, Xo, model= "acl", parallel = TRUE, nc = 1)
 
 # Cumulative link
-check_overlap(yo, Xo, model = "cl")
+check_overlap(yo, Xo, model = "cl", quick = TRUE)
 
 
 # post fit
