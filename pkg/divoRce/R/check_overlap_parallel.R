@@ -60,8 +60,9 @@ check_overlap_parallel <- function(y, X, S, nc = getOption("mc.cores", 1L), nss 
     olcheck
     }, mc.cores = nc, ...
     )
-    if(any(isTRUE(polchecks))) return(TRUE)
-    if(all(polchecks!=TRUE)) olout <- check_overlap_worker(y=y, X=X, rational=rational, model=model, quick=quick, backend=backend, solver = solver)
+    polchecks <- unlist(polchecks)
+    if(any(polchecks, na.rm=TRUE)) return(TRUE)
+    if(!any(polchecks,na.rm=TRUE)) olout <- check_overlap_worker(y=y, X=X, rational=rational, model=model, quick=quick, backend=backend, solver = solver)
   } else {
       n <- dim(S)[1]
       if(isTRUE(shuffle)) {
@@ -87,8 +88,9 @@ check_overlap_parallel <- function(y, X, S, nc = getOption("mc.cores", 1L), nss 
       olcheck
     }, mc.cores = nc, ...
     )
-    if(any(isTRUE(polchecks))) return(TRUE)
-    if(all(polchecks!=TRUE)) olout <- check_overlap_worker(y=y, X=X, rational=rational, model=model, quick=quick, backend=backend, solver = solver)
+    polchecks <- unlist(polchecks)
+    if(any(polchecks,na.rm=TRUE)) return(TRUE)
+    if(!any(polchecks,na.rm=TRUE)) olout <- check_overlap_worker(y=y, X=X, rational=rational, model=model, quick=quick, backend=backend, solver = solver)
   }
   olout
 }

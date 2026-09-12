@@ -53,9 +53,9 @@ check_overlap_sequential <- function(y, X, S, nss = 10L, verbose = FALSE, ration
       }
       if(isTRUE(olcheck[i-1])) return(olcheck[i-1]) #full rank subset has overlap 
     }
-    if(all(olcheck!=TRUE)) olout <- check_overlap_worker(y=y, X=X, rational=rational, model=model, quick=quick, backend=backend, solver = solver) #all inconclusive 
+    if(!any(olcheck,na.rm=TRUE)) olout <- check_overlap_worker(y=y, X=X, rational=rational, model=model, quick=quick, backend=backend, solver = solver) #we check if there is any TRUE in the data. This will be FALSE if there is only FALSE and NA all inconclusive
   } else {
-     n <- dim(S)[1]
+    n <- dim(S)[1]
     if(isTRUE(shuffle)) {
         neword <- sample(seq(1,n))
         S <- S[neword,]
@@ -75,7 +75,7 @@ check_overlap_sequential <- function(y, X, S, nss = 10L, verbose = FALSE, ration
           } 
       if(isTRUE(olcheck[i-1])) return(olcheck[i-1])
     }
-    if(all(olcheck!=TRUE)) olout <- check_overlap_worker(S=S, rational=rational, model=model, quick=quick, backend=backend, solver = solver) 
+    if(!any(olcheck,na.rm=TRUE)) olout <- check_overlap_worker(S=S, rational=rational, model=model, quick=quick, backend=backend, solver = solver) 
   }
   olout
 }

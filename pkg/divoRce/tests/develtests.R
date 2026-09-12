@@ -142,11 +142,12 @@ Xss <- Xqcs[1:20,]
 
 Xss[,2] <- 0
 
-check_separation(yqcs,Xqcs, model = "b", rational = TRUE)
+check_separation(yqcs,Xqcs, model = "b")
 check_separation(yss,Xss, model = "b", quick = TRUE)
 
+check_overlap_sequential(yqcs,Xqcs,model="b",nss=10, verbose = 1)
 
-check_overlap_parallel(yqcs,Xqcs[,-2],model="b",nc=1,nss=10, verbose = 1)
+check_overlap_parallel(yqcs,Xqcs,model="b",nc=1,nss=10, verbose = 1)
 
 
 check_separation(yqcs[1:18],Xqcs[1:18,], model = "b")
@@ -357,6 +358,12 @@ rec_cone(yol2,Xol2,rational=rational) #check out for overlap if this makes sense
 ##### diagsep_b
 diagsep_b(yol2,Xol2,rational=rational)
 diagsep(yol2,Xol2,rational=rational)
+
+
+check_overlap_sequential(yol2,Xol2,model="b",nss=10, verbose = 0)
+
+check_overlap_parallel(yol2,Xol2,model="b",nc=3, nss=10, verbose = 1)
+
 
 #################################################
 ################### Multinomial Data - BCL MODEL
