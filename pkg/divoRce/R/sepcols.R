@@ -19,10 +19,14 @@ sepcols_worker<- function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl",
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
     if(missing(model)) model <- NULL
+    ##here we check whether X has full column rank otherwise this check won't work properly.
+    X1 <- X
+    if(ratcols) X1 <- rcdd::q2d(X)
+    if(qr(X1)$rank < dim(X1)[2]) warning("X doesn't have full column rank. Results of this check may be unreliable.")
     if(is.null(model))
     {
        warning("Default model class used.","\n")
-       if(is.ordered(y) & length(unique(y))>2)
+       if(is.ordered(y) && length(unique(y))>2)
         {
             return(sepcols_cl(y=y,X=X,rational=rational, backend=backend, solver=solver))
         } else {
@@ -43,6 +47,8 @@ sepcols_worker<- function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl",
         if(!is.matrix(S)) stop("S must be a matrix.")
         ratcols <- rat_cols(S)
         if(ratcols) rational <- TRUE
+       if(ratcols) S1 <- rcdd::q2d(S)
+       if(qr(S1)$rank<dim(S1)[2]) warning("S doesn't have full column rank. Results of this check may be unreliable.")
         lso <- .divorce_detect_sepcols_lp(
                   S,
                   rational = rational,
@@ -78,9 +84,6 @@ sepcols_b<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver = 
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
     S <- structure_vectors(y=y, X=X, label=TRUE, rational=rational, model = "b")
-    ##here we check whether X has full column rank otherwise this check won't work properly.
-    if(ratcols) X <- rcdd::q2d(X)
-    if(qr(X)$rank<dim(X)[2]) warning("X doesn't have full column rank. Results of this check are unreliable.")     
     ## constraints
     ## matrix of constraints for \code{lpcdd} must be of the form A1 * \beta \leq b1. We combine the constraints into one big A1 for the left hand side and a vector b1 of the right hand side scalars.
     ## left hand side just inequalities to folow the linear program in the paper
@@ -140,9 +143,6 @@ sepcols_bcl<- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = 
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
     S <- structure_vectors(y=y, X=X, label=TRUE, rational=rational, model = "bcl") 
-    ##here we check whether X has full column rank otherwise this check won't work properly.
-    if(ratcols) X <- rcdd::q2d(X)
-    if(qr(X)$rank<dim(X)[2]) warning("X doesn't have full column rank. Results of this check are unreliable.")      
     lso <- .divorce_detect_sepcols_lp(
        S,
        rational = rational,
@@ -175,8 +175,6 @@ sepcols_cl<- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = N
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
     S <- structure_vectors(y=y, X=X, label=TRUE, rational=rational, model = "cl") 
-    if(ratcols) X <- rcdd::q2d(X)
-    if(qr(X)$rank<dim(X)[2]) warning("X doesn't have full column rank. Results of this check are unreliable.")    
     lso <- .divorce_detect_sepcols_lp(
        S,
        rational = rational,
@@ -214,8 +212,8 @@ sepcols_acl <- function(y,X,rational=FALSE,backend = c("rcdd", "ROI"), solver = 
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
     S <- structure_vectors(y=y, X=X, label=TRUE, rational=rational, model = "acl")
-    if(ratcols) X <- rcdd::q2d(X)
-    if(qr(X)$rank<dim(X)[2]) warning("X doesn't have full column rank. Results of this check are unreliable.")    
+#    if(ratcols) X <- rcdd::q2d(X)
+#    if(qr(X)$rank<dim(X)[2]) warning("X doesn't have full column rank. Results of this check are unreliable.")    
     lso <- .divorce_detect_sepcols_lp(
        S,
        rational = rational,
@@ -250,8 +248,8 @@ sepcols_os <- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = 
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
     S <- structure_vectors(y=y, X=X, label=TRUE, rational=rational, model = "os")
-    if(ratcols) X <- rcdd::q2d(X)
-    if(qr(X)$rank<dim(X)[2]) warning("X doesn't have full column rank. Results of this check are unreliable.")    
+ #   if(ratcols) X <- rcdd::q2d(X)
+ #   if(qr(X)$rank<dim(X)[2]) warning("X doesn't have full column rank. Results of this check are unreliable.")    
     lso <- .divorce_detect_sepcols_lp(
        S,
        rational = rational,

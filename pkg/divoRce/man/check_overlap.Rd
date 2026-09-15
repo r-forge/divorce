@@ -10,6 +10,13 @@
 \alias{check_overlap.character}
 \alias{check_overlap.matrix}
 \alias{check_overlap.formula}
+\alias{check_overlap.osm}
+\alias{check_overlap.clm}
+\alias{check_overlap.polr}
+\alias{check_overlap.multinom}
+\alias{check_overlap.glm}
+\alias{check_overlap.bracl}
+\alias{check_overlap.brmultinom}
 \title{Check overlap}
 \usage{
 check_overlap(..., rational, backend, solver, quick)
@@ -121,6 +128,97 @@ check_overlap(..., rational, backend, solver, quick)
   solver = NULL,
   ...
 )
+
+\method{check_overlap}{osm}(
+  object,
+  rational = FALSE,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
+  quick = FALSE,
+  parallel = FALSE,
+  sequential = FALSE,
+  nss = NULL,
+  nc = NULL,
+  ...
+)
+
+\method{check_overlap}{clm}(
+  object,
+  rational = FALSE,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
+  quick = FALSE,
+  parallel = FALSE,
+  sequential = FALSE,
+  nss = NULL,
+  nc = NULL,
+  ...
+)
+
+\method{check_overlap}{polr}(
+  object,
+  rational = FALSE,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
+  quick = FALSE,
+  parallel = FALSE,
+  sequential = FALSE,
+  nss = NULL,
+  nc = NULL,
+  ...
+)
+
+\method{check_overlap}{multinom}(
+  object,
+  rational = FALSE,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
+  quick = FALSE,
+  parallel = FALSE,
+  sequential = FALSE,
+  nss = NULL,
+  nc = NULL,
+  ...
+)
+
+\method{check_overlap}{glm}(
+  object,
+  rational = FALSE,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
+  quick = FALSE,
+  parallel = FALSE,
+  sequential = FALSE,
+  nss = NULL,
+  nc = NULL,
+  ...
+)
+
+\method{check_overlap}{bracl}(
+  object,
+  rational = FALSE,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
+  quick = FALSE,
+  parallel = FALSE,
+  sequential = FALSE,
+  nss = NULL,
+  nc = NULL,
+  ...
+)
+
+\method{check_overlap}{brmultinom}(
+  object,
+  rational = FALSE,
+  backend = c("rcdd", "ROI"),
+  solver = NULL,
+  quick = FALSE,
+  parallel = parallel,
+  sequential = sequential,
+  nss = nss,
+  nc = nc,
+  ...
+)
 }
 \arguments{
 \item{...}{additional arguments to be passed to other functions (e.g. to mclappy in parallel execution)}
@@ -133,7 +231,7 @@ check_overlap(..., rational, backend, solver, quick)
 
 \item{quick}{boolean flag whether the quick linear program is to be used or the full fledged one (default is FALSE).}
 
-\item{object}{an R object}
+\item{object}{model object}
 
 \item{sequential}{If 'TRUE' checks sequentially. Then an 'nss' (number of subsets) should be supplied (defaults to 10).}
 

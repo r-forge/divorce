@@ -308,7 +308,7 @@ check_separation.osm <- function(object, rational = FALSE, backend = c("rcdd", "
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    return(check_separation(y = y, X = X, model = "os", rational = rational, backend = backend, solver = solver, quick = quick))
+    return(check_separation(y = y, X = X, model = "os", rational = rational, backend = backend, solver = solver, quick = quick, ...))
 }
 
 #' @export
@@ -368,7 +368,7 @@ check_separation.clm <- function(object, rational = FALSE,  backend = c("rcdd", 
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)$X
-    return(check_separation(y = y, X = X, model = "cl", rational = rational, quick = quick, backend = backend, solver = solver))
+    return(check_separation(y = y, X = X, model = "cl", rational = rational, quick = quick, backend = backend, solver = solver, ...))
 }
 
 #' @export
@@ -488,7 +488,7 @@ check_separation.multinom <- function(object, rational = FALSE, backend = c("rcd
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    return(check_separation(y = y, X = X, model = "bcl", rational = rational, backend = backend, solver = solver, quick = quick))
+    return(check_separation(y = y, X = X, model = "bcl", rational = rational, backend = backend, solver = solver, quick = quick, ...))
 }
 
 #' @export
@@ -895,4 +895,106 @@ check_overlap.formula <- function(formula, data, model = c("bcl", "b", "cl", "ac
     yx <- make_yx(formula, data, contrasts) 
     if(missing(model)) model <-  NULL
     check_overlap(y = yx$y, X = yx$X, model = model, rational=rational, backend = backend, solver = solver, quick = quick, sequential = sequential, parallel = parallel, ...)
+}
+
+
+
+############# POST FIT 
+
+### 
+#' @export
+#' @importFrom stats model.frame model.matrix
+#' @rdname check_overlap
+#' @param object model object
+check_overlap.osm <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, parallel = FALSE, sequential = FALSE, nss = NULL, nc = NULL , ... )
+{
+    x <- object
+    y <- model.frame(x)[,1]
+    X <- model.matrix(x)
+    return(check_overlap(y = y, X = X, model = "os", rational = rational, backend = backend, solver = solver, quick = quick, parallel = parallel, sequential = sequential, nss = nss, nc = nc, ... ))
+}
+
+### 
+#' @export
+#' @importFrom stats model.frame model.matrix
+#' @rdname check_overlap
+#' @param object model object
+check_overlap.clm <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, parallel = FALSE, sequential = FALSE, nss = NULL, nc = NULL , ... )
+{
+    x <- object
+    y <- model.frame(x)[,1]
+    X <- model.matrix(x)$X
+    return(check_overlap(y = y, X = X, model = "cl", rational = rational, backend = backend, solver = solver, quick = quick, parallel = parallel, sequential = sequential, nss = nss, nc = nc, ... ))
+}
+
+
+### 
+#' @export
+#' @importFrom stats model.frame model.matrix
+#' @rdname check_overlap
+#' @param object model object
+check_overlap.polr <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, parallel = FALSE, sequential = FALSE, nss = NULL, nc = NULL , ... )
+{
+    x <- object
+    y <- model.frame(x)[,1]
+    X <- model.matrix(x)
+    return(check_overlap(y = y, X = X, model = "cl", rational = rational, backend = backend, solver = solver, quick = quick, parallel = parallel, sequential = sequential, nss = nss, nc = nc, ...))
+}
+
+### 
+#' @export
+#' @importFrom stats model.frame model.matrix
+#' @rdname check_overlap
+#' @param object model object
+check_overlap.multinom<- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, parallel = FALSE, sequential = FALSE, nss = NULL, nc = NULL , ... )
+{
+    x <- object
+    y <- model.frame(x)[,1]
+    X <- model.matrix(x)
+    return(check_overlap(y = y, X = X, model = "bcl", rational = rational, backend = backend, solver = solver, quick = quick, parallel = parallel, sequential = sequential, nss = nss, nc = nc, ...))
+}
+
+#####  GLM binary
+## TODO what for the aggregation interface?
+
+#' @export
+#' @importFrom stats model.matrix model.frame
+#' @rdname check_overlap
+#' @param object model object
+check_overlap.glm <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, parallel = FALSE, sequential = FALSE, nss = NULL, nc = NULL , ... )
+{
+    x <- object
+    if(!(x$family$family %in% "binomial")) stop("This is only implemented for the binomial family.")
+    y <- x$y
+    X <- model.matrix(x)
+    return(check_overlap(y = y, X = X, model = "b", rational = rational, backend = backend, solver = solver, quick = quick, parallel = parallel, sequential = sequential, nss = nss, nc = nc, ...))
+}
+
+########## bracl
+#' @export
+#' @importFrom stats model.matrix 
+#' @rdname check_overlap
+#' @param object model object
+check_overlap.bracl <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE,  parallel = FALSE, sequential = FALSE, nss= NULL, nc = NULL , ...  )
+{
+    y <- as.ordered(model.frame(object)[,1])
+    X <- model.matrix(object)
+    if(object$parallel)
+        return(check_overlap(y = y, X = X, model = "acl", rational = rational, backend = backend, solver = solver, quick = quick, parallel = parallel, sequential = sequential, nss = nss, nc = nc, ...))
+    if(!object$parallel) {
+        y <- factor(y, ordered = FALSE)
+        return(check_overlap(y = y, X = X, model = "bcl", rational = rational, backend = backend, solver = solver, quick = quick, parallel = parallel, sequential = sequential, nss = nss, nc = nc, ...))
+        }
+}
+
+########## brmultinom
+#' @export
+#' @importFrom stats model.matrix
+#' @rdname check_overlap
+#' @param object model object
+check_overlap.brmultinom <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, parallel = parallel, sequential = sequential, nss = nss, nc = nc, ... )
+{
+    y <- model.frame(object)[,1]
+    X <- model.matrix(object)
+    return(check_overlap(y = y, X = X, model = "bcl", rational = rational, backend = backend, solver = solver, quick = quick, parallel = parallel, sequential = sequential, nss = nss, nc = nc, ...))
 }
