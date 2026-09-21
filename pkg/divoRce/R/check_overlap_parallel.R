@@ -87,14 +87,14 @@ check_overlap_parallel <- function(y, X, S, nc = NULL, nss = NULL, verbose = FAL
       Ss <- S[ind,]
       olcheck <- NA
       if(isTRUE(all.equal(qr(Ss)$rank,frank))) {
-          olcheck <- check_overlap_worker(S=Ss, rational=rational, model=model, quick = quick, backend=backend, solver = solver)
+          olcheck <- check_overlap_worker(S = Ss, rational=rational, model=model, quick = quick, backend=backend, solver = solver)
           }
       olcheck
     }  
     polchecks <- parallel::mclapply(splitlist, checkfun2, mc.cores = nc, ...)
     polchecks <- unlist(polchecks)
     if(any(polchecks,na.rm=TRUE)) return(TRUE)
-    if(!any(polchecks,na.rm=TRUE)) olout <- check_overlap_worker(y=y, X=X, rational=rational, model=model, quick=quick, backend=backend, solver = solver)
+    if(!any(polchecks,na.rm=TRUE)) olout <- check_overlap_worker(S = S, rational=rational, model=model, quick=quick, backend=backend, solver = solver)
   }
   olout
 }

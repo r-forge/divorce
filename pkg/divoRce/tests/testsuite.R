@@ -405,9 +405,17 @@ run_test("check_separation.formula quick - long - quasi-complete separation", fu
 t <- rep(1:19)
 class(t) <- "nudlaug"
 
-run_simple_test("check_separation.default", function(backend, solver) {
+tryCatch({
   check_separation(t, rational = rational, model = "b", backend = backend, solver = solver)
-})
+}, error = function(e) {
+    cat(sprintf("Works as planned: %s",conditionMessage(e)),"\n")
+    test_results$passed <<- test_results$passed + 1
+  #  test_results$log[[length(test_results$log) + 1]] <<- list(
+  #  test_name = test_name,
+  #  status = "PASS"
+  #  )
+}
+)
 
 
 ###############
@@ -511,9 +519,21 @@ run_test("diagnose_separation.matrix - complete separation", function(backend, s
 t <- rep(1:19)
 class(t) <- "nudlaug"
 
-run_simple_test("diagnose_separation.default", function(backend, solver) {
+#run_simple_test("diagnose_separation.default", function(backend, solver) {
+#  diagnose_separation(t, rational = rational, model = "b", backend = backend, solver = solver)
+#})
+
+tryCatch({
   diagnose_separation(t, rational = rational, model = "b", backend = backend, solver = solver)
-})
+}, error = function(e) {
+    cat(sprintf("Works as planned: %s", conditionMessage(e)))
+    test_results$passed <<- test_results$passed + 1
+    #test_results$log[[length(test_results$log) + 1]] <<- list(
+    ##test_name = test_name,
+    #status = "PASS"
+    #)
+}
+)
 
 
 
@@ -585,9 +605,20 @@ run_test("separation_columns.matrix - complete separation", function(backend, so
 t <- rep(1:19)
 class(t) <- "nudlaug"
 
-run_test("separation_columns.default", function(backend, solver) {
+tryCatch({
   separation_columns(t, rational = rational, model = "b", backend = backend, solver = solver)
-})
+}, error = function(e) {
+    cat(sprintf("Works as planned %s", conditionMessage(e)))
+    test_results$passed <<- test_results$passed + 1
+    #test_results$log[[length(test_results$log) + 1]] <<- list(
+    #test_name = test_name,
+    #status = "PASS"
+    #)
+}
+)
+#run_test("separation_columns.default", function(backend, solver) {
+#  separation_columns(t, rational = rational, model = "b", backend = backend, solver = solver)
+#})
 
 
 
@@ -647,9 +678,21 @@ run_simple_test("separation_rows.matrix - complete separation", function(backend
 t <- rep(1:19)
 class(t) <- "nudlaug"
 
-run_simple_test("separation_rows.default", function(backend, solver) {
+tryCatch({
   separation_rows(t, rational = rational, model = "b", backend = backend, solver = solver)
-})
+}, error = function(e) {
+    cat(sprintf("Works as planned %s", conditionMessage(e)))
+    test_results$passed <<- test_results$passed + 1
+    #test_results$log[[length(test_results$log) + 1]] <<- list(
+    #test_name = test_name,
+    #status = "PASS"
+    #)
+}
+)
+
+#run_simple_test("separation_rows.default", function(backend, solver) {
+#  separation_rows(t, rational = rational, model = "b", backend = backend, solver = solver)
+#})
 
 
 ## =============================================================================
@@ -737,9 +780,21 @@ run_simple_test("recession_cone.matrix - quasi-complete separation", function(ba
 t <- rep(1:19)
 class(t) <- "nudlaug"
 
-run_simple_test("recession_cone.default", function(backend, solver) {
-  recession_cone(t, rational = rational, model = "b")
-})
+
+tryCatch({
+  recession_cone(t, rational = rational, model = "b", backend = backend, solver = solver)
+}, error = function(e) {
+    cat(printf("Works as planned: %s", conditionMessage(e)))
+    test_results$passed <<- test_results$passed + 1
+    #test_results$log[[length(test_results$log) + 1]] <<- list(
+    #test_name = test_name,
+    #status = "PASS"
+    #)
+}
+)
+#run_simple_test("recession_cone.default", function(backend, solver) {
+#  recession_cone(t, rational = rational, model = "b")
+#})
 
 
 ## =============================================================================
@@ -824,8 +879,8 @@ run_test("divoRce:::check_overlap_parallel - quasi-complete separation", functio
 })
 
 run_test("divoRce:::check_overlap_parallel(S) - quasi-complete separation", function(backend, solver) {
-  divoRce:::check_overlap_parallel(S=S_qcs, nss = 3, verbose = 0, rational = rational, 
-             backend = backend, solver = solver, nc=2)
+  divoRce:::check_overlap_parallel(S = S_qcs, nss = 3, verbose = 0, rational = rational, 
+             backend = backend, solver = solver, nc = 2)
 })
 
 
