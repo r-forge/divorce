@@ -41,7 +41,7 @@ if(missing(S)) {
 if(missing(model)) model <- NULL
 return(any(sepcols_worker(y=y,X=X,rational=rational,model=model, backend = backend, solver=solver)$separated))
 } else {
-  return(any(sepcols_worker(S=S,rational=rational, backend = backend, solver = solver)$separated))  
+ return(any(sepcols_worker(S=S,rational=rational, backend = backend, solver = solver)$separated))  
  }
 }
 

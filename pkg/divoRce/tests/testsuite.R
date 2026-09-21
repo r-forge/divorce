@@ -377,7 +377,7 @@ run_test("check_separation.formula ", function(backend, solver) {
 })
 
 run_test("check_separation.matrix - complete separation", function(backend, solver) {
-  check_separation(S = S_cs, rational = rational, backend = backend, solver = solver)
+  check_separation(S_cs, rational = rational, backend = backend, solver = solver)
 })
 
 
@@ -390,7 +390,7 @@ run_test("check_separation.formula quick", function(backend, solver) {
 })
 
 run_test("check_separation.matrix quick - complete separation", function(backend, solver) {
-  check_separation(S = S_cs, rational = rational, backend = backend, solver = solver, quick = TRUE)
+  divoRce:::check_separation.matrix(S_cs, rational = rational, backend = backend, solver = solver, quick = TRUE)
 })
 
 run_test("check_separation.formula not quick - long - quasi-complete separation", function(backend, solver) {
@@ -433,7 +433,7 @@ run_test("check_overlap(model='b') - overlap", function(backend, solver) {
 })
 
 run_test("check_overlap(S=) - complete separation", function(backend, solver) {
-  check_overlap(S = S_cs, rational = rational, backend=backend, solver=solver)
+  check_overlap( S_cs, rational = rational, backend=backend, solver=solver)
 })
 
 # --- Generic check_overlap with model="b" ---
@@ -448,7 +448,7 @@ run_test("check_overlap(model='b') - overlap", function(backend, solver) {
 })
 
 run_test("check_overlap(S=) - complete separation", function(backend, solver) {
-  check_overlap(S = S_cs, rational = rational, backend=backend, solver=solver, quick = TRUE)
+  check_overlap( S_cs, rational = rational, backend=backend, solver=solver, quick = TRUE)
 })
 
 run_test("check_overlap(model='b') - overlap", function(backend, solver) {
@@ -504,7 +504,7 @@ run_test("diagnose_separation.formula ", function(backend, solver) {
 })
 
 run_test("diagnose_separation.matrix - complete separation", function(backend, solver) {
-  diagnose_separation(S = S_cs, rational = rational, backend = backend, solver = solver)
+  diagnose_separation( S_cs, rational = rational, backend = backend, solver = solver)
 })
 
 ## check default method
@@ -553,7 +553,7 @@ run_test("divoRce:::sepcols_worker(model='b') - overlap", function(backend, solv
 
 
 run_test("divoRce:::sepcols_worker(S) - complete separation", function(backend, solver) {
-  divoRce:::sepcols_worker(S = S_cs, rational = rational, backend = backend, solver = solver)
+  divoRce:::sepcols_worker( S=S_cs, rational = rational, backend = backend, solver = solver)
 })
 
 
@@ -578,7 +578,7 @@ run_test("separation_columns.formula ", function(backend, solver) {
 
 
 run_test("separation_columns.matrix - complete separation", function(backend, solver) {
-  separation_columns(S = S_cs, rational = rational, backend = backend, solver = solver)
+  separation_columns( S_cs, rational = rational, backend = backend, solver = solver)
 })
 
 ## check default method
@@ -613,11 +613,11 @@ run_simple_test("divoRce:::seprows_worker(model='b') - overlap", function(backen
 })
 
 run_simple_test("divoRce:::seprows_worker(S=) - complete separation", function(backend, solver) {
-  divoRce:::seprows_worker(S = S_qcs, rational = rational)
+  divoRce:::seprows_worker(S= S_qcs, rational = rational)
 })
 
 run_simple_test("divoRce:::seprows_worker(S=) - overlap", function(backend, solver) {
-  divoRce:::seprows_worker(S = S_ol, rational = rational)
+  divoRce:::seprows_worker(S= S_ol, rational = rational)
 })
 
 # --- Generic: separation_rows.glm ---
@@ -640,7 +640,7 @@ run_simple_test("separation_rows.formula ", function(backend, solver) {
 })
 
 run_simple_test("separation_rows.matrix - complete separation", function(backend, solver) {
-  separation_rows(S = S_cs, rational = rational)
+  separation_rows( S_cs, rational = rational)
 })
 
 ## check default method
@@ -675,7 +675,7 @@ run_simple_test("linearities(model='b') - overlap", function(backend, solver) {
 })
 
 run_simple_test("linearities(S=) - complete separation", function(backend, solver) {
-  linearities(S = S_cs, rational = rational)
+  linearities(S= S_cs, rational = rational)
 })
 
 
@@ -702,11 +702,11 @@ run_simple_test("divoRce:::reccone_worker(model='b') - overlap", function(backen
 })
 
 run_simple_test("divoRce:::reccone_worker(S=) - complete separation", function(backend, solver) {
-  divoRce:::reccone_worker(S = S_cs, rational = rational)
+  divoRce:::reccone_worker( S=S_cs, rational = rational)
 })
 
 run_simple_test("divoRce:::reccone_worker(S=) - quasi-complete separation", function(backend, solver) {
-  divoRce:::reccone_worker(S = S_qcs, rational = rational)
+  divoRce:::reccone_worker( S=S_qcs, rational = rational)
 })
 
 # --- Generic: recession_cone.glm ---
@@ -729,7 +729,7 @@ run_simple_test("recession_cone.formula ", function(backend, solver) {
 })
 
 run_simple_test("recession_cone.matrix - quasi-complete separation", function(backend, solver) {
-  recession_cone(S = S_qcs, rational = rational)
+  recession_cone( S_qcs, rational = rational)
 })
 
 
@@ -753,37 +753,81 @@ print_section("check_overlap_sequential (Binary)", 2)
 print_section("check_overlap_sequential with model='b' (mid level)", 3)
 
 run_test("check_overlap_sequential(model='b') - complete separation", function(backend, solver) {
-  check_overlap_sequential(y_b_cs, X_b_cs, nss = 10, verbose = 0, rational = rational, 
+  divoRce:::check_overlap_sequential(y_b_cs, X_b_cs, nss = 3, verbose = 0, rational = rational, 
              model = "b", backend = backend, solver = solver)
 })
 
-run_test("check_overlap_sequential(model='b') - quasi-complete separation", function(backend, solver) {
-  check_overlap_sequential(y_b_qcs, X_b_qcs, nss = 10, verbose = 0, rational = rational, 
+run_test("divoRce:::check_overlap_sequential(model='b') - quasi-complete separation", function(backend, solver) {
+  divoRce:::check_overlap_sequential(y_b_qcs, X_b_qcs, nss = 3, verbose = 0, rational = rational, 
              model = "b", backend = backend, solver = solver)
 })
 
-run_test("check_overlap_sequential(model='b') - overlap", function(backend, solver) {
-  check_overlap_sequential(y_b_ol, X_b_ol, nss = 10, verbose = 0, rational = rational, 
+run_test("divoRce:::check_overlap_sequential(model='b') - overlap", function(backend, solver) {
+  divoRce:::check_overlap_sequential(y_b_ol, X_b_ol, nss = 3, verbose = 0, rational = rational, 
              model = "b", backend = backend, solver = solver)
 })
 
-# --- Mid level: check_overlap_sequential default (no model specified) ---
-print_section("check_overlap_sequential default (mid level)", 3)
+# --- Mid level: divoRce:::check_overlap_sequential default (no model specified) ---
+print_section("divoRce:::check_overlap_sequential default (mid level)", 3)
 
-run_test("check_overlap_sequential - complete separation", function(backend, solver) {
-  check_overlap_sequential(y_b_cs, X_b_cs, nss = 10, verbose = 0, rational = rational, 
+run_test("divoRce:::check_overlap_sequential - complete separation", function(backend, solver) {
+  divoRce:::check_overlap_sequential(y_b_cs, X_b_cs, nss = 3, verbose = 0, rational = rational, 
              backend = backend, solver = solver)
 })
 
-run_test("check_overlap_sequential - quasi-complete separation", function(backend, solver) {
-  check_overlap_sequential(y_b_qcs, X_b_qcs, nss = 10, verbose = 0, rational = rational, 
+run_test("divoRce:::check_overlap_sequential - quasi-complete separation", function(backend, solver) {
+  divoRce:::check_overlap_sequential(y_b_qcs, X_b_qcs, nss = 3, verbose = 0, rational = rational, 
              backend = backend, solver = solver)
 })
 
-run_test("check_overlap_sequential(S) - quasi-complete separation", function(backend, solver) {
-  check_overlap_sequential(S=S_qcs, nss = 10, verbose = 0, rational = rational, 
+run_test("divoRce:::check_overlap_sequential(S) - quasi-complete separation", function(backend, solver) {
+  divoRce:::check_overlap_sequential(S=S_qcs, nss = 3, verbose = 0, rational = rational, 
              backend = backend, solver = solver)
 })
+
+## =============================================================================
+## 1.8 check_overlap_parallel - Binary
+## =============================================================================
+
+print_section("check_overlap_parallel (Binary)", 2)
+
+
+# --- Mid level: check_overlap_parallel with model="b" ---
+print_section("check_overlap_parallel with model='b' (mid level)", 3)
+
+run_test("check_overlap_parallel(model='b') - complete separation", function(backend, solver) {
+  divoRce:::check_overlap_parallel(y_b_cs, X_b_cs, nss = 3, verbose = 0, rational = rational, 
+             model = "b", backend = backend, solver = solver, nc=2)
+})
+
+run_test("divoRce:::check_overlap_parallel(model='b') - quasi-complete separation", function(backend, solver) {
+  divoRce:::check_overlap_parallel(y_b_qcs, X_b_qcs, nss = 3, verbose = 0, rational = rational, 
+             model = "b", backend = backend, solver = solver, nc=2)
+})
+
+run_test("divoRce:::check_overlap_parallel(model='b') - overlap", function(backend, solver) {
+  divoRce:::check_overlap_parallel(y_b_ol, X_b_ol, nss = 3, verbose = 0, rational = rational, 
+             model = "b", backend = backend, solver = solver, nc=2)
+})
+
+# --- Mid level: divoRce:::check_overlap_parallel default (no model specified) ---
+print_section("divoRce:::check_overlap_parallel default (mid level)", 3)
+
+run_test("divoRce:::check_overlap_parallel - complete separation", function(backend, solver) {
+  divoRce:::check_overlap_parallel(y_b_cs, X_b_cs, nss = 3, verbose = 0, rational = rational, 
+             backend = backend, solver = solver, nc=2)
+})
+
+run_test("divoRce:::check_overlap_parallel - quasi-complete separation", function(backend, solver) {
+  divoRce:::check_overlap_parallel(y_b_qcs, X_b_qcs, nss = 3, verbose = 0, rational = rational, 
+             backend = backend, solver = solver, nc=2)
+})
+
+run_test("divoRce:::check_overlap_parallel(S) - quasi-complete separation", function(backend, solver) {
+  divoRce:::check_overlap_parallel(S=S_qcs, nss = 3, verbose = 0, rational = rational, 
+             backend = backend, solver = solver, nc=2)
+})
+
 
 
 ## =============================================================================
@@ -1226,29 +1270,55 @@ run_simple_test("recession_cone.formula ", function(backend, solver) {
 })
 
 ## =============================================================================
-## 2.8 check_overlap_sequential - BCL
+## 2.8 divoRce:::check_overlap_sequential - BCL
 ## =============================================================================
 
-print_section("check_overlap_sequential (BCL)", 2)
+print_section("divoRce:::check_overlap_sequential (BCL)", 2)
 
 
-# --- Mid level: check_overlap_sequential with model="bcl" ---
-print_section("check_overlap_sequential with model='bcl' (mid level)", 3)
+# --- Mid level: divoRce:::check_overlap_sequential with model="bcl" ---
+print_section("divoRce:::check_overlap_sequential with model='bcl' (mid level)", 3)
 
-run_test("check_overlap_sequential(model='bcl') - complete separation", function(backend, solver) {
-  check_overlap_sequential(y_bcl_cs, X_bcl_cs, nss = 1, verbose = 0, rational = rational, 
+run_test("divoRce:::check_overlap_sequential(model='bcl') - complete separation", function(backend, solver) {
+  divoRce:::check_overlap_sequential(y_bcl_cs, X_bcl_cs, nss = 3, verbose = 0, rational = rational, 
              model = "bcl", backend = backend, solver = solver)
 })
 
-run_test("check_overlap_sequential(model='bcl') - quasi-complete separation", function(backend, solver) {
-  check_overlap_sequential(y_bcl_qcs, X_bcl_qcs, nss = 1, verbose = 0, rational = rational, 
+run_test("divoRce:::check_overlap_sequential(model='bcl') - quasi-complete separation", function(backend, solver) {
+  divoRce:::check_overlap_sequential(y_bcl_qcs, X_bcl_qcs, nss = 3, verbose = 0, rational = rational, 
              model = "bcl", backend = backend, solver = solver)
 })
 
-run_test("check_overlap_sequential(model='bcl') - overlap", function(backend, solver) {
-  check_overlap_sequential(y_bcl_ol, X_bcl_ol, nss = 1, verbose = 0, rational = rational, 
+run_test("divoRce:::check_overlap_sequential(model='bcl') - overlap", function(backend, solver) {
+  divoRce:::check_overlap_sequential(y_bcl_ol, X_bcl_ol, nss = 3, verbose = 0, rational = rational, 
              model = "bcl", backend = backend, solver = solver)
 })
+
+## =============================================================================
+## 2.8 divoRce:::check_overlap_parallel - BCL
+## =============================================================================
+
+print_section("divoRce:::check_overlap_parallel (BCL)", 2)
+
+
+# --- Mid level: divoRce:::check_overlap_parallel with model="bcl" ---
+print_section("divoRce:::check_overlap_parallel with model='bcl' (mid level)", 3)
+
+run_test("divoRce:::check_overlap_parallel(model='bcl') - complete separation", function(backend, solver) {
+  divoRce:::check_overlap_parallel(y_bcl_cs, X_bcl_cs, nss = 2, verbose = 0, rational = rational, 
+             model = "bcl", backend = backend, solver = solver, nc=2)
+})
+
+run_test("divoRce:::check_overlap_parallel(model='bcl') - quasi-complete separation", function(backend, solver) {
+  divoRce:::check_overlap_parallel(y_bcl_qcs, X_bcl_qcs, nss = 2, verbose = 0, rational = rational, 
+             model = "bcl", backend = backend, solver = solver, nc=2)
+})
+
+run_test("divoRce:::check_overlap_parallel(model='bcl') - overlap", function(backend, solver) {
+  divoRce:::check_overlap_parallel(y_bcl_ol, X_bcl_ol, nss = 2, verbose = 0, rational = rational, 
+             model = "bcl", backend = backend, solver = solver, nc=2)
+})
+
 
 ## =============================================================================
 ## 2.9 overlap_qc - BCL
@@ -1631,28 +1701,53 @@ run_simple_test("recession_cone.polr - HDSS", function(backend, solver) {
 })
 
 ## =============================================================================
-## 3.8 check_overlap_sequential - CL
+## 3.8 divoRce:::check_overlap_sequential - CL
 ## =============================================================================
 
-print_section("check_overlap_sequential (CL)", 2)
+print_section("divoRce:::check_overlap_sequential (CL)", 2)
 
-# --- Mid level: check_overlap_sequential with model="cl" ---
-print_section("check_overlap_sequential with model='cl' (mid level)", 3)
+# --- Mid level: divoRce:::check_overlap_sequential with model="cl" ---
+print_section("divoRce:::check_overlap_sequential with model='cl' (mid level)", 3)
 
-run_test("check_overlap_sequential(model='cl') - HDSS", function(backend, solver) {
-  check_overlap_sequential(y_cl_hdss, X_cl_hdss, nss = 1, verbose = 0, rational = rational, 
+run_test("divoRce:::check_overlap_sequential(model='cl') - HDSS", function(backend, solver) {
+  divoRce:::check_overlap_sequential(y_cl_hdss, X_cl_hdss, nss = 3, verbose = 0, rational = rational, 
              model = "cl", backend = backend, solver = solver)
 })
 
-run_test("check_overlap_sequential(model='cl') - wine", function(backend, solver) {
-  check_overlap_sequential(y_cl_wine, X_cl_wine, nss = 1, verbose = 0, rational = rational, 
+run_test("divoRce:::check_overlap_sequential(model='cl') - wine", function(backend, solver) {
+  divoRce:::check_overlap_sequential(y_cl_wine, X_cl_wine, nss = 3, verbose = 0, rational = rational, 
              model = "cl", backend = backend, solver = solver)
 })
 
-run_test("check_overlap_sequential(model='cl') - wine with bottle", function(backend, solver) {
-  check_overlap_sequential(y_cl_wine2, X_cl_wine2, nss = 1, verbose = 0, rational = rational, 
+run_test("divoRce:::check_overlap_sequential(model='cl') - wine with bottle", function(backend, solver) {
+  divoRce:::check_overlap_sequential(y_cl_wine2, X_cl_wine2, nss = 1, verbose = 0, rational = rational, 
              model = "cl", backend = backend, solver = solver)
 })
+
+## =============================================================================
+## 3.8 divoRce:::check_overlap_parallel - CL
+## =============================================================================
+
+print_section("divoRce:::check_overlap_parallel (CL)", 2)
+
+# --- Mid level: divoRce:::check_overlap_parallel with model="cl" ---
+print_section("divoRce:::check_overlap_parallel with model='cl' (mid level)", 3)
+
+run_test("divoRce:::check_overlap_parallel(model='cl') - HDSS", function(backend, solver) {
+  divoRce:::check_overlap_parallel(y_cl_hdss, X_cl_hdss, nss = 3, verbose = 0, rational = rational, 
+             model = "cl", backend = backend, solver = solver, nc=2)
+})
+
+run_test("divoRce:::check_overlap_parallel(model='cl') - wine", function(backend, solver) {
+  divoRce:::check_overlap_parallel(y_cl_wine, X_cl_wine, nss = 3, verbose = 0, rational = rational, 
+             model = "cl", backend = backend, solver = solver, nc=2)
+})
+
+run_test("divoRce:::check_overlap_parallel(model='cl') - wine with bottle", function(backend, solver) {
+  divoRce:::check_overlap_parallel(y_cl_wine2, X_cl_wine2, nss = 3, verbose = 0, rational = rational, 
+             model = "cl", backend = backend, solver = solver, nc=2)
+})
+
 
 ## =============================================================================
 ## 3.9 divoRce:::overlap_quick_check - CL
@@ -1980,28 +2075,53 @@ run_simple_test("recession_cone.bracl nonparallel - quasi-complete ", function(b
 })
 
 ## =============================================================================
-## 4.8 check_overlap_sequential - ACL
+## 4.8 divoRce:::check_overlap_sequential - ACL
 ## =============================================================================
 
-print_section("check_overlap_sequential (ACL)", 2)
+print_section("divoRce:::check_overlap_sequential (ACL)", 2)
 
-# --- Mid level: check_overlap_sequential with model="acl" ---
-print_section("check_overlap_sequential with model='acl' (mid level)", 3)
+# --- Mid level: divoRce:::check_overlap_sequential with model="acl" ---
+print_section("divoRce:::check_overlap_sequential with model='acl' (mid level)", 3)
 
-run_test("check_overlap_sequential(model='acl') - complete separation", function(backend, solver) {
-  check_overlap_sequential(y_acl_cs, X_acl_cs, nss = 1, verbose = 0, rational = rational, 
+run_test("divoRce:::check_overlap_sequential(model='acl') - complete separation", function(backend, solver) {
+  divoRce:::check_overlap_sequential(y_acl_cs, X_acl_cs, nss = 3, verbose = 0, rational = rational, 
              model = "acl", backend = backend, solver = solver)
 })
 
-run_test("check_overlap_sequential(model='acl') - quasi-complete separation", function(backend, solver) {
-  check_overlap_sequential(y_acl_qcs, X_acl_qcs, nss = 1, verbose = 0, rational = rational, 
+run_test("divoRce:::check_overlap_sequential(model='acl') - quasi-complete separation", function(backend, solver) {
+  divoRce:::check_overlap_sequential(y_acl_qcs, X_acl_qcs, nss = 3, verbose = 0, rational = rational, 
              model = "acl", backend = backend, solver = solver)
 })
 
-run_test("check_overlap_sequential(model='acl') - overlap", function(backend, solver) {
-  check_overlap_sequential(y_acl_ol, X_acl_ol, nss = 1, verbose = 0, rational = rational, 
+run_test("divoRce:::check_overlap_sequential(model='acl') - overlap", function(backend, solver) {
+  divoRce:::check_overlap_sequential(y_acl_ol, X_acl_ol, nss = 3, verbose = 0, rational = rational, 
              model = "acl", backend = backend, solver = solver)
 })
+
+## =============================================================================
+## 4.8 divoRce:::check_overlap_parallel - ACL
+## =============================================================================
+
+print_section("divoRce:::check_overlap_parallel (ACL)", 2)
+
+# --- Mid level: divoRce:::check_overlap_parallel with model="acl" ---
+print_section("divoRce:::check_overlap_parallel with model='acl' (mid level)", 3)
+
+run_test("divoRce:::check_overlap_parallel(model='acl') - complete separation", function(backend, solver) {
+  divoRce:::check_overlap_parallel(y_acl_cs, X_acl_cs, nss = 3, verbose = 0, rational = rational, 
+             model = "acl", backend = backend, solver = solver, nc=2)
+})
+
+run_test("divoRce:::check_overlap_parallel(model='acl') - quasi-complete separation", function(backend, solver) {
+  divoRce:::check_overlap_parallel(y_acl_qcs, X_acl_qcs, nss = 3, verbose = 0, rational = rational, 
+             model = "acl", backend = backend, solver = solver, nc=2)
+})
+
+run_test("divoRce:::check_overlap_parallel(model='acl') - overlap", function(backend, solver) {
+  divoRce:::check_overlap_parallel(y_acl_ol, X_acl_ol, nss = 3, verbose = 0, rational = rational, 
+             model = "acl", backend = backend, solver = solver, nc =2)
+})
+
 
 ## =============================================================================
 ## 4.9 overlap_qc - ACL
@@ -2299,23 +2419,44 @@ run_simple_test("recession_cone.osm - wine data", function(backend, solver) {
 })
 
 ## =============================================================================
-## 5.8 check_overlap_sequential - OS
+## 5.8 divoRce:::check_overlap_sequential - OS
 ## =============================================================================
 
-print_section("check_overlap_sequential (OS)", 2)
+print_section("divoRce:::check_overlap_sequential (OS)", 2)
 
-# --- Mid level: check_overlap_sequential with model="os" ---
-print_section("check_overlap_sequential with model='os' (mid level)", 3)
+# --- Mid level: divoRce:::check_overlap_sequential with model="os" ---
+print_section("divoRce:::check_overlap_sequential with model='os' (mid level)", 3)
 
 
-run_test("check_overlap_sequential(model='os') - quasi-complete separation", function(backend, solver) {
-  check_overlap_sequential(y_os_qcs, X_os_qcs, nss = 1, verbose = 0, rational = rational, 
+run_test("divoRce:::check_overlap_sequential(model='os') - quasi-complete separation", function(backend, solver) {
+  divoRce:::check_overlap_sequential(y_os_qcs, X_os_qcs, nss = 3, verbose = 0, rational = rational, 
              model = "os", backend = backend, solver = solver)
 })
 
-run_test("check_overlap_sequential(model='os') - overlap", function(backend, solver) {
-  check_overlap_sequential(y_os_ol, X_os_ol, nss = 1, verbose = 0, rational = rational, 
+run_test("divoRce:::check_overlap_sequential(model='os') - overlap", function(backend, solver) {
+  divoRce:::check_overlap_sequential(y_os_ol, X_os_ol, nss = 3, verbose = 0, rational = rational, 
              model = "os", backend = backend, solver = solver)
+})
+
+
+## =============================================================================
+## 5.8 divoRce:::check_overlap_parallel - OS
+## =============================================================================
+
+print_section("divoRce:::check_overlap_parallel (OS)", 2)
+
+# --- Mid level: divoRce:::check_overlap_parallel with model="os" ---
+print_section("divoRce:::check_overlap_parallel with model='os' (mid level)", 3)
+
+
+run_test("divoRce:::check_overlap_parallel(model='os') - quasi-complete separation", function(backend, solver) {
+  divoRce:::check_overlap_parallel(y_os_qcs, X_os_qcs, nss = 3, verbose = 0, rational = rational, 
+             model = "os", backend = backend, solver = solver, nc=2)
+})
+
+run_test("divoRce:::check_overlap_parallel(model='os') - overlap", function(backend, solver) {
+  divoRce:::check_overlap_parallel(y_os_ol, X_os_ol, nss = 3, verbose = 0, rational = rational, 
+             model = "os", backend = backend, solver = solver, nc=2)
 })
 
 ## =============================================================================
@@ -2565,28 +2706,54 @@ run_simple_test("divoRce:::reccone_worker(model='sl') - overlap", function(backe
 })
 
 ## =============================================================================
-## 6.8 check_overlap_sequential - SL
+## 6.8 divoRce:::check_overlap_sequential - SL
 ## =============================================================================
 
-print_section("check_overlap_sequential (SL)", 2)
+print_section("divoRce:::check_overlap_sequential (SL)", 2)
 
 
-# --- Mid level: check_overlap_sequential with model="sl" ---
-print_section("check_overlap_sequential with model='sl' (mid level)", 3)
+# --- Mid level: divoRce:::check_overlap_sequential with model="sl" ---
+print_section("divoRce:::check_overlap_sequential with model='sl' (mid level)", 3)
 
-run_test("check_overlap_sequential(model='sl') - complete separation", function(backend, solver) {
-  check_overlap_sequential(y_sl_cs, X_sl_cs, nss = 1, verbose = 0, rational = rational, 
+run_test("divoRce:::check_overlap_sequential(model='sl') - complete separation", function(backend, solver) {
+  divoRce:::check_overlap_sequential(y_sl_cs, X_sl_cs, nss = 3, verbose = 0, rational = rational, 
              model = "sl", backend = backend, solver = solver)
 })
 
-run_test("check_overlap_sequential(model='sl') - quasi-complete separation", function(backend, solver) {
-  check_overlap_sequential(y_sl_qcs, X_sl_qcs, nss = 1, verbose = 0, rational = rational, 
+run_test("divoRce:::check_overlap_sequential(model='sl') - quasi-complete separation", function(backend, solver) {
+  divoRce:::check_overlap_sequential(y_sl_qcs, X_sl_qcs, nss = 3, verbose = 0, rational = rational, 
              model = "sl", backend = backend, solver = solver)
 })
 
-run_test("check_overlap_sequential(model='sl') - overlap", function(backend, solver) {
-  check_overlap_sequential(y_sl_ol, X_sl_ol, nss = 1, verbose = 0, rational = rational, 
+run_test("divoRce:::check_overlap_sequential(model='sl') - overlap", function(backend, solver) {
+  divoRce:::check_overlap_sequential(y_sl_ol, X_sl_ol, nss = 3, verbose = 0, rational = rational, 
              model = "sl", backend = backend, solver = solver)
+})
+
+
+## =============================================================================
+## 6.8 divoRce:::check_overlap_parallel - SL
+## =============================================================================
+
+print_section("divoRce:::check_overlap_parallel (SL)", 2)
+
+
+# --- Mid level: divoRce:::check_overlap_parallel with model="sl" ---
+print_section("divoRce:::check_overlap_parallel with model='sl' (mid level)", 3)
+
+run_test("divoRce:::check_overlap_parallel(model='sl') - complete separation", function(backend, solver) {
+  divoRce:::check_overlap_parallel(y_sl_cs, X_sl_cs, nss = 3, verbose = 0, rational = rational, 
+             model = "sl", backend = backend, solver = solver, nc=2)
+})
+
+run_test("divoRce:::check_overlap_parallel(model='sl') - quasi-complete separation", function(backend, solver) {
+  divoRce:::check_overlap_parallel(y_sl_qcs, X_sl_qcs, nss = 3, verbose = 0, rational = rational, 
+             model = "sl", backend = backend, solver = solver, nc=2)
+})
+
+run_test("divoRce:::check_overlap_parallel(model='sl') - overlap", function(backend, solver) {
+  divoRce:::check_overlap_parallel(y_sl_ol, X_sl_ol, nss = 3, verbose = 0, rational = rational, 
+             model = "sl", backend = backend, solver = solver, nc=2)
 })
 
 ## =============================================================================
@@ -2756,7 +2923,8 @@ functions_tested <- c(
   ),
   "Cone Operations" = c(
     "divoRce:::reccone_worker / divoRce:::reccone_worker_*",
-    "check_overlap_sequential",
+    "divoRce:::check_overlap_sequential",
+    "divoRce:::check_overlap_parallel",
     "divoRce:::overlap_quick_check",
     "divoRce:::separation_quick_check"
   ),

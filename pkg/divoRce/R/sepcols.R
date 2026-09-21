@@ -47,8 +47,9 @@ sepcols_worker<- function(y, X, S, rational=FALSE, model=c("b","bcl","acl","os",
         if(!is.matrix(S)) stop("S must be a matrix.")
         ratcols <- rat_cols(S)
         if(ratcols) rational <- TRUE
-       if(ratcols) S1 <- rcdd::q2d(S)
-       if(qr(S1)$rank<dim(S1)[2]) warning("S doesn't have full column rank. Results of this check may be unreliable.")
+        S1 <- S
+        if(ratcols) S1 <- rcdd::q2d(S1)
+        if(qr(S1)$rank<dim(S1)[2]) warning("S doesn't have full column rank. Results of this check may be unreliable.")
         lso <- .divorce_detect_sepcols_lp(
                   S,
                   rational = rational,
