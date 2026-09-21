@@ -136,7 +136,7 @@ acl_Xstar <- function(y,X,label=TRUE,rational=FALSE)
       X <- rcdd::q2d(X)
   }
   intind <- grep("*ntercept*",colnames(X))
-  if(isTRUE(any(intind>0)) & isTRUE(all(X[,intind]==1))) X <- X[,-intind,drop=FALSE]
+  if(isTRUE(any(intind>0)) && isTRUE(all(X[,intind]==1))) X <- X[,-intind,drop=FALSE]
   y <- droplevels(as.factor(y))
   n <- length(y)
   a <- as.numeric(y)
@@ -196,7 +196,7 @@ struc_vec_acl <- function(y,X,label=TRUE,rational=FALSE)
       X <- rcdd::q2d(X)
   }
   intind <- grep("*ntercept*",colnames(X))
-  if(isTRUE(any(intind>0)) & isTRUE(all(X[,intind]==1))) X <- X[,-intind,drop=FALSE]
+  if(isTRUE(any(intind>0)) && isTRUE(all(X[,intind]==1))) X <- X[,-intind,drop=FALSE]
   y <- droplevels(as.factor(y))
   n <- length(y)
   a <- as.numeric(y)
@@ -214,7 +214,7 @@ struc_vec_acl <- function(y,X,label=TRUE,rational=FALSE)
   labs <- c(labs1,colnames(X))
   row_idx <- 1
   out <- matrix(NA,nrow=n*(m-1),ncol=(m-1)+dim(X)[2])
-  row.names(out) <- 1:dim(out)[1]
+  row.names(out) <- seq_len(dim(out)[1])
   for (i in seq_len(n)) {
      xi <- X[i, ]
      j  <- a[i]
@@ -255,7 +255,7 @@ os_Xstar <- function(y, X, label=TRUE, rational=FALSE){
 
   # Remove intercept
   intind<-grep("*ntercept*",colnames(X))
-  if(isTRUE(any(intind>0)) & isTRUE(all(X[,intind]==1))) X <- X[,-intind,drop=FALSE]
+  if(isTRUE(any(intind>0)) && isTRUE(all(X[,intind]==1))) X <- X[,-intind,drop=FALSE]
   labs <- colnames(X)
 
   if(is.null(row.names(X))) row.names(X) <- seq(1,dim(X)[1],by=1)
@@ -315,7 +315,7 @@ struc_vec_os <- function(y, X, label=TRUE, rational=FALSE){
 
   # Remove intercept
   intind<-grep("*ntercept*",colnames(X))
-  if(isTRUE(any(intind>0)) & isTRUE(all(X[,intind]==1))) X <- X[,-intind,drop=FALSE]
+  if(isTRUE(any(intind>0)) && isTRUE(all(X[,intind]==1))) X <- X[,-intind,drop=FALSE]
   labs <- colnames(X)
 
   if(is.null(row.names(X))) row.names(X) <- seq(1,dim(X)[1],by=1)
@@ -380,7 +380,7 @@ cl_Xstar <- function(y, X, label=TRUE, rational=FALSE){
        X <- rcdd::q2d(X)
        }
    intind<-grep("*ntercept*",colnames(X))
-   if(isTRUE(any(intind>0)) & isTRUE(all(X[,intind]==1))) X <- X[,-intind,drop=FALSE]
+   if(isTRUE(any(intind>0)) && isTRUE(all(X[,intind]==1))) X <- X[,-intind,drop=FALSE]
    y <- droplevels(as.factor(y))
    a <- as.numeric(y)
    n <- length(a)
@@ -420,7 +420,7 @@ struc_vec_cl <- function(y, X, label=TRUE, rational=FALSE){
        X <- rcdd::q2d(X)
        }
    intind<-grep("*ntercept*",colnames(X))
-   if(isTRUE(any(intind>0)) & isTRUE(all(X[,intind]==1))) X <- X[,-intind,drop=FALSE]
+   if(isTRUE(any(intind>0)) && isTRUE(all(X[,intind]==1))) X <- X[,-intind,drop=FALSE]
    y <- droplevels(as.factor(y))
    a <- as.numeric(y)
    n <- length(a)

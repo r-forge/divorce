@@ -1,29 +1,39 @@
 #' Check separation
 #'
-#' General separation check worker function.  
+#' General separation check function.
 #'
-#' This function checks for (quasi-) complete separation by calling the appropriate low-level functions.
+#' This function checks for (quasi-)complete separation by calling the
+#' appropriate low-level functions either with linear program 1 (`quick = FALSE`; default`) or linear program 2 (`quick = TRUE`).
+#'
+#' @param object an R object. Supported inputs:
+#'   \itemize{
+#'     \item \strong{Pre-fit (vector):} a vector of type \code{factor},
+#'       \code{character}, \code{logical}, \code{numeric} or \code{integer}.
+#'       In this case one also needs to supply the argument \code{X} and,
+#'       optionally but recommended, a \code{model}.
+#'     \item \strong{Pre-fit (matrix):} a matrix of structure vectors.
+#'     \item \strong{Pre-fit (formula):} an object of class \code{"formula"}
+#'       (or one that can be coerced to that class): a symbolic description
+#'       of the model to be fitted. The details of model specification are
+#'       given under \sQuote{Details} in \code{\link[stats]{glm}}. In this
+#'       case one needs to supply \code{data}, with an optional \code{model}
+#'       argument as well.
+#'     \item \strong{Post-fit:} a fitted model object of class \code{glm},
+#'       \code{polr}, \code{clm}, \code{osm}, \code{brmultinom},
+#'       \code{bracl}, \code{brglm} or \code{multinom}.
+#'   }
+#' @param ... further arguments passed to the methods or lower-level functions.
+#' @return A logical, `TRUE` is separation is detected. 
+#' @name check_separation
+#' 
+#' @details
+#' \code{check_separation} is an S3 generic function.
+#'
+#' \strong{For developers:} If a method should be provided for the generic,
+#' it is best to have that method create a matrix of structure vectors
+#' \code{S} and use the generic with the matrix.
 #'
 #' 
-#'
-#' @param y a categorical outcome vector 
-#' @param X a design matrix, e.g. generated via a call to \code{\link{model.matrix}}. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials). 
-#' @param S a matrix of structure vectors
-#' @param rational should rational arithmetic be used
-#' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "os" for ordered stereotype model. If missing or NULL it defaults to cumulative link for ordinal y and baseline-category for everything else.
-#' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
-#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
-#'
-#' 
-#' @details \code{check_separation} is an S3 generic function. For developers: If a method should be provided for the generic, it is best to have that method create a matrix of structure vectors \code{S} and use the low-level function \code{checksep_worker} with it.   
-#' 
-#' @param ... further arguments. For pre-fit \code{y}, \code{X} with \code{y} a vector of type factor, character, logical, numeric or integer. This is the \code{y} argument of \code{checksep_worker}. In this case one also needs to supply the argument \code{X} and optional but recommended a \code{model}. One can also supply a matrix \code{S}, in which case we treat it as the \code{S} argument to \code{checksep_worker}. For post-fit this can currently be an object of class \code{glm}, \code{polr}, \code{clm}, \code{osm} or \code{nnet}.  
-#' @param rational should rational arithmetic be used
-#' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
-#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".
-#' @param quick boolean flag whether the quick linear program is to be used or the full fledged one. 
-#' @return a Boolean; either 'TRUE' if we detected separation or 'FALSE' if not.
-#'
 #' @examples
 #' 
 #'  # pre fit
@@ -32,14 +42,14 @@
 #' data(csepdat1)
 #' outc<-csepdat1$y
 #' desma<-cbind("(Intercept)"=1,csepdat1[,2:ncol(csepdat1)])
-#' check_separation(y = outc, X = desma, model = "b")
+#' check_separation(outc, X = desma, model = "b")
 #'
 #' # Nominal data 
 #' # Baseline-category link
 #' data(qcsepdatm)
 #' y<-qcsepdatm$y
 #' X<-cbind(1,qcsepdatm[,2:ncol(qcsepdatm)])
-#' check_separation(y = y, X = X, model = "bcl")
+#' check_separation(y, X = X, model = "bcl")
 #'
 #' # Ordinal data
 #' data(qcsepdato)
@@ -63,18 +73,50 @@
 #' m1 <- stats::glm(y~x1+x2,data=csepdat1,family=binomial())
 #' check_separation(m1)
 #' @export
-check_separation <- function(..., rational, backend, solver, quick) {
+check_separation <- function(object, ...) {
   UseMethod("check_separation")
 }
 
-
-#' @details  \code{diagnose_separation} is S3 generic. For developers: If a method should be provided for the generic, it is best to have that method create a matrix of structure vectors \code{S} and use the low-level function \code{diagsep_worker} with it.   
+#' Detailed separation diagnostic for all categorical outcomes. 
+#'
+#' This function checks whether there is (quasi-) complete separation, which type if any, gives the dimension of the recession cone, lists the number of columns in the design matrix that give rise to the separation as well as the columns names and lists the rows in X/S for which we have separation.   
+#'
+#' @param object an R object. Supported inputs:
+#'   \itemize{
+#'     \item \strong{Pre-fit (vector):} a vector of type \code{factor},
+#'       \code{character}, \code{logical}, \code{numeric} or \code{integer}.
+#'       In this case one also needs to supply the argument \code{X} and,
+#'       optionally but recommended, a \code{model}.
+#'     \item \strong{Pre-fit (matrix):} a matrix of structure vectors.
+#'     \item \strong{Pre-fit (formula):} an object of class \code{"formula"}
+#'       (or one that can be coerced to that class): a symbolic description
+#'       of the model to be fitted. The details of model specification are
+#'       given under \sQuote{Details} in \code{\link[stats]{glm}}. In this
+#'       case one needs to supply \code{data}, with an optional \code{model}
+#'       argument as well.
+#'     \item \strong{Post-fit:} a fitted model object of class \code{glm},
+#'       \code{polr}, \code{clm}, \code{osm}, \code{brmultinom},
+#'       \code{bracl}, \code{brglm} or \code{multinom}.
+#'   }
+#' @param ... further arguments passed to the methods or lower-level functions.
+#' @return an object of class 'sepmod' that is a list with the components:
+#' \itemize{
+#' \item separation boolean whether there is separation ('TRUE' means separation)
+#' \item septype which type of separation (or not). A string of either "Overlap", "Quasi-Complete Separation" or "Complete Separation".
+#' \item reccdim dimension of recession cone
+#' \item offrows rows associated with separation
+#' \item nr.offcols number of columns of the design matrix that have separation
+#' \item offcols columns associated with separation 
+#' }
+#' For \code{model = "sl"} an object of class 'sepmod_sl'. It is a list or the above lists with the elements corresponding to each category.
+#' @name diagnose_separation
 #' 
-#' @param ... arguments for the generic: For pre-fit \code{y}, \code{X} with \code{y} a vector of type factor, character, logical, numeric or integer. This is the \code{y} argument of \code{diagsep_worker}. In this case one also needs to supply the argument \code{X} and optional but recommended a \code{model}. One can also supply a matrix \code{S}, in which case we treat it as the \code{S} argument to \code{diagsep_worker}. For post-fit this can currently be an object of class \code{glm}, \code{polr}, \code{clm}, \code{os} or \code{nnet}. 
-#' @param rational should rational arithmetic be used
-#' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
-#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI". 
-#' @rdname diagsep_worker
+#' @details
+#' \code{diagnose_separation} is an S3 generic function.
+#'
+#' \strong{For developers:} If a method should be provided for the generic,
+#' it is best to have that method create a matrix of structure vectors
+#' \code{S} and use the generic with the matrix. 
 #' @examples
 #' data(qcsepdatm)
 #'
@@ -82,7 +124,7 @@ check_separation <- function(..., rational, backend, solver, quick) {
 #' data(csepdat1)
 #' outc<-csepdat1$y
 #' desma<-cbind("(Intercept)"=1,csepdat1[,2:ncol(csepdat1)])
-#' c1<- diagnose_separation(y = outc, X = desma, model = "b")
+#' c1<- diagnose_separation(outc, X = desma, model = "b")
 #' print(c1)
 #' print(c1, "full")
 #'
@@ -91,7 +133,7 @@ check_separation <- function(..., rational, backend, solver, quick) {
 #' data(qcsepdatm)
 #' y<-qcsepdatm$y
 #' X<-cbind(1,qcsepdatm[,2:ncol(qcsepdatm)])
-#' diagnose_separation(y = y, X = X, model = "bcl")
+#' diagnose_separation(y, X = X, model = "bcl")
 #'
 #' # Ordinal data
 #' data(qcsepdato)
@@ -116,19 +158,49 @@ check_separation <- function(..., rational, backend, solver, quick) {
 #' diagnose_separation(m1)
 #' }
 #' @export
-diagnose_separation <- function(..., rational, backend, solver) {
+diagnose_separation <- function(object, ...) {
   UseMethod("diagnose_separation")
 }
 
 
-
-#' @details  \code{separation_columns} is S3 generic. For developers: If a method should be provided for the generic, it is best to have that method create a matrix of structure vectors \code{S} and use the low-level function \code{sepcols_worker} with it.   
+#' Identify separation columns
 #' 
-#' @param ... arguments for the generic: For pre-fit \code{y}, \code{X} with \code{y} a vector of type factor, character, logical, numeric or integer. This is the \code{y} argument of \code{sepcols_worker}. In this case one also needs to supply the argument \code{X} and optional but recommended a \code{model}. One can also supply a matrix \code{S}, in which case we treat it as the \code{S} argument to \code{sepcols_worker}. For post-fit this can currently be an object of class \code{glm}, \code{polr}, \code{clm}, \code{os} or \code{nnet}.
-#' @param rational should rational arithmetic be used
-#' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
-#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI". 
-#' @rdname sepcols_worker
+#' This function identifies the columns in a design matrix/structure vector matrix that are responsible for separation. It calls lower level functions if given an argument or chooses based on the response type.
+#'
+#' @param object an R object. Supported inputs:
+#'   \itemize{
+#'     \item \strong{Pre-fit (vector):} a vector of type \code{factor},
+#'       \code{character}, \code{logical}, \code{numeric} or \code{integer}.
+#'       In this case one also needs to supply the argument \code{X} and,
+#'       optionally but recommended, a \code{model}.
+#'     \item \strong{Pre-fit (matrix):} a matrix of structure vectors.
+#'     \item \strong{Pre-fit (formula):} an object of class \code{"formula"}
+#'       (or one that can be coerced to that class): a symbolic description
+#'       of the model to be fitted. The details of model specification are
+#'       given under \sQuote{Details} in \code{\link[stats]{glm}}. In this
+#'       case one needs to supply \code{data}, with an optional \code{model}
+#'       argument as well.
+#'     \item \strong{Post-fit:} a fitted model object of class \code{glm},
+#'       \code{polr}, \code{clm}, \code{osm}, \code{brmultinom},
+#'       \code{bracl}, \code{brglm} or \code{multinom}.
+#'   }
+#' @param ... further arguments passed to the methods or lower-level functions.
+#' @return A list with the components:
+#' \itemize{
+#' \item ls the solution vector of the linear program
+#' \item offcols the names of the columns that show separation
+#' \item colnrs the index number of the columns that show separation
+#' \item separated a logical vector of whetehr the colum shows separation
+#' }
+#' For \code{model = "sl"} it is a list of these lists for each category.
+#' @name separation_columns
+#' 
+#' @details
+#' \code{separation_columns} is an S3 generic function.
+#'
+#' \strong{For developers:} If a method should be provided for the generic,
+#' it is best to have that method create a matrix of structure vectors
+#' \code{S} and use the generic with the matrix.
 #' @examples
 #'
 #'
@@ -136,14 +208,14 @@ diagnose_separation <- function(..., rational, backend, solver) {
 #' data(csepdat1)
 #' outc<-csepdat1$y
 #' desma<-cbind("(Intercept)"=1,csepdat1[,2:ncol(csepdat1)])
-#' separation_columns(y = outc, X = desma, model = "b")
+#' separation_columns(outc, X = desma, model = "b")
 #'
 #' # Nominal data 
 #' # Baseline-category link
 #' data(qcsepdatm)
 #' y<-qcsepdatm$y
 #' X<-cbind(1,qcsepdatm[,2:ncol(qcsepdatm)])
-#' separation_columns(y = y, X = X, model = "bcl")
+#' separation_columns(y, X = X, model = "bcl")
 #'
 #' # Ordinal data
 #' data(qcsepdato)
@@ -169,29 +241,54 @@ diagnose_separation <- function(..., rational, backend, solver) {
 #' separation_columns(m1)
 #' }
 #' @export
-separation_columns<- function(..., rational, backend, solver) {
+separation_columns<- function(object, ...) {
   UseMethod("separation_columns")
 }
 
-
-#' @details  \code{separation_rows} is S3 generic. For developers: If a method should be provided for the generic, it is best to have that method create a matrix of structure vectors \code{S} and use the low-level function \code{seprows_worker} with it.   
+#' Identify separation rows
 #' 
-#' @param ... arguments for the generic: For pre-fit \code{y}, \code{X} with \code{y} a vector of type factor, character, logical, numeric or integer. This is the \code{y} argument of \code{seprows_worker}. In this case one also needs to supply the argument \code{X} and optional but recommended a \code{model}. One can also supply a matrix \code{S}, in which case we treat it as the \code{S} argument to \code{seprows}. For post-fit this can currently be an object of class \code{glm}, \code{polr}, \code{clm}, \code{os} or \code{nnet}. 
-#' @param rational should rational arithmetic be used
-#' @rdname seprows_worker
+#' This function identifies the rows in a design matrix/structure vector matrix that are associated for separation. It calls lower level functions if given an argument or chooses based on the response type.
+#'
+#' @param object an R object. Supported inputs:
+#'   \itemize{
+#'     \item \strong{Pre-fit (vector):} a vector of type \code{factor},
+#'       \code{character}, \code{logical}, \code{numeric} or \code{integer}.
+#'       In this case one also needs to supply the argument \code{X} and,
+#'       optionally but recommended, a \code{model}.
+#'     \item \strong{Pre-fit (matrix):} a matrix of structure vectors.
+#'     \item \strong{Pre-fit (formula):} an object of class \code{"formula"}
+#'       (or one that can be coerced to that class): a symbolic description
+#'       of the model to be fitted. The details of model specification are
+#'       given under \sQuote{Details} in \code{\link[stats]{glm}}. In this
+#'       case one needs to supply \code{data}, with an optional \code{model}
+#'       argument as well.
+#'     \item \strong{Post-fit:} a fitted model object of class \code{glm},
+#'       \code{polr}, \code{clm}, \code{osm}, \code{brmultinom},
+#'       \code{bracl}, \code{brglm} or \code{multinom}.
+#'   }
+#' @param ... further arguments passed to the methods or lower-level functions.
+#' @return A list with the components:
+#' \itemize{
+#' \item offrows the submatrix of the matrix (X,y) with the rows responsible for separation
+#' \item index the index of the rows responsible for separation
+#' }
+#' For \code{model = "sl"} it is a list of these lists for each category.
+#' @name separation_rows
+#' 
+#' @details  \code{separation_rows} is S3 generic. For developers: If a method should be provided for the generic, it is best to have that method create a matrix of structure vectors \code{S} and use the low-level function \code{seprows_worker} with it.   
 #' @examples
 #' ## Binary data
 #' data(csepdat1)
 #' outc<-csepdat1$y
 #' desma<-cbind("(Intercept)"=1,csepdat1[,2:ncol(csepdat1)])
-#' separation_rows(y = outc, X = desma, model = "b")
+#' separation_rows(outc, X = desma, model = "b")
 #'
 #' # Nominal data 
 #' # Baseline-category link
 #' data(qcsepdatm)
 #' y<-qcsepdatm$y
 #' X<-cbind(1,qcsepdatm[,2:ncol(qcsepdatm)])
-#' separation_rows(y = y, X = X, model = "bcl")
+#' separation_rows(y, X = X, model = "bcl")
 #'
 #' # Ordinal data
 #' data(qcsepdato)
@@ -216,29 +313,56 @@ separation_columns<- function(..., rational, backend, solver) {
 #' separation_rows(m1)
 #' }
 #' @export
-separation_rows <- function(..., rational) {
+separation_rows <- function(object, ...) {
   UseMethod("separation_rows")
 }
 
-#' @details  \code{recession_cone} is S3 generic. For developers: If a method should be provided for the generic, it is best to have that method create a matrix of structure vectors \code{S} and use the low-level function \code{reccone_worker} with it.   
-#' 
-#' @param ... arguments for the generic: For pre-fit \code{y}, \code{X} with \code{y} a vector of type factor, character, logical, numeric or integer. This is the \code{y} argument of \code{reccone_worker}. In this case one also needs to supply the argument \code{X} and optional but recommended a \code{model}. One can also supply a matrix \code{S}, in which case we treat it as the \code{S} argument to \code{reccone_worker}. For post-fit this can currently be an object of class \code{glm}, \code{polr}, \code{clm}, \code{os} or \code{nnet}.
-#' @param rational should rational arithmetic be used
-#' @rdname reccone_worker
+#' Recession cone calculation
+#'
+#' This function calculates the dimension of the recession cone and returns the recession cone.
+#'
+#' @name recession_cone 
+#'
+#' @param object an R object. Supported inputs:
+#'   \itemize{
+#'     \item \strong{Pre-fit (vector):} a vector of type \code{factor},
+#'       \code{character}, \code{logical}, \code{numeric} or \code{integer}.
+#'       In this case one also needs to supply the argument \code{X} and,
+#'       optionally but recommended, a \code{model}.
+#'     \item \strong{Pre-fit (matrix):} a matrix of structure vectors.
+#'     \item \strong{Pre-fit (formula):} an object of class \code{"formula"}
+#'       (or one that can be coerced to that class): a symbolic description
+#'       of the model to be fitted. The details of model specification are
+#'       given under \sQuote{Details} in \code{\link[stats]{glm}}. In this
+#'       case one needs to supply \code{data}, with an optional \code{model}
+#'       argument as well.
+#'     \item \strong{Post-fit:} a fitted model object of class \code{glm},
+#'       \code{polr}, \code{clm}, \code{osm}, \code{brmultinom},
+#'       \code{bracl}, \code{brglm} or \code{multinom}.
+#'   }
+#' @param ... further arguments passed to the methods or lower-level functions.
+#' @return A list with the components:
+#' \itemize{
+#' \item cone being the recession cone,
+#' \item reccdim being the dimensions of the recession cone
+#' \item index the row index of the structure vectors that are not linearities.
+#' }
+#' For \code{model = "sl"} 'cone' is the recession cone over all categories, 'reccdim' the dimension of the largest recession cone of any category and 'index' the row index of the structure vectors that are not linearities over all categories.
+#' @details Note that in case of non full column rank, the 'reccdim' value is the dimension of the recession cone due to separation plus the number of columns that are linear dependent. 
 #' @examples
 #' 
 #' ## Binary data
 #' data(csepdat1)
 #' outc<-csepdat1$y
 #' desma<-cbind("(Intercept)"=1,csepdat1[,2:ncol(csepdat1)])
-#' recession_cone(y = outc, X = desma, model = "b")
+#' recession_cone(outc, X = desma, model = "b")
 #'
 #' # Nominal data 
 #' # Baseline-category link
 #' data(qcsepdatm)
 #' y<-qcsepdatm$y
 #' X<-cbind(1,qcsepdatm[,2:ncol(qcsepdatm)])
-#' recession_cone(y = y, X = X, model = "bcl")
+#' recession_cone(y, X = X, model = "bcl")
 #'
 #' # Ordinal data
 #' data(qcsepdato)
@@ -263,52 +387,38 @@ separation_rows <- function(..., rational) {
 #' recession_cone(m1)
 #' }
 #' @export
-recession_cone <- function(..., rational) {
+recession_cone <- function(object, ...) {
   UseMethod("recession_cone")
 }
 
-
-#' Structure Vector S3 Generic
-#'
-#' Generic function to compute structure vectors from different types of inputs.
-#'
-#' @name structure_vectors
-#' @param y First arguments for the generic: \code{y} is either a vector of type factor, character, logical, numeric or integer. In this case one also needs to supply the argument \code{X} and optional but recommended a \code{model}. \code{y} can also be a formula object, then it also needs an accompanying \code{data} argument and optional \code{model}.  
-#' @param ... Additional arguments. Using a vector \code{y} one needs to supply the argument \code{X}. If \code{y} is a formula, one needs to supply the argument \code{data} as well.
-#' @param model Model string specifying the model. One of "bcl", "b", "cl", "acl", "os", "sl". If missing or NULL the default model classes used are "cl" for \code{y} being an ordered factors and "bcl" otherwise.
-#' @param label Should the columns and rows be labeled?
-#' @param rational Should the matrix be returned in rational form.
-#'
-#' @details \code{structure_vectors} is an S3 generic function.
-#'
-#' @return A structure vector matrix with or without labeled rows and columns. For \code{model = "sl"}, a list of structure vector matrices, where each list element corresponds sequentially to the categories of y, starting with the lowest and ending with the (K-1)-th category. At each category k, we consider all observations with category k or higher for the structure vector matrix. 
-#' @examples
-#' 
-#' data(qcsepdato)
-#' yo<-qcsepdato$y
-#' Xo<-qcsepdato[,2:ncol(qcsepdato)]
-#' 
-#' # Sequential link (default method and no labelling) 
-#' structure_vectors(yo, Xo, model = "sl", label = FALSE)
-#'
-#' # Ordered stereotype (formula method)
-#' structure_vectors(y ~ x1 + x2, data = qcsepdato, model = "os")
-#' 
-#' @export
-structure_vectors<- function(y, ..., model, label, rational) {
-  UseMethod("structure_vectors")
-}
-
-
 #' Check overlap
 #'
+#'  
+#' This function checks for overlap by calling the appropriate low-level functions. It can be run with the linear program (`quick = FALSE`, default), linear program 2 (`quick = TRUE`), on sequential subsets of data (`sequential = TRUE`) or via multicore parallelization (`parallel = TRUE`).
+#'
+#' @param object an R object. Supported inputs:
+#'   \itemize{
+#'     \item \strong{Pre-fit (vector):} a vector of type \code{factor},
+#'       \code{character}, \code{logical}, \code{numeric} or \code{integer}.
+#'       In this case one also needs to supply the argument \code{X} and,
+#'       optionally but recommended, a \code{model}.
+#'     \item \strong{Pre-fit (matrix):} a matrix of structure vectors.
+#'     \item \strong{Pre-fit (formula):} an object of class \code{"formula"}
+#'       (or one that can be coerced to that class): a symbolic description
+#'       of the model to be fitted. The details of model specification are
+#'       given under \sQuote{Details} in \code{\link[stats]{glm}}. In this
+#'       case one needs to supply \code{data}, with an optional \code{model}
+#'       argument as well.
+#'     \item \strong{Post-fit:} a fitted model object of class \code{glm},
+#'       \code{polr}, \code{clm}, \code{osm}, \code{brmultinom},
+#'       \code{bracl}, \code{brglm} or \code{multinom}.
+#'   }
+#' @param ... further arguments passed to the methods or lower-level functions.
+#' @return A logical, `TRUE` is overlap is detected. 
+#'
 #' @details \code{check_overlap} is an S3 generic function. For developers: If a method should be provided for the generic, it is best to have that method create a matrix of structure vectors \code{S} and use the low-level function \code{check_overlap_worker} with it.   
-#' 
-#' @param ... arguments for the generic: For pre-fit \code{y}, \code{X} with \code{y} a vector of type factor, character, logical, numeric or integer. This is the \code{y} argument of \code{checksep_worker}. In this case one also needs to supply the argument \code{X} and optional but recommended a \code{model}. One can also supply a matrix \code{S}, in which case we treat it as the \code{S} argument to \code{checksep_worker}. For post-fit this can currently be an object of class \code{glm}, \code{polr}, \code{clm}, \code{osm} or \code{nnet}.  
-#' @param rational should rational arithmetic be used
-#' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
-#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".
-#' @param quick boolean flag whether the quick linear program is to be used or the full fledged one. 
+#'
+#' @name check_overlap
 #' @examples
 #' 
 #'  # pre fit
@@ -317,7 +427,7 @@ structure_vectors<- function(y, ..., model, label, rational) {
 #' data(csepdat1)
 #' outc<-csepdat1$y
 #' desma<-cbind("(Intercept)"=1,csepdat1[,2:ncol(csepdat1)])
-#' check_overlap(y = outc, X = desma, model = "b")
+#' check_overlap(outc, X = desma, model = "b")
 #'
 #' # Nominal data 
 #' # Baseline-category link
@@ -346,6 +456,50 @@ structure_vectors<- function(y, ..., model, label, rational) {
 #' m1 <- stats::glm(y~x1+x2,data=csepdat1,family=binomial())
 #' check_overlap(m1)
 #' @export
-check_overlap <- function(..., rational, backend, solver, quick) {
+check_overlap <- function(object, ...) {
   UseMethod("check_overlap")
 }
+
+
+
+#' Structure Vector S3 Generic
+#'
+#' Generic function to compute structure vectors from different types of inputs.
+#'
+#' @name structure_vectors
+#' @param x input object. Supported inputs:
+#'   \itemize{
+#'     \item \strong{Pre-fit (default):} a vector of type \code{factor},
+#'       \code{character}, \code{logical}, \code{numeric} or \code{integer}.
+#'       In this case one also needs to supply the argument \code{X} and,
+#'       optionally but recommended, a \code{model}.
+#'     \item \strong{Pre-fit (formula):} an object of class \code{"formula"}
+#'       (or one that can be coerced to that class): a symbolic description
+#'       of the model to be fitted. The details of model specification are
+#'       given under \sQuote{Details} in \code{\link[stats]{glm}}. In this
+#'       case one needs to supply \code{data}, with an optional \code{model}
+#'       argument as well.
+#'      }
+#' @param ... Additional arguments.
+#'
+#' @details \code{structure_vectors} is an S3 generic function.
+#'
+#' @return A structure vector matrix with or without labeled rows and columns. For \code{model = "sl"}, a list of structure vector matrices, where each list element corresponds sequentially to the categories of y, starting with the lowest and ending with the (K-1)-th category. At each category k, we consider all observations with category k or higher for the structure vector matrix. 
+#' @examples
+#' 
+#' data(qcsepdato)
+#' yo<-qcsepdato$y
+#' Xo<-qcsepdato[,2:ncol(qcsepdato)]
+#' 
+#' # Sequential link (default method and no labelling) 
+#' structure_vectors(yo, Xo, model = "sl", label = FALSE)
+#'
+#' # Ordered stereotype (formula method)
+#' structure_vectors(y ~ x1 + x2, data = qcsepdato, model = "os")
+#' 
+#' @export
+structure_vectors<- function(x, ...) {
+  UseMethod("structure_vectors")
+}
+
+

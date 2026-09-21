@@ -3,7 +3,7 @@
 \docType{data}
 \name{HDSS}
 \alias{HDSS}
-\title{Willingness to Share Health Data of Drexler (2025)}
+\title{Willingness to Share Health Data of Drexler (2026)}
 \format{
 A 300 x 5 data frame:  
 \describe{
@@ -16,12 +16,12 @@ A 300 x 5 data frame:
 }
 }
 \source{
-Drexler, S. (2025), "Facilitators for sharing patient-reported measures: a mixed-methods study".
+Drexler, S. (2026). Patient-reported and register-based indicators for system-wide primary care quality evaluation: An analysis of applicability, benefits, limitations, and mitigation strategies. Phd thesis, WU Vienna University of Economics and Business, Vienna, Austria.
 }
 \usage{
 data(HDSS)
 }
 \description{
-These data are a snapshot from a study on willingness to share health data in Austria. We look at the willingness to share data with a social health insurance provider for people with chronic conditions. The data is a random sample of 300 observations from the original 795 and fully anonymized. We did the following data preparation steps over the original data: We reversed the polarity of the item variables by mapping the "worst" category to the lowest number). We also combined the two highest trust categories to trust category 4.
+These data are a snapshot from a study on willingness to share health data in Austria. We look at the willingness to share data with a social health insurance provider for people with chronic conditions. The data is a random sample of 300 complete cases from the original 1260 observations and fully anonymized. We did the following data preparation steps over the original data: We reversed the polarity of the item variables by mapping the "worst" category to the lowest number and we also combined the two highest trust categories to trust category 4.
 }
 \keyword{datasets}

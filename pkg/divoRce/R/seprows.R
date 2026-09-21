@@ -8,8 +8,7 @@
 #' @param S a matrix of structure vectors. If given, \code{y} and \code{X} and \code{model} are ignored. 
 #' @param rational should rational arithmetic be used?
 #' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "os" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else.  
-#'
-#' @export
+#' @noRd
 seprows_worker<-function(y, X, S, rational=FALSE, model = c("bcl","b","cl","acl","sl","os")){
  if(missing(S))
     {
@@ -87,7 +86,7 @@ detect_seprows <- seprows_worker
 #' }
 #' 
 #'
-#' 
+#' @noRd
 #'
 #' 
 seprows_acl<-function(y,X,rational=FALSE)
@@ -98,7 +97,7 @@ seprows_acl<-function(y,X,rational=FALSE)
   if(is.null(row.names(X))) row.names(X) <- rn
   if(ratcols) rational <- TRUE
   y <- as.ordered(y)
-  S <- structure_vectors(y=y,X=X,label=TRUE,rational=rational, model ="acl") #for all nominal and binaryS
+  S <- structure_vectors(y,X=X,label=TRUE,rational=rational, model ="acl") #for all nominal and binaryS
   lout <- linearities_acl(y=y,X=X,rational=rational)$index
   idx <-seq(1,length(y),by=1)
   if (length(lout)==0){
@@ -143,7 +142,7 @@ detect_seprows_acl <- seprows_acl
 #' \item offrows the submatrix of the matrix (X,y) with the rows responsible 
 #' \item index the index of the rows responsible for separation 
 #' }'
-#' 
+#' @noRd
 #'
 seprows_b<-function(y, X, rational=FALSE)
 {
@@ -198,7 +197,7 @@ detect_seprows_b <- seprows_b
 #' }
 #' 
 #'
-#' 
+#' @noRd
 #'
 seprows_bcl<-function(y,X,rational=FALSE)
 {
@@ -208,7 +207,7 @@ seprows_bcl<-function(y,X,rational=FALSE)
   if(is.null(row.names(X))) row.names(X) <- rn
   if(ratcols) rational <- TRUE
   if(!is.factor(y)) y <- as.factor(y)
-  S <- structure_vectors(y=y,X=X,label=TRUE,rational=rational, model ="bcl") #for all nominal and binaryS
+  S <- structure_vectors(y,X=X,label=TRUE,rational=rational, model ="bcl") #for all nominal and binaryS
   lout <- linearities_bcl(y=y,X=X,rational=rational)$index # these are the structure vectors that are linearities
   if (length(lout)==0){
       # No structure vectors are linearities = complete separation and all rows are returned
@@ -261,7 +260,7 @@ detect_seprows_bcl <- seprows_bcl
 #' 
 #'
 #' 
-#' 
+#' @noRd
 seprows_cl<-function(y,X,rational=FALSE)
 {
   if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
@@ -270,7 +269,7 @@ seprows_cl<-function(y,X,rational=FALSE)
   if(is.null(rownames(X))) row.names(X) <- rn
   if(ratcols) rational <- TRUE
   y <- as.ordered(y)
-  S <- structure_vectors(y=y,X=X,label=TRUE,rational=rational, model ="cl") #for all nominal and binary
+  S <- structure_vectors(y,X=X,label=TRUE,rational=rational, model ="cl") #for all nominal and binary
   lout <- linearities_cl(y=y,X=X,rational=rational)$index
   idx <-seq(1,length(y),by=1)
   if (length(lout)==0){
@@ -319,7 +318,7 @@ detect_seprows_cl <- seprows_cl
 #' }
 #' 
 #'
-#' 
+#' @noRd
 #'
 #' 
 seprows_os<-function(y,X,rational=FALSE)
@@ -330,7 +329,7 @@ seprows_os<-function(y,X,rational=FALSE)
   if(is.null(row.names(X))) row.names(X) <- rn
   if(ratcols) rational <- TRUE
   y <- as.factor(y)
-  S <- structure_vectors(y=y,X=X,label=TRUE,rational=rational, model ="os") #for all nominal and binary
+  S <- structure_vectors(y,X=X,label=TRUE,rational=rational, model ="os") #for all nominal and binary
   lout <- linearities_os(y=y,X=X,rational=rational)$index
   idx <-seq(1,length(y),by=1)
   if (length(lout)==0){
@@ -378,7 +377,7 @@ detect_seprows_os <- seprows_os
 #' }'
 #' if reduce = FALSE a list of lists with a list for each category listing offrows and index as above but category specific
 #' 
-#' 
+#' @noRd
 #'
 #' 
 seprows_sl<-function(y,X,rational=FALSE,reduce=TRUE)

@@ -21,14 +21,14 @@
 #' @param shuffle should the data be shuffled before parallel checking (defaults to 'TRUE'). This can help if the data are ordered in such a way that subsets do not span the full space.
 #' @param ... further arguments passed to 'mclapply'.
 #'
-#' 
 #' @importFrom parallel mclapply
 #' 
 #' @return a Boolean; either 'TRUE' if we detect overlap or 'FALSE' if we do not (so the data show separation).
-#'
-#' @export
-check_overlap_parallel <- function(y, X, S, nc = getOption("mc.cores", 1L), nss = nc, verbose = FALSE, rational = FALSE, model = c("b","bcl","cl","acl","sl","os"), quick = FALSE, backend = c("rcdd", "ROI"), solver = NULL, shuffle = TRUE, ...) {
-  backend <- .divorce_match_backend(backend)   
+#' @noRd
+check_overlap_parallel <- function(y, X, S, nc = NULL, nss = NULL, verbose = FALSE, rational = FALSE, model = c("b","bcl","cl","acl","sl","os"), quick = FALSE, backend = c("rcdd", "ROI"), solver = NULL, shuffle = TRUE, ...) {
+  backend <- .divorce_match_backend(backend)
+  if (is.null(nc)) nc <- getOption("mc.cores", 1L)
+  if (is.null(nss)) nss <- nc
   if(missing(S)) {
     if(missing(model)) model <- NULL
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("Length of y and number of rows of X do not match.")  
@@ -48,7 +48,9 @@ check_overlap_parallel <- function(y, X, S, nc = getOption("mc.cores", 1L), nss 
       ind <- seq(ceiling(strt), floor(end), by = 1)
       splitlist[[i-1]] <- ind
     }
-    polchecks <- parallel::mclapply(splitlist, function(ind) {
+    chckfun <- function(ind) {
+     # s <- 0 #this was for testing
+     # while(s < 100) {   
       ys <- y[ind]
       Xs <- X[ind,]
       olcheck <- NA
@@ -56,10 +58,12 @@ check_overlap_parallel <- function(y, X, S, nc = getOption("mc.cores", 1L), nss 
         if(isTRUE(all.equal(qr(Xs)$rank,frank))) {
         olcheck <- check_overlap_worker(y=ys, X=Xs, rational=rational, model=model, quick = quick, backend = backend, solver = solver)
         }
-     }
-    olcheck
-    }, mc.cores = nc, ...
-    )
+      }  
+     # s <- s+1
+      olcheck
+      }
+    #}
+    polchecks <- parallel::mclapply(splitlist, chckfun, mc.cores = nc, ...)
     polchecks <- unlist(polchecks)
     if(any(polchecks, na.rm=TRUE)) return(TRUE)
     if(!any(polchecks,na.rm=TRUE)) olout <- check_overlap_worker(y=y, X=X, rational=rational, model=model, quick=quick, backend=backend, solver = solver)
@@ -79,15 +83,15 @@ check_overlap_parallel <- function(y, X, S, nc = getOption("mc.cores", 1L), nss 
       ind <- seq(ceiling(strt), floor(end), by = 1)
       splitlist[[i-1]] <- ind
     }
-    polchecks <- parallel::mclapply(splitlist, function(ind) {
+    checkfun2 <- function(ind) {
       Ss <- S[ind,]
       olcheck <- NA
       if(isTRUE(all.equal(qr(Ss)$rank,frank))) {
           olcheck <- check_overlap_worker(S=Ss, rational=rational, model=model, quick = quick, backend=backend, solver = solver)
           }
       olcheck
-    }, mc.cores = nc, ...
-    )
+    }  
+    polchecks <- parallel::mclapply(splitlist, checkfun2, mc.cores = nc, ...)
     polchecks <- unlist(polchecks)
     if(any(polchecks,na.rm=TRUE)) return(TRUE)
     if(!any(polchecks,na.rm=TRUE)) olout <- check_overlap_worker(y=y, X=X, rational=rational, model=model, quick=quick, backend=backend, solver = solver)

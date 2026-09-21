@@ -18,10 +18,10 @@
 #' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".
 #' @param shuffle should the data be shuffled before sequential checking (defaults to 'TRUE'). This can help if the data are ordered in such a way that subsets do not span the full space.  
 #' @return a Boolean; either 'TRUE' if we detect overlap or 'FALSE' if we do not (so the data show separation).
-#'
-#' @export
-check_overlap_sequential <- function(y, X, S, nss = 10L, verbose = FALSE, rational = FALSE, model = c("b","bcl","cl","acl","sl","os"), quick = FALSE, backend = c("rcdd", "ROI"), solver = NULL, shuffle = TRUE) {
-  backend <- .divorce_match_backend(backend)   
+#' @noRd
+check_overlap_sequential <- function(y, X, S, nss = NULL, verbose = FALSE, rational = FALSE, model = c("b","bcl","cl","acl","sl","os"), quick = FALSE, backend = c("rcdd", "ROI"), solver = NULL, shuffle = TRUE) {
+    backend <- .divorce_match_backend(backend)
+  if (is.null(nss)) nss <- 10L
   if(missing(S)) {
     if(missing(model)) model <- NULL
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("Length of y and number of rows of X do not match.")   
@@ -53,6 +53,7 @@ check_overlap_sequential <- function(y, X, S, nss = 10L, verbose = FALSE, ration
       }
       if(isTRUE(olcheck[i-1])) return(olcheck[i-1]) #full rank subset has overlap 
     }
+#    if(!all(olcheck)) olout <- FALSE
     if(!any(olcheck,na.rm=TRUE)) olout <- check_overlap_worker(y=y, X=X, rational=rational, model=model, quick=quick, backend=backend, solver = solver) #we check if there is any TRUE in the data. This will be FALSE if there is only FALSE and NA all inconclusive
   } else {
     n <- dim(S)[1]
@@ -75,13 +76,12 @@ check_overlap_sequential <- function(y, X, S, nss = 10L, verbose = FALSE, ration
           } 
       if(isTRUE(olcheck[i-1])) return(olcheck[i-1])
     }
+    #    if(!all(olcheck)) olout <- FALSE
     if(!any(olcheck,na.rm=TRUE)) olout <- check_overlap_worker(S=S, rational=rational, model=model, quick=quick, backend=backend, solver = solver) 
   }
   olout
 }
      
-#' @rdname check_overlap_sequential
-#' @export
 overlap_sequential_check <- overlap_fraction_check <- check_overlap_sequential
 
 

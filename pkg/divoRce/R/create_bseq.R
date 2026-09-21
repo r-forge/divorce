@@ -9,7 +9,7 @@
 #' @return a list of length m-1 that separates the input into y and X tupels according to the sequential model mechanism. 
 #'
 #' @details The sequential mechanism is so that or category k (running from 1 to m-1) all i for which y_i>=k are selected. All y_i>k are given a value of 0 and y_i=k a value of 1. 
-#'
+#' @noRd
 create_bseq <-  function(y,X)
 {
   #currently uses the forward formulation   

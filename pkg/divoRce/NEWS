@@ -1,3 +1,10 @@
+Version 0.14-0
+        - More doc cleaning and improved the generic naming and argument stuff.
+
+Version 0.13-1
+        - Changed reccone calculation to rank(S)-rank(L). Fixed a bug in reccone_sl and cleaned up docs. 
+
+
 Version 0.13-0
         - Added post-fit methods for check_overlap. 
 	

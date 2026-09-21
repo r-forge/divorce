@@ -19,21 +19,12 @@
 \alias{check_overlap.brmultinom}
 \title{Check overlap}
 \usage{
-check_overlap(..., rational, backend, solver, quick)
+check_overlap(object, ...)
 
-\method{check_overlap}{default}(
-  object,
-  rational = FALSE,
-  quick = FALSE,
-  sequential = FALSE,
-  parallel = FALSE,
-  backend = c("rcdd", "ROI"),
-  solver = NULL,
-  ...
-)
+\method{check_overlap}{default}(object, ...)
 
 \method{check_overlap}{factor}(
-  y,
+  object,
   X,
   rational = FALSE,
   quick = FALSE,
@@ -47,7 +38,7 @@ check_overlap(..., rational, backend, solver, quick)
 )
 
 \method{check_overlap}{logical}(
-  y,
+  object,
   X,
   rational = FALSE,
   quick = FALSE,
@@ -61,7 +52,7 @@ check_overlap(..., rational, backend, solver, quick)
 )
 
 \method{check_overlap}{numeric}(
-  y,
+  object,
   X,
   rational = FALSE,
   quick = FALSE,
@@ -75,7 +66,7 @@ check_overlap(..., rational, backend, solver, quick)
 )
 
 \method{check_overlap}{integer}(
-  y,
+  object,
   X,
   rational = FALSE,
   quick = FALSE,
@@ -89,7 +80,7 @@ check_overlap(..., rational, backend, solver, quick)
 )
 
 \method{check_overlap}{character}(
-  y,
+  object,
   X,
   rational = FALSE,
   quick = FALSE,
@@ -103,7 +94,7 @@ check_overlap(..., rational, backend, solver, quick)
 )
 
 \method{check_overlap}{matrix}(
-  S,
+  object,
   rational = FALSE,
   quick = FALSE,
   sequential = FALSE,
@@ -116,9 +107,9 @@ check_overlap(..., rational, backend, solver, quick)
 )
 
 \method{check_overlap}{formula}(
-  formula,
+  object,
   data,
-  model = c("bcl", "b", "cl", "acl", "os", "sl"),
+  model = NULL,
   rational = FALSE,
   contrasts = NULL,
   quick = FALSE,
@@ -221,47 +212,106 @@ check_overlap(..., rational, backend, solver, quick)
 )
 }
 \arguments{
+\item{object}{an R object. Supported inputs:
+\itemize{
+  \item \strong{Pre-fit (vector):} a vector of type \code{factor},
+    \code{character}, \code{logical}, \code{numeric} or \code{integer}.
+    In this case one also needs to supply the argument \code{X} and,
+    optionally but recommended, a \code{model}.
+  \item \strong{Pre-fit (matrix):} a matrix of structure vectors.
+  \item \strong{Pre-fit (formula):} an object of class \code{"formula"}
+    (or one that can be coerced to that class): a symbolic description
+    of the model to be fitted. The details of model specification are
+    given under \sQuote{Details} in \code{\link[stats]{glm}}. In this
+    case one needs to supply \code{data}, with an optional \code{model}
+    argument as well.
+  \item \strong{Post-fit:} a fitted model object of class \code{glm},
+    \code{polr}, \code{clm}, \code{osm}, \code{brmultinom},
+    \code{bracl}, \code{brglm} or \code{multinom}.
+}}
+
 \item{...}{additional arguments to be passed to other functions (e.g. to mclappy in parallel execution)}
 
-\item{rational}{should rational arithmetic be used}
+\item{X}{a design matrix, e.g. generated via a call to
+\code{\link{model.matrix}}. \code{X} is expected to already contain the
+desired contrasts for factors (e.g., dummies) and any other expanded
+columns (e.g., for polynomials).}
 
-\item{backend}{which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".}
+\item{rational}{logical; should rational arithmetic be used?}
 
-\item{solver}{the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".}
+\item{quick}{logical; if \code{TRUE}, use the quick linear program
+variant, otherwise the full linear program.}
 
-\item{quick}{boolean flag whether the quick linear program is to be used or the full fledged one (default is FALSE).}
+\item{sequential}{conduct a sequential check on data subsets (default `FALSE`).}
 
-\item{object}{model object}
+\item{parallel}{conduct a check in parallel on data subsets via multicores (default `FALSE`).}
 
-\item{sequential}{If 'TRUE' checks sequentially. Then an 'nss' (number of subsets) should be supplied (defaults to 10).}
+\item{backend}{character string specifying the backend for the linear
+program. One of \code{"rcdd"} (default, and the only option when
+\code{rational = TRUE}) or \code{"ROI"}.}
 
-\item{parallel}{If 'TRUE' checks 'nss' subsets in parallel on 'nc' multiple cores. The 'nc' (number of cores) and 'nss' (number of subsets) should be supplied (defaults to 1 otherwise).}
+\item{solver}{character string specifying the solver used by the
+backend. Defaults to \code{"DualSimplex"} for \code{backend = "rcdd"},
+and to the first LP solver returned by
+\code{\link[ROI]{ROI_applicable_solvers}} for \code{backend = "ROI"}.}
 
-\item{y}{outcome vector}
+\item{nc}{number of cores to be used for parallel execution. Defaults to 1.}
 
-\item{X}{design matrix}
+\item{nss}{number of subsets for parallel or sequneital execution. Defaults to 'nc' for parallel and 10 for sequential. If nss is below 1 or above n-1, it uses 'nss = 1'.}
 
-\item{nc}{number of cores to be used for parallel execution. Defaults to 'getOption("mc.cores", 1L)'.}
+\item{data}{either a standard data frame, list or environment (or object
+  coercible by \code{\link{as.data.frame}} to a data frame) containing
+  the variables in the model. If not found in \code{data}, the variables
+  are taken from \code{environment(formula)}, typically the environment
+  from which the function is called.
 
-\item{nss}{number of subsets for parallel or sequneital execution. Defaults to 'nc' for parallel and 10 for sequential. If nss is below 1 or above n-1, it uses 'nss'=1.}
+  Alternatively, \code{data} can be a data frame or matrix containing
+  rational numbers as per the definition in \pkg{rcdd} (i.e. columns are
+  characters, entries are either integer numbers or ratios of integer
+  numbers, e.g. \code{"1"} or \code{"-234/19008"}). This is checked
+  internally; see \sQuote{Details} for what happens when this structure
+  is discovered.}
 
-\item{S}{structure vector matrix}
+\item{model}{character string specifying the model class to be fitted.
+One of:
+\itemize{
+  \item \code{"b"} – binary
+  \item \code{"bcl"} – baseline-category link
+  \item \code{"cl"} – cumulative link
+  \item \code{"acl"} – adjacent-category link
+  \item \code{"sl"} – sequential link
+  \item \code{"os"} – ordered stereotype model
+}
+If missing or \code{NULL}, defaults to \code{"cl"} for ordinal \code{y}
+and \code{"bcl"} otherwise.}
 
-\item{formula}{An object of class ‘"formula"’ (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.}
-
-\item{data}{Either a standard data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.}
-
-\item{model}{model string. One of "bcl", "b", "cl", "acl", "os", "sl".}
-
-\item{contrasts}{contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.}
+\item{contrasts}{an optional list. See the \code{contrasts.arg} of
+\code{\link[stats]{model.matrix.default}}. Only effective for standard
+data frames.}
+}
+\value{
+A logical, `TRUE` is overlap is detected.
 }
 \description{
-Check overlap
+This function checks for overlap by calling the appropriate low-level functions. It can be run with the linear program (`quick = FALSE`, default), linear program 2 (`quick = TRUE`), on sequential subsets of data (`sequential = TRUE`) or via multicore parallelization (`parallel = TRUE`).
 }
 \details{
 \code{check_overlap} is an S3 generic function. For developers: If a method should be provided for the generic, it is best to have that method create a matrix of structure vectors \code{S} and use the low-level function \code{check_overlap_worker} with it.
 
-The `formula` method is for standard data frames and formulas that work the same way as when used with \code{\link[stats]{glm}}. It does not support extended formulas, and may not work for functions that do formula processing differently. For a data frame/matrix given as rational numbers in the \code{rcdd} definition this is recognized but the formula does not get expanded and is taken literally, so e.g. variables in formula must match exactly with the column names in data, or factors need to be converted to dummies before that (wouldn't be possible in the rational format in any other way anyway).
+The \code{formula} method is for standard data frames and formulas that
+work the same way as when used with \code{\link[stats]{glm}}. It does
+not support extended formulas, and may not work for functions that do
+formula processing differently.
+
+For a data frame or matrix given as rational numbers in the \pkg{rcdd}
+definition, this is recognized but the formula does \emph{not} get
+expanded and is taken literally. Consequently:
+\itemize{
+  \item variables in \code{formula} must match exactly with the column
+    names in \code{data};
+  \item factors need to be converted to dummies beforehand (which would
+    not be possible in the rational format in any other way anyway).
+}
 }
 \examples{
 
@@ -271,7 +321,7 @@ The `formula` method is for standard data frames and formulas that work the same
 data(csepdat1)
 outc<-csepdat1$y
 desma<-cbind("(Intercept)"=1,csepdat1[,2:ncol(csepdat1)])
-check_overlap(y = outc, X = desma, model = "b")
+check_overlap(outc, X = desma, model = "b")
 
 # Nominal data 
 # Baseline-category link

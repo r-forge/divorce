@@ -8,17 +8,17 @@
 #' @param rational Should rational arithmetic be used? 
 #' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "os" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else.
 #' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
-#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by \code{ROI_applicable_solver()} for "ROI".  
-#' @export
-sepcols_worker<- function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","os"), backend = c("rcdd", "ROI"), solver = NULL) {
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by \code{ROI_applicable_solver()} for "ROI".
+#' @noRd
+sepcols_worker<- function(y, X, S, rational=FALSE, model=c("b","bcl","acl","os","sl","cl"), backend = c("rcdd", "ROI"), solver = NULL) {
     backend <- .divorce_match_backend(backend)
     if(missing(S))
     {
     if(length(unique(y))<2) stop("There is only one value in y.")
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
+    if(missing(model)) model <- NULL
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
-    if(missing(model)) model <- NULL
     ##here we check whether X has full column rank otherwise this check won't work properly.
     X1 <- X
     if(ratcols) X1 <- rcdd::q2d(X)
@@ -76,14 +76,15 @@ detect_sepcols <- sepcols_worker
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynominals).
 #' @param rational should rational arithmetic be used.
 #' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
-#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".
+#' @noRd
 sepcols_b<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL) { 
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
     y <- as.factor(y)
     backend <- .divorce_match_backend(backend)
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
-    S <- structure_vectors(y=y, X=X, label=TRUE, rational=rational, model = "b")
+    S <- structure_vectors(y, X=X, label=TRUE, rational=rational, model = "b")
     ## constraints
     ## matrix of constraints for \code{lpcdd} must be of the form A1 * \beta \leq b1. We combine the constraints into one big A1 for the left hand side and a vector b1 of the right hand side scalars.
     ## left hand side just inequalities to folow the linear program in the paper
@@ -111,7 +112,8 @@ detect_sepcols_b <- sepcols_b
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynominals).
 #' @param rational should rational arithmetic be used.
 #' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
-#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".
+#' @noRd
 sepcols_sl <- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 {
   backend <- .divorce_match_backend(backend)
@@ -135,14 +137,15 @@ detect_sepcols_sl<- sepcols_sl
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
 #' @param rational should rational arithmetic be used.
 #' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
-#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".
+#' @noRd
 sepcols_bcl<- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL) {
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
     y <- as.factor(y)
     backend <- .divorce_match_backend(backend)
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
-    S <- structure_vectors(y=y, X=X, label=TRUE, rational=rational, model = "bcl") 
+    S <- structure_vectors(y, X=X, label=TRUE, rational=rational, model = "bcl") 
     lso <- .divorce_detect_sepcols_lp(
        S,
        rational = rational,
@@ -167,14 +170,15 @@ detect_sepcols_bcl <- sepcols_bcl
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
 #' @param rational should rational arithmetic be used.
 #' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
-#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".
+#' @noRd
 sepcols_cl<- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL) {
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
     y <- as.ordered(y)
     backend <- .divorce_match_backend(backend)
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
-    S <- structure_vectors(y=y, X=X, label=TRUE, rational=rational, model = "cl") 
+    S <- structure_vectors(y, X=X, label=TRUE, rational=rational, model = "cl") 
     lso <- .divorce_detect_sepcols_lp(
        S,
        rational = rational,
@@ -203,7 +207,8 @@ detect_sepcols_cl <- sepcols_cl
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
 #' @param rational boolean flag whether rational arithmetic should be used. Default is FALSE.
 #' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
-#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".
+#'@noRd
 sepcols_acl <- function(y,X,rational=FALSE,backend = c("rcdd", "ROI"), solver = NULL)
     {
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
@@ -211,7 +216,7 @@ sepcols_acl <- function(y,X,rational=FALSE,backend = c("rcdd", "ROI"), solver = 
     backend <- .divorce_match_backend(backend)
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
-    S <- structure_vectors(y=y, X=X, label=TRUE, rational=rational, model = "acl")
+    S <- structure_vectors(y, X=X, label=TRUE, rational=rational, model = "acl")
 #    if(ratcols) X <- rcdd::q2d(X)
 #    if(qr(X)$rank<dim(X)[2]) warning("X doesn't have full column rank. Results of this check are unreliable.")    
     lso <- .divorce_detect_sepcols_lp(
@@ -239,7 +244,8 @@ detect_sepcols_acl<- sepcols_acl
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
 #' @param rational boolean flag whether rational arithmetic should be used. Default is FALSE.
 #' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
-#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
+#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".
+#' @noRd
 sepcols_os <- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 {
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
@@ -247,7 +253,7 @@ sepcols_os <- function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = 
     backend <- .divorce_match_backend(backend)
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
-    S <- structure_vectors(y=y, X=X, label=TRUE, rational=rational, model = "os")
+    S <- structure_vectors(y, X=X, label=TRUE, rational=rational, model = "os")
  #   if(ratcols) X <- rcdd::q2d(X)
  #   if(qr(X)$rank<dim(X)[2]) warning("X doesn't have full column rank. Results of this check are unreliable.")    
     lso <- .divorce_detect_sepcols_lp(

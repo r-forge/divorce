@@ -147,6 +147,8 @@ check_separation(yss,Xss, model = "b", quick = TRUE)
 
 check_overlap_sequential(yqcs,Xqcs,model="b",nss=10, verbose = 1)
 
+
+
 check_overlap_parallel(yqcs,Xqcs,model="b",nc=1,nss=10, verbose = 1)
 
 
@@ -502,14 +504,18 @@ diagsep(yol,Xol,rational=rational) # works yet
 seprows_bcl(yol,Xol)
 
 ## Alligator Data - Overlap
-load("./Data/Alligators2.rda")
+load("../data/Alligators.rda")
 library(nnet)
-allgm1 <- nnet::multinom(foodchoice ~ size + lake + sex, data = Alligators2) #separation in interaction
+allgm1 <- nnet::multinom(foodchoice ~ size + lake + sex, data = Alligators) #separation in interaction
 allgm1
 summary(allgm1)
 
-y <- Alligators2$foodchoice
+y <- Alligators$foodchoice
 X <- model.matrix(allgm1)
+
+
+check_overlap_parallel(y, X, model= "bcl", nc = 3)
+
 
 ##rational
 if(rational) X <- rcdd::d2q(X)

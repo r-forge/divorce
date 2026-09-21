@@ -27,7 +27,7 @@ checksep_worker<- function(y, X, S, rational=FALSE, model=c("bcl", "b","cl","acl
     if(is.null(model))
     {
         warning("Default model class used.","\n")
-        if(is.ordered(y) & length(unique(y))>2)
+        if(is.ordered(y) && length(unique(y))>2)
         {
             return(checksep_cl(y=y,X=X,rational=rational, backend=backend, solver=solver))
         } else {
@@ -71,15 +71,14 @@ checksep_worker<- function(y, X, S, rational=FALSE, model=c("bcl", "b","cl","acl
 #' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
 #' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
 #' @return a Boolean; either 'TRUE' if we detected separation or 'FALSE' if not.
-#'
-#' @import rcdd
-#' 
+#' @noRd
+#' @import rcdd 
 checksep_cl<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL){
    backend <- .divorce_match_backend(backend)
    ratcols <- rat_cols(X)
    if(ratcols) rational <- TRUE 
    if(length(unique(y))>2) { 
-       S <- structure_vectors(y=y, X=X, label=FALSE, rational = rational, model = "cl")
+       S <- structure_vectors(y, X=X, label=FALSE, rational = rational, model = "cl")
    } else {
        stop("For 2 categories, please use model = 'b'.")
    }
@@ -105,12 +104,13 @@ checksep_cl<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver 
 #' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
 #' @return a Boolean; either 'TRUE' if we detected separation or 'FALSE' if not.
 #' @import rcdd
+#' @noRd
 checksep_bcl<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL){
    backend <- .divorce_match_backend(backend)
    ratcols <- rat_cols(X)
    if(ratcols) rational <- TRUE 
-   if(is.ordered(y) & length(unique(y))>2) stop("For ordered y, please specify the desired model in the model argument.") 
-   S <- structure_vectors(y=y, X=X, label=FALSE, rational = rational, model = "bcl")
+   if(is.ordered(y) && length(unique(y))>2) stop("For ordered y, please specify the desired model in the model argument.") 
+   S <- structure_vectors(y, X=X, label=FALSE, rational = rational, model = "bcl")
    cal <- .divorce_check_sep_lp(
         S,
         rational = rational,
@@ -131,7 +131,7 @@ checksep_bcl<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver
 #' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
 #' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
 #' @return a Boolean; either 'TRUE' if we detected separation or 'FALSE' if not.
-#'
+#' @noRd
 #' @import rcdd
 checksep_b<- checksep_bcl
 
@@ -146,7 +146,7 @@ checksep_b<- checksep_bcl
 #' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
 #' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
 #' @return a Boolean; either 'TRUE' if we detected separation or 'FALSE' if not.
-#'
+#' @noRd
 #' @import rcdd
 checksep_sl<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL){
    backend <- .divorce_match_backend(backend)
@@ -168,14 +168,14 @@ checksep_sl<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver 
 #' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
 #' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
 #' @return a Boolean; either 'TRUE' if we detected separation or 'FALSE' if not.
-#'
+#' @noRd
 #' @import rcdd
 checksep_acl<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL){
    backend <- .divorce_match_backend(backend) 
    ratcols <- rat_cols(X)
    if(ratcols) rational <- TRUE 
    if(length(unique(y))>2) { 
-   S <- structure_vectors(y=y, X=X, label=FALSE, rational = rational, model = "acl")
+   S <- structure_vectors(y, X=X, label=FALSE, rational = rational, model = "acl")
    } else {
        stop("For 2 categories, please use model = 'b'.")    
    }
@@ -199,14 +199,14 @@ checksep_acl<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver
 #' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
 #' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
 #' @return a Boolean; either 'TRUE' if we detected separation or 'FALSE' if not.
-#'
+#' @noRd
 #' @import rcdd
 checksep_os<- function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL){
    backend <- .divorce_match_backend(backend)
    ratcols <- rat_cols(X)
    if(ratcols) rational <- TRUE 
    if(length(unique(y))>2) { 
-   S <- structure_vectors(y=y, X=X, label=FALSE, rational = rational, model = "os")
+   S <- structure_vectors(y, X=X, label=FALSE, rational = rational, model = "os")
    } else {
        stop("For 2 categories, please use model = 'b'.")
    }   

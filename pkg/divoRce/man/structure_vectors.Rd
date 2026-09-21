@@ -6,43 +6,82 @@
 \alias{structure_vectors.formula}
 \title{Structure Vector S3 Generic}
 \usage{
-structure_vectors(y, ..., model, label, rational)
+structure_vectors(x, ...)
 
 \method{structure_vectors}{default}(
-  y,
+  x,
   X,
-  model = c("bcl", "b", "cl", "acl", "os", "sl"),
+  model = c("b", "bcl", "acl", "os", "sl", "cl"),
   label = TRUE,
   rational = FALSE,
   ...
 )
 
 \method{structure_vectors}{formula}(
-  y,
+  x,
   data,
   contrasts = NULL,
-  model = c("bcl", "b", "cl", "acl", "os", "sl"),
+  model = NULL,
   label = TRUE,
   rational = FALSE,
   ...
 )
 }
 \arguments{
-\item{y}{An object of class \code{"formula"} (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.}
+\item{x}{input object. Supported inputs:
+\itemize{
+  \item \strong{Pre-fit (default):} a vector of type \code{factor},
+    \code{character}, \code{logical}, \code{numeric} or \code{integer}.
+    In this case one also needs to supply the argument \code{X} and,
+    optionally but recommended, a \code{model}.
+  \item \strong{Pre-fit (formula):} an object of class \code{"formula"}
+    (or one that can be coerced to that class): a symbolic description
+    of the model to be fitted. The details of model specification are
+    given under \sQuote{Details} in \code{\link[stats]{glm}}. In this
+    case one needs to supply \code{data}, with an optional \code{model}
+    argument as well.
+   }}
 
-\item{...}{Additional arguments. Using a vector \code{y} one needs to supply the argument \code{X}. If \code{y} is a formula, one needs to supply the argument \code{data} as well.}
+\item{...}{Additional arguments.}
 
-\item{model}{Model string. One of "bcl", "b", "cl", "acl", "os", "sl".}
+\item{X}{a design matrix, e.g. generated via a call to
+\code{\link{model.matrix}}. \code{X} is expected to already contain the
+desired contrasts for factors (e.g., dummies) and any other expanded
+columns (e.g., for polynomials).}
 
-\item{label}{If TRUE rows and columns are labeled}
+\item{model}{character string specifying the model class to be fitted.
+One of:
+\itemize{
+  \item \code{"b"} – binary
+  \item \code{"bcl"} – baseline-category link
+  \item \code{"cl"} – cumulative link
+  \item \code{"acl"} – adjacent-category link
+  \item \code{"sl"} – sequential link
+  \item \code{"os"} – ordered stereotype model
+}
+If missing or \code{NULL}, defaults to \code{"cl"} for ordinal \code{y}
+and \code{"bcl"} otherwise.}
 
-\item{rational}{Should the matrix be returned in rational form.}
+\item{label}{Should the columns and rows be labeled?}
 
-\item{X}{a design matrix, e.g. generated via a call to \code{\link{model.matrix}}. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynominals).}
+\item{rational}{Should the matrix be returned in rational form (as per rcdd definition)?}
 
-\item{data}{A data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.}
+\item{data}{either a standard data frame, list or environment (or object
+  coercible by \code{\link{as.data.frame}} to a data frame) containing
+  the variables in the model. If not found in \code{data}, the variables
+  are taken from \code{environment(formula)}, typically the environment
+  from which the function is called.
 
-\item{contrasts}{Contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.}
+  Alternatively, \code{data} can be a data frame or matrix containing
+  rational numbers as per the definition in \pkg{rcdd} (i.e. columns are
+  characters, entries are either integer numbers or ratios of integer
+  numbers, e.g. \code{"1"} or \code{"-234/19008"}). This is checked
+  internally; see \sQuote{Details} for what happens when this structure
+  is discovered.}
+
+\item{contrasts}{an optional list. See the \code{contrasts.arg} of
+\code{\link[stats]{model.matrix.default}}. Only effective for standard
+data frames.}
 }
 \value{
 A structure vector matrix with or without labeled rows and columns. For \code{model = "sl"}, a list of structure vector matrices, where each list element corresponds sequentially to the categories of y, starting with the lowest and ending with the (K-1)-th category. At each category k, we consider all observations with category k or higher for the structure vector matrix.
@@ -55,7 +94,20 @@ Method for \code{structure_vectors} when the input is a formula and data frame.
 \details{
 \code{structure_vectors} is an S3 generic function.
 
-The `formula` method is for standard data frames and formulas that work the same way as when used with \code{\link[stats]{glm}}. It does not support extended formulas, and may not work for functions that do formula processing differently. For a data frame/matrix given as rational numbers in the \code{rcdd} definition this is recognized but the formula does not get expanded and is taken literally, so e.g. variables in formula must match exactly with the column names in data, or factors need to be converted to dummies before that (wouldn't be possible in the rational format in any other way anyway).
+The \code{formula} method is for standard data frames and formulas that
+work the same way as when used with \code{\link[stats]{glm}}. It does
+not support extended formulas, and may not work for functions that do
+formula processing differently.
+
+For a data frame or matrix given as rational numbers in the \pkg{rcdd}
+definition, this is recognized but the formula does \emph{not} get
+expanded and is taken literally. Consequently:
+\itemize{
+  \item variables in \code{formula} must match exactly with the column
+    names in \code{data};
+  \item factors need to be converted to dummies beforehand (which would
+    not be possible in the rational format in any other way anyway).
+}
 }
 \examples{
 

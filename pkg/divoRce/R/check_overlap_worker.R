@@ -17,9 +17,9 @@
 check_overlap_worker<- function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","os"), quick = FALSE, backend = c("rcdd", "ROI"), solver = NULL){
   if(missing(model)) model <- NULL
   if(missing(S)) {
-      !isTRUE(check_separation(y=y, X=X, rational=rational, model = model, quick = quick, backend = backend, solver = solver))
+      !isTRUE(check_separation(y, X=X, rational=rational, model = model, quick = quick, backend = backend, solver = solver))
   } else {
-      !isTRUE(check_separation(S=S, rational=rational, backend = backend, quick = quick, solver = solver))
+      !isTRUE(check_separation(S, rational=rational, backend = backend, quick = quick, solver = solver))
   }
 }
 

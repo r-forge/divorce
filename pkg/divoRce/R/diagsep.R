@@ -5,25 +5,10 @@
 #' The function uses either a response vector y and a design matrix X, or a structure vector matrix S. If S is given, y and X and model are ignored. 
 #' 
 #' @param y the outcome variable. Can be binary, categorial or ordinal. Works best if it is an ordered or unordered factor but can also be numeric, boolean or character. If y is not a factor, it is treated as a nominal (categorical) outcome. 
-#' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
-#' @param S a matrix of structure vectors
-#' @param rational should rational arithmetic be used?
-#' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "os" for ordered stereotype model. If missing it defaults to cumulative link for ordinal y and baseline-category for everything else.  
-#' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
-#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".  
+
 #'
 #' 
-#' @return an object of class 'sepmod' that is a list with the components:
-#' \itemize{
-#' \item separation boolean whether there is separation ('TRUE' means separation)
-#' \item septype which type of separation (or not). A string of either "Overlap", "Quasi-Complete Separation" or "Complete Separation".
-#' \item reccdim dimension of recession cone
-#' \item offrows offending rows in X 
-#' \item nr.offcols number of columns of the design matrix that have separation
-#' \item offcols columns of the design matrix that have separation. It is given as category::effect.  
-#' }
 #' 
-#' @export
 #'
 #' @examples
 #'
@@ -56,7 +41,7 @@
 #'
 #' # CL
 #' diagsep_worker(y, X, model = "cl")
-#' 
+#' @noRd
 diagsep_worker<-function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","sl","os"), backend = c("rcdd", "ROI"), solver = NULL)
 {
   if(missing(S))
@@ -122,7 +107,7 @@ diagsep_worker<-function(y, X, S, rational=FALSE, model=c("bcl","b","cl","acl","
 #' \item offcols columns of the design matrix that have separation. It is given as category::effect.  
 #' }
 #' 
-#'
+#' @noRd
 #' 
 diagsep_sl<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 {
@@ -158,7 +143,7 @@ diagsep_sl<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NU
 #' \item offcols columns of the design matrix that have separation. It is given as category::effect.  
 #' }
 #' 
-#'
+#' @noRd
 #' 
 diagsep_os<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 {
@@ -198,7 +183,7 @@ diagsep_os<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NU
 #' \item offcols columns of the design matrix that have separation. It is given as category::effect.  
 #' }
 #' 
-#'
+#' @noRd
 #' 
 #' 
 diagsep_acl<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)
@@ -238,7 +223,7 @@ diagsep_acl<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = N
 #' }
 #' 
 #'
-#' 
+#' @noRd
 diagsep_bcl<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 {
   if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
@@ -277,7 +262,7 @@ diagsep_bcl<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = N
 #' \item offcols columns of X that have separation
 #' }
 #'
-#' 
+#' @noRd
 #'
 diagsep_b<-function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)
 {
@@ -329,7 +314,7 @@ diagsep_b<-function(y, X, rational=FALSE, backend = c("rcdd", "ROI"), solver = N
 #' \item offcols columns of the design matrix that have separation. It is given as category::effect.  
 #' }
 #' 
-#'
+#' @noRd
 #' 
 #' 
 diagsep_cl<-function(y,X,rational=FALSE, backend = c("rcdd", "ROI"), solver = NULL)

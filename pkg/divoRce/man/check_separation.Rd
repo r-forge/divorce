@@ -19,20 +19,12 @@
 \alias{check_separation.brmultinom}
 \title{Check separation}
 \usage{
-check_separation(..., rational, backend, solver, quick)
+check_separation(object, ...)
 
-\method{check_separation}{default}(
-  object,
-  model = NULL,
-  rational = FALSE,
-  quick = FALSE,
-  backend = c("rcdd", "ROI"),
-  solver = NULL,
-  ...
-)
+\method{check_separation}{default}(object, ...)
 
 \method{check_separation}{factor}(
-  y,
+  object,
   X,
   model = NULL,
   rational = FALSE,
@@ -43,7 +35,7 @@ check_separation(..., rational, backend, solver, quick)
 )
 
 \method{check_separation}{logical}(
-  y,
+  object,
   X,
   model = NULL,
   rational = FALSE,
@@ -54,7 +46,7 @@ check_separation(..., rational, backend, solver, quick)
 )
 
 \method{check_separation}{numeric}(
-  y,
+  object,
   X,
   model = NULL,
   rational = FALSE,
@@ -65,7 +57,7 @@ check_separation(..., rational, backend, solver, quick)
 )
 
 \method{check_separation}{integer}(
-  y,
+  object,
   X,
   model = NULL,
   rational = FALSE,
@@ -76,7 +68,7 @@ check_separation(..., rational, backend, solver, quick)
 )
 
 \method{check_separation}{character}(
-  y,
+  object,
   X,
   model = NULL,
   rational = FALSE,
@@ -87,23 +79,23 @@ check_separation(..., rational, backend, solver, quick)
 )
 
 \method{check_separation}{matrix}(
-  S,
+  object,
   rational = FALSE,
+  quick = FALSE,
   backend = c("rcdd", "ROI"),
   solver = NULL,
-  quick = FALSE,
   ...
 )
 
 \method{check_separation}{formula}(
-  formula,
+  object,
   data,
-  model = c("bcl", "b", "cl", "acl", "os", "sl"),
+  model = NULL,
   rational = FALSE,
+  quick = FALSE,
   contrasts = NULL,
   backend = c("rcdd", "ROI"),
   solver = NULL,
-  quick = FALSE,
   ...
 )
 
@@ -171,44 +163,106 @@ check_separation(..., rational, backend, solver, quick)
 )
 }
 \arguments{
-\item{...}{further arguments to be passed to the low level function}
+\item{object}{an R object. Supported inputs:
+\itemize{
+  \item \strong{Pre-fit (vector):} a vector of type \code{factor},
+    \code{character}, \code{logical}, \code{numeric} or \code{integer}.
+    In this case one also needs to supply the argument \code{X} and,
+    optionally but recommended, a \code{model}.
+  \item \strong{Pre-fit (matrix):} a matrix of structure vectors.
+  \item \strong{Pre-fit (formula):} an object of class \code{"formula"}
+    (or one that can be coerced to that class): a symbolic description
+    of the model to be fitted. The details of model specification are
+    given under \sQuote{Details} in \code{\link[stats]{glm}}. In this
+    case one needs to supply \code{data}, with an optional \code{model}
+    argument as well.
+  \item \strong{Post-fit:} a fitted model object of class \code{glm},
+    \code{polr}, \code{clm}, \code{osm}, \code{brmultinom},
+    \code{bracl}, \code{brglm} or \code{multinom}.
+}}
 
-\item{rational}{should rational arithmetic be used}
+\item{...}{further arguments passed to the methods or lower-level functions.}
 
-\item{backend}{which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".}
+\item{X}{a design matrix, e.g. generated via a call to
+\code{\link{model.matrix}}. \code{X} is expected to already contain the
+desired contrasts for factors (e.g., dummies) and any other expanded
+columns (e.g., for polynomials).}
 
-\item{solver}{the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".}
+\item{model}{character string specifying the model class to be fitted.
+One of:
+\itemize{
+  \item \code{"b"} – binary
+  \item \code{"bcl"} – baseline-category link
+  \item \code{"cl"} – cumulative link
+  \item \code{"acl"} – adjacent-category link
+  \item \code{"sl"} – sequential link
+  \item \code{"os"} – ordered stereotype model
+}
+If missing or \code{NULL}, defaults to \code{"cl"} for ordinal \code{y}
+and \code{"bcl"} otherwise.}
 
-\item{quick}{boolean flag whether the quick linear program is to be used or the full fledged one (default is FALSE).}
+\item{rational}{logical; should rational arithmetic be used?}
 
-\item{object}{model object}
+\item{quick}{logical; if \code{TRUE}, use the quick linear program
+variant, otherwise the full linear program.}
 
-\item{model}{what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "os" for ordered stereotype model. If missing or NULL it defaults to cumulative link for ordinal y and baseline-category for everything else.}
+\item{backend}{character string specifying the backend for the linear
+program. One of \code{"rcdd"} (default, and the only option when
+\code{rational = TRUE}) or \code{"ROI"}.}
 
-\item{y}{a categorical outcome vector}
+\item{solver}{character string specifying the solver used by the
+backend. Defaults to \code{"DualSimplex"} for \code{backend = "rcdd"},
+and to the first LP solver returned by
+\code{\link[ROI]{ROI_applicable_solvers}} for \code{backend = "ROI"}.}
 
-\item{X}{a design matrix, e.g. generated via a call to \code{\link{model.matrix}}. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).}
+\item{data}{either a standard data frame, list or environment (or object
+  coercible by \code{\link{as.data.frame}} to a data frame) containing
+  the variables in the model. If not found in \code{data}, the variables
+  are taken from \code{environment(formula)}, typically the environment
+  from which the function is called.
 
-\item{S}{a matrix of structure vectors}
+  Alternatively, \code{data} can be a data frame or matrix containing
+  rational numbers as per the definition in \pkg{rcdd} (i.e. columns are
+  characters, entries are either integer numbers or ratios of integer
+  numbers, e.g. \code{"1"} or \code{"-234/19008"}). This is checked
+  internally; see \sQuote{Details} for what happens when this structure
+  is discovered.}
 
-\item{formula}{An object of class ‘"formula"’ (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.}
-
-\item{data}{Either a standard data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.}
-
-\item{contrasts}{contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.}
+\item{contrasts}{an optional list. See the \code{contrasts.arg} of
+\code{\link[stats]{model.matrix.default}}. Only effective for standard
+data frames.}
 }
 \value{
-a Boolean; either 'TRUE' if we detected separation or 'FALSE' if not.
+A logical, `TRUE` is separation is detected.
 }
 \description{
-General separation check worker function.
+General separation check function.
 }
 \details{
-This function checks for (quasi-) complete separation by calling the appropriate low-level functions.
+This function checks for (quasi-)complete separation by calling the
+appropriate low-level functions either with linear program 1 (`quick = FALSE`; default`) or linear program 2 (`quick = TRUE`).
 
-\code{check_separation} is an S3 generic function. For developers: If a method should be provided for the generic, it is best to have that method create a matrix of structure vectors \code{S} and use the low-level function \code{checksep_worker} with it.
 
-The `formula` method is for standard data frames and formulas that work the same way as when used with \code{\link[stats]{glm}}. It does not support extended formulas, and may not work for functions that do formula processing differently. For a data frame/matrix given as rational numbers in the \code{rcdd} definition this is recognized but the formula does not get expanded and is taken literally, so e.g. variables in formula must match exactly with the column names in data, or factors need to be converted to dummies before that (wouldn't be possible in the rational format in any other way anyway).
+\code{check_separation} is an S3 generic function.
+
+\strong{For developers:} If a method should be provided for the generic,
+it is best to have that method create a matrix of structure vectors
+\code{S} and use the generic with the matrix.
+
+The \code{formula} method is for standard data frames and formulas that
+work the same way as when used with \code{\link[stats]{glm}}. It does
+not support extended formulas, and may not work for functions that do
+formula processing differently.
+
+For a data frame or matrix given as rational numbers in the \pkg{rcdd}
+definition, this is recognized but the formula does \emph{not} get
+expanded and is taken literally. Consequently:
+\itemize{
+  \item variables in \code{formula} must match exactly with the column
+    names in \code{data};
+  \item factors need to be converted to dummies beforehand (which would
+    not be possible in the rational format in any other way anyway).
+}
 }
 \examples{
 
@@ -218,14 +272,14 @@ The `formula` method is for standard data frames and formulas that work the same
 data(csepdat1)
 outc<-csepdat1$y
 desma<-cbind("(Intercept)"=1,csepdat1[,2:ncol(csepdat1)])
-check_separation(y = outc, X = desma, model = "b")
+check_separation(outc, X = desma, model = "b")
 
 # Nominal data 
 # Baseline-category link
 data(qcsepdatm)
 y<-qcsepdatm$y
 X<-cbind(1,qcsepdatm[,2:ncol(qcsepdatm)])
-check_separation(y = y, X = X, model = "bcl")
+check_separation(y, X = X, model = "bcl")
 
 # Ordinal data
 data(qcsepdato)

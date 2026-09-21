@@ -9,8 +9,7 @@
 #' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".   
 #' @return a Boolean; either 'TRUE' if we detect overlap or 'FALSE' if we do not (so the data show separation).
 #' 
-#'
-#' @export
+#' @noRd
 overlap_quick_check <- function(y, X, S, rational=FALSE, model=c("b","bcl","cl","acl","sl","os"), backend = c("rcdd", "ROI"), solver = NULL)
 {
 if(missing(S)) {
@@ -35,7 +34,7 @@ overlap_qc <- overlap_quick_check
 #' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".   
 #' @return a Boolean; either 'TRUE' if we detect overlap or 'FALSE' if we do not (so the data show separation).
 #'
-#' @export
+#' @noRd
 separation_quick_check <- function(y, X, S, rational=FALSE,model=c("b","bcl","cl","acl","sl","os"), backend = c("rcdd", "ROI"), solver = NULL)
 {
 if(missing(S)) {

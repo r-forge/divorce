@@ -1,32 +1,48 @@
 ########### Pre-fit
 
 ##### check_separation
-#' @param object an R object.
-#' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "os" for ordered stereotype model. If missing or NULL it defaults to cumulative link for ordinal y and baseline-category for everything else.
-#' @param rational should rational arithmetic be used
-#' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
-#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".
-#' @param quick boolean flag whether the quick linear program is to be used or the full fledged one.
-#' @param ... further arguments to be passed to the low level function. For example the optional model argument. 
 #' @export
 #' @rdname check_separation
-check_separation.default <- function(object, model = NULL, rational = FALSE, quick = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
+check_separation.default <- function(object, ... )
 {
-   cat("Could not find a method for this class:", class(object),"\n") 
+    stop("No  method for object of class ",
+       paste(class(object), collapse = "/"), 
+       ". Supported classes: logical, integer, factor, numeric, character, matrix, glm, polr, clm, osm, nnet, multinom, brmultinom, bracl, brglm.",
+       call. = FALSE)
 }
 
 #' @export
 #' @rdname check_separation
-#' @param y a categorical outcome vector 
-#' @param X a design matrix, e.g. generated via a call to \code{\link{model.matrix}}. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
-#' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "os" for ordered stereotype model. If missing or NULL it defaults to cumulative link for ordinal y and baseline-category for everything else.
-#' @param rational should rational arithmetic be used
-#' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
-#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".
-#' @param quick boolean flag whether the quick linear program is to be used or the full fledged one.
-#' @param ... further arguments to be passed to the low level function 
-check_separation.factor <- function(y, X, model = NULL, rational = FALSE, quick = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
+#'
+#' @param X a design matrix, e.g. generated via a call to
+#'   \code{\link{model.matrix}}. \code{X} is expected to already contain the
+#'   desired contrasts for factors (e.g., dummies) and any other expanded
+#'   columns (e.g., for polynomials).
+#' @param model character string specifying the model class to be fitted.
+#'   One of:
+#'   \itemize{
+#'     \item \code{"b"} – binary
+#'     \item \code{"bcl"} – baseline-category link
+#'     \item \code{"cl"} – cumulative link
+#'     \item \code{"acl"} – adjacent-category link
+#'     \item \code{"sl"} – sequential link
+#'     \item \code{"os"} – ordered stereotype model
+#'   }
+#'   If missing or \code{NULL}, defaults to \code{"cl"} for ordinal \code{y}
+#'   and \code{"bcl"} otherwise.
+#' @param rational logical; should rational arithmetic be used?
+#' @param quick logical; if \code{TRUE}, use the quick linear program
+#'   variant, otherwise the full linear program.
+#' @param backend character string specifying the backend for the linear
+#'   program. One of \code{"rcdd"} (default, and the only option when
+#'   \code{rational = TRUE}) or \code{"ROI"}.
+#' @param solver character string specifying the solver used by the
+#'   backend. Defaults to \code{"DualSimplex"} for \code{backend = "rcdd"},
+#'   and to the first LP solver returned by
+#'   \code{\link[ROI]{ROI_applicable_solvers}} for \code{backend = "ROI"}.
+check_separation.factor <- function(object, X, model = NULL, rational = FALSE, quick = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
+    y <- object
     if(isTRUE(quick))
     {
         return(separation_quick_check(y = y, X = X, model = model, rational = rational, backend = backend, solver = solver, ...))
@@ -35,24 +51,24 @@ check_separation.factor <- function(y, X, model = NULL, rational = FALSE, quick 
     }
 }
 
-##' @export
-##' @rdname check_separation
+#' @export
+#' @rdname check_separation
 check_separation.logical <- check_separation.factor
-##' @export
-##' @rdname check_separation
+#' @export
+#' @rdname check_separation
 check_separation.numeric <- check_separation.factor
-##' @export
-##' @rdname check_separation
+#' @export
+#' @rdname check_separation
 check_separation.integer <- check_separation.factor
-##' @export
-##' @rdname check_separation
+#' @export
+#' @rdname check_separation
 check_separation.character<- check_separation.factor 
 
 #' @export
-#' @param S a matrix of structure vectors
 #' @rdname check_separation
-check_separation.matrix <- function(S, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
+check_separation.matrix <- function(object, rational = FALSE, quick = FALSE, backend = c("rcdd", "ROI"), solver = NULL,  ... )
 {
+    S <- object
     if(isTRUE(quick))
     {
        return(separation_quick_check(S = S, rational = rational, backend = backend, solver = solver, ...))  
@@ -61,74 +77,152 @@ check_separation.matrix <- function(S, rational = FALSE, backend = c("rcdd", "RO
     }
 }
 
-##### check_separation
 #' @rdname check_separation
-#' @param formula An object of class ‘"formula"’ (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.
-#' @param data Either a standard data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.
-#' @param contrasts contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.
-#' @param model what model class is intended to be fitted? Can be any of "b" for binary, "bcl" for baseline-category link, "cl" for cumulative link, "acl" for adjacent-category link. "sl" for sequential link, "os" for ordered stereotype model. If missing or NULL it defaults to cumulative link for ordinal y and baseline-category for everything else.
-#' @param rational should rational arithmetic be used
-#' @param backend which backend to use for the linear program. Can be "rcdd" (default and only option for rational=TRUE) or "ROI".
-#' @param solver the solver to be used in the backend. Defaults to "DualSimplex" for "rcdd" and the first LP solver returned by `ROI_applicable_solver()` for "ROI".
-#' @param quick boolean flag whether the quick linear program is to be used or the full fledged one (default is FALSE). 
-#' 
-#' @details The `formula` method is for standard data frames and formulas that work the same way as when used with \code{\link[stats]{glm}}. It does not support extended formulas, and may not work for functions that do formula processing differently. For a data frame/matrix given as rational numbers in the \code{rcdd} definition this is recognized but the formula does not get expanded and is taken literally, so e.g. variables in formula must match exactly with the column names in data, or factors need to be converted to dummies before that (wouldn't be possible in the rational format in any other way anyway).
+#'
+#' @param data either a standard data frame, list or environment (or object
+#'   coercible by \code{\link{as.data.frame}} to a data frame) containing
+#'   the variables in the model. If not found in \code{data}, the variables
+#'   are taken from \code{environment(formula)}, typically the environment
+#'   from which the function is called.
+#'
+#'   Alternatively, \code{data} can be a data frame or matrix containing
+#'   rational numbers as per the definition in \pkg{rcdd} (i.e. columns are
+#'   characters, entries are either integer numbers or ratios of integer
+#'   numbers, e.g. \code{"1"} or \code{"-234/19008"}). This is checked
+#'   internally; see \sQuote{Details} for what happens when this structure
+#'   is discovered.
+#' @param contrasts an optional list. See the \code{contrasts.arg} of
+#'   \code{\link[stats]{model.matrix.default}}. Only effective for standard
+#'   data frames.
+#'
+#' @details
+#' The \code{formula} method is for standard data frames and formulas that
+#' work the same way as when used with \code{\link[stats]{glm}}. It does
+#' not support extended formulas, and may not work for functions that do
+#' formula processing differently.
+#'
+#' For a data frame or matrix given as rational numbers in the \pkg{rcdd}
+#' definition, this is recognized but the formula does \emph{not} get
+#' expanded and is taken literally. Consequently:
+#' \itemize{
+#'   \item variables in \code{formula} must match exactly with the column
+#'     names in \code{data};
+#'   \item factors need to be converted to dummies beforehand (which would
+#'     not be possible in the rational format in any other way anyway).
+#' }
+#'
 #' @importFrom stats model.response is.empty.model model.matrix
 #' @export
-check_separation.formula <- function(formula, data, model = c("bcl", "b", "cl", "acl", "os", "sl") , rational = FALSE, contrasts = NULL, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
+check_separation.formula <- function(object, data, model = NULL, rational = FALSE, quick = FALSE, contrasts = NULL, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
+    formula <- object
     yx <- make_yx(formula, data, contrasts) 
-    if(missing(model)) model <-  NULL
-    check_separation(y = yx$y, X = yx$X, model = model, rational=rational, backend = backend, solver = solver, quick = quick, ...)
+    check_separation(object = yx$y, X = yx$X, model = model, rational=rational, backend = backend, solver = solver, quick = quick, ...)
 }
 
 ##### diagnose_separation
 #' @export
-#' @rdname diagsep_worker
-diagnose_separation.default <- function(object,  rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
+#' @rdname diagnose_separation
+diagnose_separation.default <- function(object, ... )
 {
-   cat("Could not find a method for this class:", class(object),"\n") 
+   stop("No  method for object of class ",
+       paste(class(object), collapse = "/"), 
+       ". Supported classes: logical, integer, factor, numeric, character, matrix, glm, polr, clm, osm, nnet, multinom, brmultinom, bracl, brglm.",
+       call. = FALSE)
 }
 
 #' @export
-#' @rdname diagsep_worker
-diagnose_separation.factor <- function(y, X, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
+#' @rdname diagnose_separation
+#' @param X a design matrix, e.g. generated via a call to
+#'   \code{\link{model.matrix}}. \code{X} is expected to already contain the
+#'   desired contrasts for factors (e.g., dummies) and any other expanded
+#'   columns (e.g., for polynomials).
+#' @param model character string specifying the model class to be fitted.
+#'   One of:
+#'   \itemize{
+#'     \item \code{"b"} – binary
+#'     \item \code{"bcl"} – baseline-category link
+#'     \item \code{"cl"} – cumulative link
+#'     \item \code{"acl"} – adjacent-category link
+#'     \item \code{"sl"} – sequential link
+#'     \item \code{"os"} – ordered stereotype model
+#'   }
+#'   If missing or \code{NULL}, defaults to \code{"cl"} for ordinal \code{y}
+#'   and \code{"bcl"} otherwise.
+#' @param rational logical; should rational arithmetic be used?
+#' @param backend character string specifying the backend for the linear
+#'   program. One of \code{"rcdd"} (default, and the only option when
+#'   \code{rational = TRUE}) or \code{"ROI"}.
+#' @param solver character string specifying the solver used by the
+#'   backend. Defaults to \code{"DualSimplex"} for \code{backend = "rcdd"},
+#'   and to the first LP solver returned by
+#'   \code{\link[ROI]{ROI_applicable_solvers}} for \code{backend = "ROI"}.
+diagnose_separation.factor <- function(object, X, model = NULL, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
-    return(diagsep_worker(y = y, X = X, rational=rational, backend = backend, solver = solver, ...))
+    y <- object
+    return(diagsep_worker(y = y, X = X, model = model, rational=rational, backend = backend, solver = solver, ...))
 }
 
 #' @export
-#' @rdname diagsep_worker 
+#' @rdname diagnose_separation 
 diagnose_separation.character <-  diagnose_separation.factor
 #' @export
-#' @rdname diagsep_worker
+#' @rdname diagnose_separation
  diagnose_separation.logical <- diagnose_separation.factor
 #' @export
-#' @rdname diagsep_worker
+#' @rdname diagnose_separation
  diagnose_separation.numeric <- diagnose_separation.factor
 #' @export
-#' @rdname diagsep_worker
+#' @rdname diagnose_separation
 diagnose_separation.integer <- diagnose_separation.factor
 
 #' @export
-#' @rdname diagsep_worker
-diagnose_separation.matrix <- function(S, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
+#' @rdname diagnose_separation
+diagnose_separation.matrix <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
+    S <- object
     return(diagsep_worker(S = S, rational=rational, backend = backend, solver = solver, ...))
 }
 
-#' @rdname diagsep_worker
-#' @param formula An object of class ‘"formula"’ (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.
-#' @param data Either a standard data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.
-#' @param contrasts contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.
-#' @param model model string. One of "bcl", "b", "cl", "acl", "os", "sl".  
-#' 
-#' @details The `formula` method is for standard data frames and formulas that work the same way as when used with \code{\link[stats]{glm}}. It does not support extended formulas, and may not work for functions that do formula processing differently. For a data frame/matrix given as rational numbers in the \code{rcdd} definition this is recognized but the formula does not get expanded and is taken literally, so e.g. variables in formula must match exactly with the column names in data, or factors need to be converted to dummies before that (wouldn't be possible in the rational format in any other way anyway).
+#' @rdname diagnose_separation
+#' @param data either a standard data frame, list or environment (or object
+#'   coercible by \code{\link{as.data.frame}} to a data frame) containing
+#'   the variables in the model. If not found in \code{data}, the variables
+#'   are taken from \code{environment(formula)}, typically the environment
+#'   from which the function is called.
+#'
+#'   Alternatively, \code{data} can be a data frame or matrix containing
+#'   rational numbers as per the definition in \pkg{rcdd} (i.e. columns are
+#'   characters, entries are either integer numbers or ratios of integer
+#'   numbers, e.g. \code{"1"} or \code{"-234/19008"}). This is checked
+#'   internally; see \sQuote{Details} for what happens when this structure
+#'   is discovered.
+#' @param contrasts an optional list. See the \code{contrasts.arg} of
+#'   \code{\link[stats]{model.matrix.default}}. Only effective for standard
+#'   data frames.
+#'
+#' @details
+#' The \code{formula} method is for standard data frames and formulas that
+#' work the same way as when used with \code{\link[stats]{glm}}. It does
+#' not support extended formulas, and may not work for functions that do
+#' formula processing differently.
+#'
+#' For a data frame or matrix given as rational numbers in the \pkg{rcdd}
+#' definition, this is recognized but the formula does \emph{not} get
+#' expanded and is taken literally. Consequently:
+#' \itemize{
+#'   \item variables in \code{formula} must match exactly with the column
+#'     names in \code{data};
+#'   \item factors need to be converted to dummies beforehand (which would
+#'     not be possible in the rational format in any other way anyway).
+#' }
+#'
+#' @importFrom stats model.response is.empty.model model.matrix
 #' @export
-diagnose_separation.formula <- function(formula, data, model = c("bcl", "b", "cl", "acl", "os", "sl") , rational = FALSE, contrasts = NULL,  backend = c("rcdd", "ROI"), solver = NULL, ... )
+diagnose_separation.formula <- function(object, data, model = NULL, rational = FALSE, contrasts = NULL,  backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
+    formula <- object 
     yx <- make_yx(formula, data, contrasts) 
-    if(missing(model)) model <-  NULL
     out <- diagsep_worker(y = yx$y, X = yx$X, model = model, rational=rational, backend = backend, solver = solver, ...)
     out$modelcall <- formula
     if(model=="sl"){
@@ -140,158 +234,309 @@ diagnose_separation.formula <- function(formula, data, model = c("bcl", "b", "cl
 
 ##### separation_columns
 #' @export
-#' @rdname sepcols_worker
-separation_columns.default <- function(object, rational = FALSE, ... )
+#' @rdname separation_columns
+separation_columns.default <- function(object, ... )
 {
-     cat("Could not find a method for this class:", class(object),"\n") 
+   stop("No method for object of class ",
+       paste(class(object), collapse = "/"), 
+       ". Supported classes: logical, integer, factor, numeric, character, matrix, glm, polr, clm, osm, nnet, multinom, brmultinom, bracl, brglm.",
+       call. = FALSE)
 }
 
 
 #' @export
-#' @rdname sepcols_worker
-separation_columns.factor <- function(y, X, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
+#' @rdname separation_columns
+#' @param X a design matrix, e.g. generated via a call to
+#'   \code{\link{model.matrix}}. \code{X} is expected to already contain the
+#'   desired contrasts for factors (e.g., dummies) and any other expanded
+#'   columns (e.g., for polynomials).
+#' @param model character string specifying the model class to be fitted.
+#'   One of:
+#'   \itemize{
+#'     \item \code{"b"} – binary
+#'     \item \code{"bcl"} – baseline-category link
+#'     \item \code{"cl"} – cumulative link
+#'     \item \code{"acl"} – adjacent-category link
+#'     \item \code{"sl"} – sequential link
+#'     \item \code{"os"} – ordered stereotype model
+#'   }
+#'   If missing or \code{NULL}, defaults to \code{"cl"} for ordinal \code{y}
+#'   and \code{"bcl"} otherwise.
+#' @param rational logical; should rational arithmetic be used.
+#' @param backend character string specifying the backend for the linear
+#'   program. One of \code{"rcdd"} (default, and the only option when
+#'   \code{rational = TRUE}) or \code{"ROI"}.
+#' @param solver character string specifying the solver used by the
+#'   backend. Defaults to \code{"DualSimplex"} for \code{backend = "rcdd"},
+#'   and to the first LP solver returned by
+#'   \code{\link[ROI]{ROI_applicable_solvers}} for \code{backend = "ROI"}.
+separation_columns.factor <- function(object, X, model = NULL, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
-    return(sepcols_worker(y = y, X=X, rational=rational, backend = backend, solver = solver, ...))
+    y <- object
+    return(sepcols_worker(y = y, X=X, model = model, rational=rational, backend = backend, solver = solver, ...))
 }
 
 #' @export
-#' @rdname sepcols_worker
+#' @rdname separation_columns
 separation_columns.character <-  separation_columns.factor
 #' @export
-#' @rdname sepcols_worker
+#' @rdname separation_columns
 separation_columns.logical <- separation_columns.factor
 #' @export
-#' @rdname sepcols_worker
+#' @rdname separation_columns
 separation_columns.numeric <- separation_columns.factor
 #' @export
-#' @rdname sepcols_worker
+#' @rdname separation_columns
 separation_columns.integer <- separation_columns.factor
 
 #' @export
-#' @rdname sepcols_worker
-separation_columns.matrix <- function(S, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
+#' @rdname separation_columns
+separation_columns.matrix <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
-    return(sepcols_worker(S=S, rational=rational, backend = backend, solver = solver, ...))
+    S <- object
+    return(sepcols_worker(S = S, rational=rational, backend = backend, solver = solver, ...))
 }
 
-#' @rdname sepcols_worker
-#' @param formula An object of class ‘"formula"’ (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.
-#' @param data Either a standard data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.
-#' @param contrasts contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.
-#' @param model model string. One of "bcl", "b", "cl", "acl", "os", "sl".  
+#' @rdname separation_columns
+#' @param data either a standard data frame, list or environment (or object
+#'   coercible by \code{\link{as.data.frame}} to a data frame) containing
+#'   the variables in the model. If not found in \code{data}, the variables
+#'   are taken from \code{environment(formula)}, typically the environment
+#'   from which the function is called.
+#'
+#'   Alternatively, \code{data} can be a data frame or matrix containing
+#'   rational numbers as per the definition in \pkg{rcdd} (i.e. columns are
+#'   characters, entries are either integer numbers or ratios of integer
+#'   numbers, e.g. \code{"1"} or \code{"-234/19008"}). This is checked
+#'   internally; see \sQuote{Details} for what happens when this structure
+#'   is discovered.
+#' @param contrasts an optional list. See the \code{contrasts.arg} of
+#'   \code{\link[stats]{model.matrix.default}}. Only effective for standard
+#'   data frames.
+#'
+#' @details
+#' The \code{formula} method is for standard data frames and formulas that
+#' work the same way as when used with \code{\link[stats]{glm}}. It does
+#' not support extended formulas, and may not work for functions that do
+#' formula processing differently.
+#'
+#' For a data frame or matrix given as rational numbers in the \pkg{rcdd}
+#' definition, this is recognized but the formula does \emph{not} get
+#' expanded and is taken literally. Consequently:
+#' \itemize{
+#'   \item variables in \code{formula} must match exactly with the column
+#'     names in \code{data};
+#'   \item factors need to be converted to dummies beforehand (which would
+#'     not be possible in the rational format in any other way anyway).
+#' }
 #' 
-#' @details The `formula` method is for standard data frames and formulas that work the same way as when used with \code{\link[stats]{glm}}. It does not support extended formulas, and may not work for functions that do formula processing differently. For a data frame/matrix given as rational numbers in the \code{rcdd} definition this is recognized but the formula does not get expanded and is taken literally, so e.g. variables in formula must match exactly with the column names in data, or factors need to be converted to dummies before that (wouldn't be possible in the rational format in any other way anyway).
 #' @importFrom stats model.response is.empty.model model.matrix
 #' @export
-separation_columns.formula <- function(formula, data, model = c("bcl", "b", "cl", "acl", "os", "sl") , rational = FALSE, contrasts = NULL, backend = c("rcdd", "ROI"), solver = NULL, ... )
+separation_columns.formula <- function(object, data, model = NULL, rational = FALSE, contrasts = NULL, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
+    formula <- object
     yx <- make_yx(formula, data, contrasts) 
-    if(missing(model)) model <-  NULL
     return(sepcols_worker(y = yx$y, X = yx$X, model = model, rational=rational, backend = backend, solver = solver, ...))
 }
 
 ##### separation_rows
 #' @export
-#' @rdname seprows_worker 
-separation_rows.default <- function(object, rational = FALSE, ... )
+#' @rdname separation_rows
+separation_rows.default <- function(object, ... )
 {
-     cat("Could not find a method for this class:", class(object),"\n")
+      stop("No method for object of class ",
+       paste(class(object), collapse = "/"), 
+       ". Supported classes: logical, integer, factor, numeric, character, matrix, glm, polr, clm, osm, nnet, multinom, brmultinom, bracl, brglm.",
+       call. = FALSE)
 }
 
 
 #' @export
-#' @rdname seprows_worker 
-separation_rows.factor <- function(y, X, rational = FALSE, ... )
+#' @rdname separation_rows
+#' @param X a design matrix, e.g. generated via a call to
+#'   \code{\link{model.matrix}}. \code{X} is expected to already contain the
+#'   desired contrasts for factors (e.g., dummies) and any other expanded
+#'   columns (e.g., for polynomials).
+#' @param model character string specifying the model class to be fitted.
+#'   One of:
+#'   \itemize{
+#'     \item \code{"b"} – binary
+#'     \item \code{"bcl"} – baseline-category link
+#'     \item \code{"cl"} – cumulative link
+#'     \item \code{"acl"} – adjacent-category link
+#'     \item \code{"sl"} – sequential link
+#'     \item \code{"os"} – ordered stereotype model
+#'   }
+#'   If missing or \code{NULL}, defaults to \code{"cl"} for ordinal \code{y}
+#'   and \code{"bcl"} otherwise.
+#' @param rational logical; should rational arithmetic be used.
+separation_rows.factor <- function(object, X, model = NULL, rational = FALSE, ... )
 {
-    return(seprows_worker(y = y, X = X, rational=rational, ...))
+    y <- object
+    return(seprows_worker(y = y, X = X, model = model, rational=rational, ...))
 }
 
 #' @export
-#' @rdname seprows_worker 
+#' @rdname separation_rows 
 separation_rows.character <-  separation_rows.factor
 #' @export
-#' @rdname seprows_worker 
+#' @rdname separation_rows 
 separation_rows.logical <- separation_rows.factor
 #' @export
-#' @rdname seprows_worker
+#' @rdname separation_rows
 separation_rows.numeric <- separation_rows.factor
 #' @export
-#' @rdname seprows_worker 
+#' @rdname separation_rows 
 separation_rows.integer <- separation_rows.factor
 
 #' @export
-#' @rdname seprows_worker 
-separation_rows.matrix <- function(S, rational = FALSE, ... )
+#' @rdname separation_rows 
+separation_rows.matrix <- function(object, rational = FALSE, ... )
 {
+    S <- object
     return(seprows_worker(S=S, rational=rational, ...))
 }
 
-#' @rdname seprows_worker
-#' @param formula An object of class ‘"formula"’ (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.
-#' @param data Either a standard data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.
-#' @param contrasts contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.
-#' @param model model string. One of "bcl", "b", "cl", "acl", "os", "sl".  
+#' @rdname separation_rows
+#' @param data either a standard data frame, list or environment (or object
+#'   coercible by \code{\link{as.data.frame}} to a data frame) containing
+#'   the variables in the model. If not found in \code{data}, the variables
+#'   are taken from \code{environment(formula)}, typically the environment
+#'   from which the function is called.
+#'
+#'   Alternatively, \code{data} can be a data frame or matrix containing
+#'   rational numbers as per the definition in \pkg{rcdd} (i.e. columns are
+#'   characters, entries are either integer numbers or ratios of integer
+#'   numbers, e.g. \code{"1"} or \code{"-234/19008"}). This is checked
+#'   internally; see \sQuote{Details} for what happens when this structure
+#'   is discovered.
+#' @param contrasts an optional list. See the \code{contrasts.arg} of
+#'   \code{\link[stats]{model.matrix.default}}. Only effective for standard
+#'   data frames.
+#'
+#' @details
+#' The \code{formula} method is for standard data frames and formulas that
+#' work the same way as when used with \code{\link[stats]{glm}}. It does
+#' not support extended formulas, and may not work for functions that do
+#' formula processing differently.
+#'
+#' For a data frame or matrix given as rational numbers in the \pkg{rcdd}
+#' definition, this is recognized but the formula does \emph{not} get
+#' expanded and is taken literally. Consequently:
+#' \itemize{
+#'   \item variables in \code{formula} must match exactly with the column
+#'     names in \code{data};
+#'   \item factors need to be converted to dummies beforehand (which would
+#'     not be possible in the rational format in any other way anyway).
+#' }
 #' 
-#' @details The `formula` method is for standard data frames and formulas that work the same way as when used with \code{\link[stats]{glm}}. It does not support extended formulas, and may not work for functions that do formula processing differently. For a data frame/matrix given as rational numbers in the \code{rcdd} definition this is recognized but the formula does not get expanded and is taken literally, so e.g. variables in formula must match exactly with the column names in data, or factors need to be converted to dummies before that (wouldn't be possible in the rational format in any other way anyway).
 #' @importFrom stats model.response is.empty.model model.matrix
 #' @export
-separation_rows.formula <- function(formula, data, model = c("bcl", "b", "cl", "acl", "os", "sl") , rational = FALSE, contrasts = NULL, ... )
+separation_rows.formula <- function(object, data, model = NULL , rational = FALSE, contrasts = NULL, ... )
 {
+    formula <- object
     yx <- make_yx(formula, data, contrasts) 
-    if(missing(model)) model <-  NULL
     return(seprows_worker(y = yx$y, X = yx$X, model = model, rational=rational, ...))
 }
 
 ##### recession_cone
 #' @export
-#' @rdname reccone_worker
-recession_cone.default <- function(object, rational = FALSE, ... )
+#' @rdname recession_cone
+recession_cone.default <- function(object, ... )
 {
-       cat("Could not find a method for this class:", class(object),"\n")
+      stop("No method for object of class ",
+       paste(class(object), collapse = "/"), 
+       ". Supported classes: logical, integer, factor, numeric, character, matrix, glm, polr, clm, osm, nnet, multinom, brmultinom, bracl, brglm.",
+       call. = FALSE)
 }
 
 #' @export
-#' @rdname reccone_worker
-recession_cone.factor <- function(y, X, rational = FALSE, ... )
+#' @rdname recession_cone
+#' @param X a design matrix, e.g. generated via a call to
+#'   \code{\link{model.matrix}}. \code{X} is expected to already contain the
+#'   desired contrasts for factors (e.g., dummies) and any other expanded
+#'   columns (e.g., for polynomials).
+#' @param model character string specifying the model class to be fitted.
+#'   One of:
+#'   \itemize{
+#'     \item \code{"b"} – binary
+#'     \item \code{"bcl"} – baseline-category link
+#'     \item \code{"cl"} – cumulative link
+#'     \item \code{"acl"} – adjacent-category link
+#'     \item \code{"sl"} – sequential link
+#'     \item \code{"os"} – ordered stereotype model
+#'   }
+#'   If missing or \code{NULL}, defaults to \code{"cl"} for ordinal \code{y}
+#'   and \code{"bcl"} otherwise.
+#' @param rational logical; should rational arithmetic be used.
+recession_cone.factor <- function(object, X, model = NULL, rational = FALSE, ... )
 {
-    return(reccone_worker(y = y, X = X, rational=rational, ...))
+    y <- object
+    return(reccone_worker(y = y, X = X, model = model, rational=rational, ...))
 }
 
 
 #' @export
-#' @rdname reccone_worker 
+#' @rdname recession_cone 
 recession_cone.character <-  recession_cone.factor
 #' @export
-#' @rdname reccone_worker
+#' @rdname recession_cone 
 recession_cone.logical <- recession_cone.factor
 #' @export
-#' @rdname reccone_worker
+#' @rdname recession_cone 
 recession_cone.numeric <- recession_cone.factor
 #' @export
-#' @rdname reccone_worker
+#' @rdname recession_cone 
 recession_cone.integer <- recession_cone.factor
 
 
 #' @export
-#' @rdname reccone_worker
-recession_cone.matrix <- function(S, rational = FALSE,  ... )
+#' @rdname recession_cone 
+recession_cone.matrix <- function(object, rational = FALSE,  ... )
 {
+    S <- object
     return(reccone_worker(S = S, rational=rational, ...))
 }
 
-#' @rdname reccone_worker
-#' @param formula An object of class ‘"formula"’ (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.
-#' @param data Either a standard data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.
-#' @param contrasts contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.
-#' @param model model string of the model to be checked. One of "bcl", "b", "cl", "acl", "os", "sl".  
+#' @rdname recession_cone
+#' @param data either a standard data frame, list or environment (or object
+#'   coercible by \code{\link{as.data.frame}} to a data frame) containing
+#'   the variables in the model. If not found in \code{data}, the variables
+#'   are taken from \code{environment(formula)}, typically the environment
+#'   from which the function is called.
+#'
+#'   Alternatively, \code{data} can be a data frame or matrix containing
+#'   rational numbers as per the definition in \pkg{rcdd} (i.e. columns are
+#'   characters, entries are either integer numbers or ratios of integer
+#'   numbers, e.g. \code{"1"} or \code{"-234/19008"}). This is checked
+#'   internally; see \sQuote{Details} for what happens when this structure
+#'   is discovered.
+#' @param contrasts an optional list. See the \code{contrasts.arg} of
+#'   \code{\link[stats]{model.matrix.default}}. Only effective for standard
+#'   data frames.
+#'
+#' @details
+#' The \code{formula} method is for standard data frames and formulas that
+#' work the same way as when used with \code{\link[stats]{glm}}. It does
+#' not support extended formulas, and may not work for functions that do
+#' formula processing differently.
+#'
+#' For a data frame or matrix given as rational numbers in the \pkg{rcdd}
+#' definition, this is recognized but the formula does \emph{not} get
+#' expanded and is taken literally. Consequently:
+#' \itemize{
+#'   \item variables in \code{formula} must match exactly with the column
+#'     names in \code{data};
+#'   \item factors need to be converted to dummies beforehand (which would
+#'     not be possible in the rational format in any other way anyway).
+#' }
 #' 
-#' @details The `formula` method is for standard data frames and formulas that work the same way as when used with \code{\link[stats]{glm}}. It does not support extended formulas, and may not work for functions that do formula processing differently. For a data frame/matrix given as rational numbers in the \code{rcdd} definition this is recognized but the formula does not get expanded and is taken literally, so e.g. variables in formula must match exactly with the column names in data, or factors need to be converted to dummies before that (wouldn't be possible in the rational format in any other way anyway).
 #' @importFrom stats model.response is.empty.model model.matrix
 #' @export
-recession_cone.formula <- function(formula, data, model = c("bcl", "b", "cl", "acl", "os", "sl") , rational = FALSE, contrasts = NULL,  ... )
+recession_cone.formula <- function(object, data, model = NULL , rational = FALSE, contrasts = NULL,  ... )
 {
+    formula <- object
     yx <- make_yx(formula, data, contrasts) 
-    if(missing(model)) model <-  NULL
     return(reccone_worker(y = yx$y, X = yx$X, model = model, rational=rational, ...))
 }
 
@@ -302,18 +547,16 @@ recession_cone.formula <- function(formula, data, model = c("bcl", "b", "cl", "a
 #' @export
 #' @importFrom stats model.frame model.matrix
 #' @rdname check_separation
-#' @param object model object
 check_separation.osm <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
 {
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    return(check_separation(y = y, X = X, model = "os", rational = rational, backend = backend, solver = solver, quick = quick, ...))
+    return(check_separation(object = y, X = X, model = "os", rational = rational, backend = backend, solver = solver, quick = quick, ...))
 }
 
 #' @export
-#' @rdname diagsep_worker
-#' @param object model object
+#' @rdname diagnose_separation
 diagnose_separation.osm <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
     x <- object
@@ -325,8 +568,7 @@ diagnose_separation.osm <- function(object, rational = FALSE, backend = c("rcdd"
 }
 
 #' @export
-#' @rdname sepcols_worker
-#' @param object model object
+#' @rdname separation_columns
 separation_columns.osm <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
     x <- object
@@ -336,8 +578,7 @@ separation_columns.osm <- function(object, rational = FALSE, backend = c("rcdd",
 }
 
 #' @export
-#' @rdname seprows_worker
-#' @param object model object
+#' @rdname separation_rows
 separation_rows.osm <- function(object, rational = FALSE,  ... )
 {
     x <- object
@@ -347,8 +588,7 @@ separation_rows.osm <- function(object, rational = FALSE,  ... )
 }
 
 #' @export
-#' @rdname reccone_worker
-#' @param object model object
+#' @rdname recession_cone
 recession_cone.osm <- function(object, rational = FALSE,  ... )
 {
     x <- object
@@ -362,18 +602,16 @@ recession_cone.osm <- function(object, rational = FALSE,  ... )
 #' @export
 #' @importFrom stats model.frame model.matrix
 #' @rdname check_separation
-#' @param object model object
 check_separation.clm <- function(object, rational = FALSE,  backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
 {
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)$X
-    return(check_separation(y = y, X = X, model = "cl", rational = rational, quick = quick, backend = backend, solver = solver, ...))
+    return(check_separation(object = y, X = X, model = "cl", rational = rational, quick = quick, backend = backend, solver = solver, ...))
 }
 
 #' @export
-#' @rdname diagsep_worker
-#' @param object model object
+#' @rdname diagnose_separation
 diagnose_separation.clm <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
     x <- object   
@@ -385,8 +623,7 @@ diagnose_separation.clm <- function(object, rational = FALSE, backend = c("rcdd"
 }
 
 #' @export
-#' @rdname sepcols_worker
-#' @param object model object
+#' @rdname separation_columns
 separation_columns.clm <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
     x <- object
@@ -396,8 +633,7 @@ separation_columns.clm <- function(object, rational = FALSE, backend = c("rcdd",
 }
 
 #' @export
-#' @rdname seprows_worker
-#' @param object model object
+#' @rdname separation_rows
 separation_rows.clm <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -407,8 +643,7 @@ separation_rows.clm <- function(object, rational = FALSE, ... )
 }
 
 #' @export
-#' @rdname reccone_worker
-#' @param object model object
+#' @rdname recession_cone 
 recession_cone.clm <- function(object, rational = FALSE,  ... )
 {
     x <- object
@@ -421,18 +656,16 @@ recession_cone.clm <- function(object, rational = FALSE,  ... )
 
 #' @export
 #' @rdname check_separation
-#' @param object model object
 check_separation.polr <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
 {
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    return(check_separation(y = y, X = X, model = "cl", rational = rational, backend = backend, solver = solver, quick = quick))
+    return(check_separation(object = y, X = X, model = "cl", rational = rational, backend = backend, solver = solver, quick = quick))
 }
 
 #' @export
-#' @rdname diagsep_worker
-#' @param object model object
+#' @rdname diagnose_separation
 diagnose_separation.polr <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
     x <- object
@@ -444,8 +677,7 @@ diagnose_separation.polr <- function(object, rational = FALSE, backend = c("rcdd
 }
 
 #' @export
-#' @rdname sepcols_worker
-#' @param object model object
+#' @rdname separation_columns
 separation_columns.polr <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
     x <- object
@@ -455,8 +687,7 @@ separation_columns.polr <- function(object, rational = FALSE, backend = c("rcdd"
 }
 
 #' @export
-#' @rdname seprows_worker
-#' @param object model object
+#' @rdname separation_rows
 separation_rows.polr <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -466,8 +697,7 @@ separation_rows.polr <- function(object, rational = FALSE, ... )
 }
 
 #' @export
-#' @rdname reccone_worker
-#' @param object model object
+#' @rdname recession_cone
 recession_cone.polr <- function(object, rational = FALSE,  ... )
 {
     x <- object
@@ -482,18 +712,16 @@ recession_cone.polr <- function(object, rational = FALSE,  ... )
 #' @export
 #' @importFrom stats model.frame model.matrix
 #' @rdname check_separation
-#' @param object model object
 check_separation.multinom <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
 {
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    return(check_separation(y = y, X = X, model = "bcl", rational = rational, backend = backend, solver = solver, quick = quick, ...))
+    return(check_separation(object = y, X = X, model = "bcl", rational = rational, backend = backend, solver = solver, quick = quick, ...))
 }
 
 #' @export
-#' @rdname diagsep_worker
-#' @param object model object
+#' @rdname diagnose_separation
 diagnose_separation.multinom <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
     x <- object
@@ -505,8 +733,7 @@ diagnose_separation.multinom <- function(object, rational = FALSE, backend = c("
 }
 
 #' @export
-#' @rdname sepcols_worker
-#' @param object model object
+#' @rdname separation_columns
 separation_columns.multinom <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
     x <- object
@@ -516,8 +743,7 @@ separation_columns.multinom <- function(object, rational = FALSE, backend = c("r
 }
 
 #' @export
-#' @rdname seprows_worker
-#' @param object model object
+#' @rdname separation_rows
 separation_rows.multinom <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -527,8 +753,7 @@ separation_rows.multinom <- function(object, rational = FALSE, ... )
 }
 
 #' @export
-#' @rdname reccone_worker
-#' @param object model object
+#' @rdname recession_cone
 recession_cone.multinom <- function(object, rational = FALSE,  ... )
 {
     x <- object
@@ -544,19 +769,17 @@ recession_cone.multinom <- function(object, rational = FALSE,  ... )
 #' @export
 #' @importFrom stats model.matrix model.frame
 #' @rdname check_separation
-#' @param object model object
 check_separation.glm <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
 {
     x <- object
     if(!(x$family$family %in% "binomial")) stop("This is only implemented for the binomial family.")
     y <- x$y
     X <- model.matrix(x)
-    return(check_separation(y = y, X = X, model = "b", rational = rational, backend = backend, solver = solver, quick = quick))
+    return(check_separation(object = y, X = X, model = "b", rational = rational, backend = backend, solver = solver, quick = quick))
 }
 
 #' @export
-#' @rdname diagsep_worker
-#' @param object model object
+#' @rdname diagnose_separation
 diagnose_separation.glm <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
     x <- object
@@ -569,8 +792,7 @@ diagnose_separation.glm <- function(object, rational = FALSE, backend = c("rcdd"
 }
 
 #' @export
-#' @rdname sepcols_worker
-#' @param object model object
+#' @rdname separation_columns
 separation_columns.glm <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
     x <- object
@@ -581,8 +803,7 @@ separation_columns.glm <- function(object, rational = FALSE, backend = c("rcdd",
 }
 
 #' @export
-#' @rdname seprows_worker
-#' @param object model object
+#' @rdname separation_rows
 separation_rows.glm <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -593,8 +814,7 @@ separation_rows.glm <- function(object, rational = FALSE, ... )
 }
 
 #' @export
-#' @rdname reccone_worker
-#' @param object model object
+#' @rdname recession_cone
 recession_cone.glm <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -609,22 +829,20 @@ recession_cone.glm <- function(object, rational = FALSE, ... )
 #' @export
 #' @importFrom stats model.matrix 
 #' @rdname check_separation
-#' @param object model object
 check_separation.bracl <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
 {
     y <- as.ordered(model.frame(object)[,1])
     X <- model.matrix(object)
     if(object$parallel)
-        return(check_separation(y = y, X = X, model = "acl", rational = rational, backend = backend, solver = solver, quick = quick))
+        return(check_separation(object = y, X = X, model = "acl", rational = rational, backend = backend, solver = solver, quick = quick))
     if(!object$parallel) {
         y <- factor(y, ordered = FALSE)
-        return(check_separation(y = y, X = X, model = "bcl", rational = rational, backend = backend, solver = solver, quick = quick))
+        return(check_separation(object = y, X = X, model = "bcl", rational = rational, backend = backend, solver = solver, quick = quick))
         }
 }
 
 #' @export
-#' @rdname diagsep_worker
-#' @param object model object
+#' @rdname diagnose_separation
 diagnose_separation.bracl <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
     y <- as.ordered(model.frame(object)[,1])
@@ -640,8 +858,7 @@ diagnose_separation.bracl <- function(object, rational = FALSE, backend = c("rcd
 }
 
 #' @export
-#' @rdname seprows_worker
-#' @param object model object
+#' @rdname separation_rows
 separation_rows.bracl <- function(object, rational = FALSE, ... )
 {
     y <- as.ordered(model.frame(object)[,1])
@@ -655,8 +872,7 @@ separation_rows.bracl <- function(object, rational = FALSE, ... )
 }
 
 #' @export
-#' @rdname sepcols_worker
-#' @param object model object
+#' @rdname separation_columns
 separation_columns.bracl <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
     y <- as.ordered(model.frame(object)[,1])
@@ -670,8 +886,7 @@ separation_columns.bracl <- function(object, rational = FALSE, backend = c("rcdd
 }
 
 #' @export
-#' @rdname reccone_worker
-#' @param object model object
+#' @rdname recession_cone
 recession_cone.bracl <- function(object, rational = FALSE,  ... )
 {
     y <- as.ordered(model.frame(object)[,1])
@@ -688,17 +903,15 @@ recession_cone.bracl <- function(object, rational = FALSE,  ... )
 #' @export
 #' @importFrom stats model.matrix
 #' @rdname check_separation
-#' @param object model object
 check_separation.brmultinom <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, ... )
 {
     y <- model.frame(object)[,1]
     X <- model.matrix(object)
-    return(check_separation(y = y, X = X, model = "bcl", rational = rational, backend = backend, solver = solver, quick = quick))
+    return(check_separation(object = y, X = X, model = "bcl", rational = rational, backend = backend, solver = solver, quick = quick))
 }
 
 #' @export
-#' @rdname diagsep_worker
-#' @param object model object
+#' @rdname diagnose_separation
 diagnose_separation.brmultinom <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ...)
 {
     x <- object
@@ -711,8 +924,7 @@ diagnose_separation.brmultinom <- function(object, rational = FALSE, backend = c
 
 
 #' @export
-#' @rdname sepcols_worker
-#' @param object model object
+#' @rdname separation_columns
 separation_columns.brmultinom <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
     x <- object
@@ -722,8 +934,7 @@ separation_columns.brmultinom <- function(object, rational = FALSE, backend = c(
 }
 
 #' @export
-#' @rdname seprows_worker
-#' @param object model object
+#' @rdname separation_rows
 separation_rows.brmultinom <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -733,8 +944,7 @@ separation_rows.brmultinom <- function(object, rational = FALSE, ... )
 }
 
 #' @export
-#' @rdname reccone_worker
-#' @param object model object
+#' @rdname recession_cone
 recession_cone.brmultinom <- function(object, rational = FALSE, ... )
 {
     x <- object
@@ -744,25 +954,39 @@ recession_cone.brmultinom <- function(object, rational = FALSE, ... )
 }
 
 
-
-########### Pre-fit
-
 ##### structure_vectors
 #' @export
 #' @rdname structure_vectors
-#' @param X a design matrix, e.g. generated via a call to \code{\link{model.matrix}}. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynominals).
-#' 
-structure_vectors.default <- function(y, X, model = c("bcl", "b", "cl", "acl", "os", "sl"), label = TRUE, rational = FALSE, ... )
+#' @param X a design matrix, e.g. generated via a call to
+#'   \code{\link{model.matrix}}. \code{X} is expected to already contain the
+#'   desired contrasts for factors (e.g., dummies) and any other expanded
+#'   columns (e.g., for polynomials).
+#' @param model character string specifying the model class to be fitted.
+#'   One of:
+#'   \itemize{
+#'     \item \code{"b"} – binary
+#'     \item \code{"bcl"} – baseline-category link
+#'     \item \code{"cl"} – cumulative link
+#'     \item \code{"acl"} – adjacent-category link
+#'     \item \code{"sl"} – sequential link
+#'     \item \code{"os"} – ordered stereotype model
+#'   }
+#'   If missing or \code{NULL}, defaults to \code{"cl"} for ordinal \code{y}
+#'   and \code{"bcl"} otherwise.
+#' @param label Should the columns and rows be labeled?
+#' @param rational Should the matrix be returned in rational form (as per rcdd definition)?
+structure_vectors.default <- function(x, X, model=c("b","bcl","acl","os","sl","cl"), label = TRUE, rational = FALSE, ... )
 {
+    y <- x
     if(length(unique(y))<2) stop("There is only one value in y.")
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
+    if(missing(model)) model <-  NULL
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE 
-    if(missing(model)) model <- NULL
     if(is.null(model))
     {
         warning("Default model class used.","\n")
-        if(is.ordered(y) & length(unique(y))>2)
+        if(is.ordered(y) && length(unique(y))>2)
         {
             return(struc_vec_cl(y=y, X=X, label = label, rational=rational))
         } else {
@@ -786,20 +1010,45 @@ structure_vectors.default <- function(y, X, model = c("bcl", "b", "cl", "acl", "
 #' Method for \code{structure_vectors} when the input is a formula and data frame.
 #' 
 #' @rdname structure_vectors
-#' @param y An object of class \code{"formula"} (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.
-#' @param data A data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.
-#' @param contrasts Contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.
-#' @param model Model string. One of "bcl", "b", "cl", "acl", "os", "sl".
-#' @param label If TRUE rows and columns are labeled 
-#' @details The `formula` method is for standard data frames and formulas that work the same way as when used with \code{\link[stats]{glm}}. It does not support extended formulas, and may not work for functions that do formula processing differently. For a data frame/matrix given as rational numbers in the \code{rcdd} definition this is recognized but the formula does not get expanded and is taken literally, so e.g. variables in formula must match exactly with the column names in data, or factors need to be converted to dummies before that (wouldn't be possible in the rational format in any other way anyway).
+#' @param data either a standard data frame, list or environment (or object
+#'   coercible by \code{\link{as.data.frame}} to a data frame) containing
+#'   the variables in the model. If not found in \code{data}, the variables
+#'   are taken from \code{environment(formula)}, typically the environment
+#'   from which the function is called.
+#'
+#'   Alternatively, \code{data} can be a data frame or matrix containing
+#'   rational numbers as per the definition in \pkg{rcdd} (i.e. columns are
+#'   characters, entries are either integer numbers or ratios of integer
+#'   numbers, e.g. \code{"1"} or \code{"-234/19008"}). This is checked
+#'   internally; see \sQuote{Details} for what happens when this structure
+#'   is discovered.
+#' @param contrasts an optional list. See the \code{contrasts.arg} of
+#'   \code{\link[stats]{model.matrix.default}}. Only effective for standard
+#'   data frames.
+#'
+#' @details
+#' The \code{formula} method is for standard data frames and formulas that
+#' work the same way as when used with \code{\link[stats]{glm}}. It does
+#' not support extended formulas, and may not work for functions that do
+#' formula processing differently.
+#'
+#' For a data frame or matrix given as rational numbers in the \pkg{rcdd}
+#' definition, this is recognized but the formula does \emph{not} get
+#' expanded and is taken literally. Consequently:
+#' \itemize{
+#'   \item variables in \code{formula} must match exactly with the column
+#'     names in \code{data};
+#'   \item factors need to be converted to dummies beforehand (which would
+#'     not be possible in the rational format in any other way anyway).
+#' }
+#' 
 #' @importFrom stats model.response is.empty.model model.matrix
 #' @export
-structure_vectors.formula <- function(y, data, contrasts = NULL, model = c("bcl", "b", "cl", "acl", "os", "sl"), label = TRUE,  rational = FALSE, ... )
+structure_vectors.formula <- function(x, data, contrasts = NULL, model = NULL, label = TRUE,  rational = FALSE, ... )
 {
-    formula <- y
+    formula <- x
     yx <- make_yx(formula, data, contrasts) 
-    if(missing(model)) model <-  NULL
-    structure_vectors(y = yx$y, X = yx$X, model = model, label = label, rational=rational, ...)
+    structure_vectors(x = yx$y, X = yx$X, model = model, label = label, rational=rational, ...)
 }
 
 
@@ -808,33 +1057,61 @@ structure_vectors.formula <- function(y, data, contrasts = NULL, model = c("bcl"
 ##### check_overlap
 #' @rdname check_overlap
 #' @export
-#' @param object an R object
-check_overlap.default <- function(object, rational = FALSE, quick = FALSE, sequential= FALSE, parallel = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
+check_overlap.default <- function(object, ... )
 {
-   cat("Could not find a method for this class:", class(object),"\n") 
+   stop("No  method for object of class ",
+       paste(class(object), collapse = "/"), 
+       ". Supported classes: logical, integer, factor, numeric, character, matrix, glm, polr, clm, osm, nnet, multinom, brmultinom, bracl, brglm.", call. = FALSE)
 }
 
 #' @export
 #' @rdname check_overlap
-#' @param y outcome vector 
-#' @param X design matrix
-#' @param nc number of cores to be used for parallel execution. Defaults to 'getOption("mc.cores", 1L)'.
-#' @param nss number of subsets for parallel or sequneital execution. Defaults to 'nc' for parallel and 10 for sequential. If nss is below 1 or above n-1, it uses 'nss'=1. 
+#' @param X a design matrix, e.g. generated via a call to
+#'   \code{\link{model.matrix}}. \code{X} is expected to already contain the
+#'   desired contrasts for factors (e.g., dummies) and any other expanded
+#'   columns (e.g., for polynomials).
+#' @param model character string specifying the model class to be fitted.
+#'   One of:
+#'   \itemize{
+#'     \item \code{"b"} – binary
+#'     \item \code{"bcl"} – baseline-category link
+#'     \item \code{"cl"} – cumulative link
+#'     \item \code{"acl"} – adjacent-category link
+#'     \item \code{"sl"} – sequential link
+#'     \item \code{"os"} – ordered stereotype model
+#'   }
+#'   If missing or \code{NULL}, defaults to \code{"cl"} for ordinal \code{y}
+#'   and \code{"bcl"} otherwise.
+#' @param rational logical; should rational arithmetic be used?
+#' @param quick logical; if \code{TRUE}, use the quick linear program
+#'   variant, otherwise the full linear program.
+#' @param sequential conduct a sequential check on data subsets (default `FALSE`).
+#' @param parallel conduct a check in parallel on data subsets via multicores (default `FALSE`).
+#' @param backend character string specifying the backend for the linear
+#'   program. One of \code{"rcdd"} (default, and the only option when
+#'   \code{rational = TRUE}) or \code{"ROI"}.
+#' @param solver character string specifying the solver used by the
+#'   backend. Defaults to \code{"DualSimplex"} for \code{backend = "rcdd"},
+#'   and to the first LP solver returned by
+#'   \code{\link[ROI]{ROI_applicable_solvers}} for \code{backend = "ROI"}.
+#' @param nc number of cores to be used for parallel execution. Defaults to 1.
+#' @param nss number of subsets for parallel or sequneital execution. Defaults to 'nc' for parallel and 10 for sequential. If nss is below 1 or above n-1, it uses 'nss = 1'. 
 #' @param ... additional arguments to be passed to other functions (e.g. to mclappy in parallel execution)
-check_overlap.factor <- function(y, X, rational = FALSE, quick = FALSE, sequential= FALSE, parallel = FALSE, backend = c("rcdd", "ROI"), solver = NULL, nc = NULL, nss = NULL, ... ) {
+#' @importFrom parallel mclapply
+check_overlap.factor <- function(object, X, rational = FALSE, quick = FALSE, sequential= FALSE, parallel = FALSE, backend = c("rcdd", "ROI"), solver = NULL, nc = NULL, nss = NULL, ... ) {
+    y <- object
+    
     if (isTRUE(parallel) && isTRUE(sequential)) {
         warning("Both 'parallel' and 'sequential' are TRUE. ",
-                "'sequential' gets ignored.")
+                "'sequential' is ignored.")
     }
 
+
     if(isTRUE(parallel)) {
-        if (is.null(nc)) nc <- getOption("mc.cores", 1L)
-        if (is.null(nss)) nss <- nc
         return(check_overlap_parallel(y = y, X = X, rational = rational, quick = quick, backend = backend, solver = solver, nss = nss, nc = nc, ...))
     }
 
     if(isTRUE(sequential))  {
-        if (is.null(nss)) nss <- 10L
         return(check_overlap_sequential(y = y, X = X, rational = rational, quick = quick, backend = backend, solver = solver, nss=nss, ...))
     }
 
@@ -856,21 +1133,19 @@ check_overlap.character<- check_overlap.factor
 
 #' @export
 #' @rdname check_overlap
-#' @param S structure vector matrix
-check_overlap.matrix <- function(S, rational = FALSE, quick = FALSE, sequential = FALSE, parallel = FALSE, backend = c("rcdd", "ROI"), solver = NULL, nc = NULL, nss = NULL, ... ){
+check_overlap.matrix <- function(object, rational = FALSE, quick = FALSE, sequential = FALSE, parallel = FALSE, backend = c("rcdd", "ROI"), solver = NULL, nc = NULL, nss = NULL, ... ){
+    S <- object
+
     if (isTRUE(parallel) && isTRUE(sequential)) {
         warning("Both 'parallel' and 'sequential' are TRUE. ",
                 "'sequential' gets ignored.")
     }
 
     if(isTRUE(parallel)) {
-        if (is.null(nc)) nc <- getOption("mc.cores", 1L)
-        if (is.null(nss)) nss <- nc
         return(check_overlap_parallel(S = S, rational = rational, quick = quick, backend = backend, solver = solver, nss = nss, nc = nc, ...))
     }
 
     if(isTRUE(sequential)) {
-        if (is.null(nss)) nss <- 10L
         return(check_overlap_sequential(S = S, rational = rational, quick = quick, backend = backend, solver = solver, nss=nss, ...))
     } 
 
@@ -879,52 +1154,72 @@ check_overlap.matrix <- function(S, rational = FALSE, quick = FALSE, sequential 
 
 ##### check_overlap
 #' @rdname check_overlap
-#' @param formula An object of class ‘"formula"’ (or one that can be coerced to that class): a symbolic description of the model to be fitted.  The details of model specification are given under ‘Details’ in \code{\link[stats]{glm}}.
-#' @param data Either a standard data frame, list or environment (or object coercible by as.data.frame to a data frame) containing variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which the function is called. Alternatively, data can be a data frame or matrix containing rational numbers as per the definition in \code{rcdd} (i.e. columns are characters, the entries are either integer numbers or ratios of integer numbers, e.g. "1", or "-234/19008". This is checked internally; see the Details for what happens when this structure is discovered.
-#' @param contrasts contrasts: an optional list. See the  \code{contrasts.arg} of \code{model.matrix.default}. Only effective for standard data frames.
-#' @param model model string. One of "bcl", "b", "cl", "acl", "os", "sl".  
-#' @param quick boolean flag whether the quick linear program is to be used or the full fledged one (default is FALSE).
-#' @param sequential If 'TRUE' checks sequentially. Then an 'nss' (number of subsets) should be supplied (defaults to 10).
-#' @param parallel If 'TRUE' checks 'nss' subsets in parallel on 'nc' multiple cores. The 'nc' (number of cores) and 'nss' (number of subsets) should be supplied (defaults to 1 otherwise).
-#' 
-#' @details The `formula` method is for standard data frames and formulas that work the same way as when used with \code{\link[stats]{glm}}. It does not support extended formulas, and may not work for functions that do formula processing differently. For a data frame/matrix given as rational numbers in the \code{rcdd} definition this is recognized but the formula does not get expanded and is taken literally, so e.g. variables in formula must match exactly with the column names in data, or factors need to be converted to dummies before that (wouldn't be possible in the rational format in any other way anyway).
+#'
+#' @param data either a standard data frame, list or environment (or object
+#'   coercible by \code{\link{as.data.frame}} to a data frame) containing
+#'   the variables in the model. If not found in \code{data}, the variables
+#'   are taken from \code{environment(formula)}, typically the environment
+#'   from which the function is called.
+#'
+#'   Alternatively, \code{data} can be a data frame or matrix containing
+#'   rational numbers as per the definition in \pkg{rcdd} (i.e. columns are
+#'   characters, entries are either integer numbers or ratios of integer
+#'   numbers, e.g. \code{"1"} or \code{"-234/19008"}). This is checked
+#'   internally; see \sQuote{Details} for what happens when this structure
+#'   is discovered.
+#' @param contrasts an optional list. See the \code{contrasts.arg} of
+#'   \code{\link[stats]{model.matrix.default}}. Only effective for standard
+#'   data frames.
+#'
+#' @details
+#' The \code{formula} method is for standard data frames and formulas that
+#' work the same way as when used with \code{\link[stats]{glm}}. It does
+#' not support extended formulas, and may not work for functions that do
+#' formula processing differently.
+#'
+#' For a data frame or matrix given as rational numbers in the \pkg{rcdd}
+#' definition, this is recognized but the formula does \emph{not} get
+#' expanded and is taken literally. Consequently:
+#' \itemize{
+#'   \item variables in \code{formula} must match exactly with the column
+#'     names in \code{data};
+#'   \item factors need to be converted to dummies beforehand (which would
+#'     not be possible in the rational format in any other way anyway).
+#' }
+#'
 #' @importFrom stats model.response is.empty.model model.matrix
 #' @export
-check_overlap.formula <- function(formula, data, model = c("bcl", "b", "cl", "acl", "os", "sl"), rational = FALSE, contrasts = NULL, quick = FALSE, sequential = FALSE, parallel = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
+check_overlap.formula <- function(object, data, model = NULL, rational = FALSE, contrasts = NULL, quick = FALSE, sequential = FALSE, parallel = FALSE, backend = c("rcdd", "ROI"), solver = NULL, ... )
 {
+    formula <- object
     yx <- make_yx(formula, data, contrasts) 
-    if(missing(model)) model <-  NULL
-    check_overlap(y = yx$y, X = yx$X, model = model, rational=rational, backend = backend, solver = solver, quick = quick, sequential = sequential, parallel = parallel, ...)
+    check_overlap(object = yx$y, X = yx$X, model = model, rational=rational, backend = backend, solver = solver, quick = quick, sequential = sequential, parallel = parallel, ...)
 }
 
 
-
-############# POST FIT 
 
 ### 
 #' @export
 #' @importFrom stats model.frame model.matrix
 #' @rdname check_overlap
-#' @param object model object
 check_overlap.osm <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, parallel = FALSE, sequential = FALSE, nss = NULL, nc = NULL , ... )
 {
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    return(check_overlap(y = y, X = X, model = "os", rational = rational, backend = backend, solver = solver, quick = quick, parallel = parallel, sequential = sequential, nss = nss, nc = nc, ... ))
+    return(check_overlap(object = y, X = X, model = "os", rational = rational, backend = backend, solver = solver, quick = quick, parallel = parallel, sequential = sequential, nss = nss, nc = nc, ... ))
 }
 
 ### 
 #' @export
 #' @importFrom stats model.frame model.matrix
 #' @rdname check_overlap
-#' @param object model object
 check_overlap.clm <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, parallel = FALSE, sequential = FALSE, nss = NULL, nc = NULL , ... )
 {
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)$X
-    return(check_overlap(y = y, X = X, model = "cl", rational = rational, backend = backend, solver = solver, quick = quick, parallel = parallel, sequential = sequential, nss = nss, nc = nc, ... ))
+    return(check_overlap(object = y, X = X, model = "cl", rational = rational, backend = backend, solver = solver, quick = quick, parallel = parallel, sequential = sequential, nss = nss, nc = nc, ... ))
 }
 
 
@@ -932,26 +1227,24 @@ check_overlap.clm <- function(object, rational = FALSE, backend = c("rcdd", "ROI
 #' @export
 #' @importFrom stats model.frame model.matrix
 #' @rdname check_overlap
-#' @param object model object
 check_overlap.polr <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, parallel = FALSE, sequential = FALSE, nss = NULL, nc = NULL , ... )
 {
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    return(check_overlap(y = y, X = X, model = "cl", rational = rational, backend = backend, solver = solver, quick = quick, parallel = parallel, sequential = sequential, nss = nss, nc = nc, ...))
+    return(check_overlap(object = y, X = X, model = "cl", rational = rational, backend = backend, solver = solver, quick = quick, parallel = parallel, sequential = sequential, nss = nss, nc = nc, ...))
 }
 
 ### 
 #' @export
 #' @importFrom stats model.frame model.matrix
 #' @rdname check_overlap
-#' @param object model object
 check_overlap.multinom<- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, parallel = FALSE, sequential = FALSE, nss = NULL, nc = NULL , ... )
 {
     x <- object
     y <- model.frame(x)[,1]
     X <- model.matrix(x)
-    return(check_overlap(y = y, X = X, model = "bcl", rational = rational, backend = backend, solver = solver, quick = quick, parallel = parallel, sequential = sequential, nss = nss, nc = nc, ...))
+    return(check_overlap(object = y, X = X, model = "bcl", rational = rational, backend = backend, solver = solver, quick = quick, parallel = parallel, sequential = sequential, nss = nss, nc = nc, ...))
 }
 
 #####  GLM binary
@@ -960,30 +1253,28 @@ check_overlap.multinom<- function(object, rational = FALSE, backend = c("rcdd", 
 #' @export
 #' @importFrom stats model.matrix model.frame
 #' @rdname check_overlap
-#' @param object model object
 check_overlap.glm <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, parallel = FALSE, sequential = FALSE, nss = NULL, nc = NULL , ... )
 {
     x <- object
     if(!(x$family$family %in% "binomial")) stop("This is only implemented for the binomial family.")
     y <- x$y
     X <- model.matrix(x)
-    return(check_overlap(y = y, X = X, model = "b", rational = rational, backend = backend, solver = solver, quick = quick, parallel = parallel, sequential = sequential, nss = nss, nc = nc, ...))
+    return(check_overlap(object = y, X = X, model = "b", rational = rational, backend = backend, solver = solver, quick = quick, parallel = parallel, sequential = sequential, nss = nss, nc = nc, ...))
 }
 
 ########## bracl
 #' @export
 #' @importFrom stats model.matrix 
 #' @rdname check_overlap
-#' @param object model object
 check_overlap.bracl <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE,  parallel = FALSE, sequential = FALSE, nss= NULL, nc = NULL , ...  )
 {
     y <- as.ordered(model.frame(object)[,1])
     X <- model.matrix(object)
     if(object$parallel)
-        return(check_overlap(y = y, X = X, model = "acl", rational = rational, backend = backend, solver = solver, quick = quick, parallel = parallel, sequential = sequential, nss = nss, nc = nc, ...))
+        return(check_overlap(object = y, X = X, model = "acl", rational = rational, backend = backend, solver = solver, quick = quick, parallel = parallel, sequential = sequential, nss = nss, nc = nc, ...))
     if(!object$parallel) {
         y <- factor(y, ordered = FALSE)
-        return(check_overlap(y = y, X = X, model = "bcl", rational = rational, backend = backend, solver = solver, quick = quick, parallel = parallel, sequential = sequential, nss = nss, nc = nc, ...))
+        return(check_overlap(object = y, X = X, model = "bcl", rational = rational, backend = backend, solver = solver, quick = quick, parallel = parallel, sequential = sequential, nss = nss, nc = nc, ...))
         }
 }
 
@@ -991,10 +1282,9 @@ check_overlap.bracl <- function(object, rational = FALSE, backend = c("rcdd", "R
 #' @export
 #' @importFrom stats model.matrix
 #' @rdname check_overlap
-#' @param object model object
 check_overlap.brmultinom <- function(object, rational = FALSE, backend = c("rcdd", "ROI"), solver = NULL, quick = FALSE, parallel = parallel, sequential = sequential, nss = nss, nc = nc, ... )
 {
     y <- model.frame(object)[,1]
     X <- model.matrix(object)
-    return(check_overlap(y = y, X = X, model = "bcl", rational = rational, backend = backend, solver = solver, quick = quick, parallel = parallel, sequential = sequential, nss = nss, nc = nc, ...))
+    return(check_overlap(object = y, X = X, model = "bcl", rational = rational, backend = backend, solver = solver, quick = quick, parallel = parallel, sequential = sequential, nss = nss, nc = nc, ...))
 }

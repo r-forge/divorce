@@ -1,9 +1,9 @@
+#' Linearities
+#'
 #' This function calculates the linearities in the negative structure vector matrix X*, so the row vectors for which there is no separation. 
 #' If this is an empty set or of length 0, then we have overlap.
 #'
-#' #' The function uses either a response vector y and a design matrix X, or a structure vector matrix S. If S is given, y and X and model are ignored.
 #' 
-#'
 #' 
 #' @param y the outcome variable. Can be factor, ordered, numeric, character or boolean. Works best if it is a factor or ordered factor. If it is not an (ordered) factor, we treat the outcome as nominal.    
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
@@ -14,7 +14,7 @@
 #'
 #' @importFrom rcdd linearity q2d d2q 
 #' @export
-linearities <- function(y, X, S, rational=FALSE, model=c("b","bcl","acl","cl","sl","os")){
+linearities <- function(y, X, S, rational=FALSE, model=c("b","bcl","acl","os","sl","cl")){
 # Note the calculations are done on the negative structure vectors, Xstar. 
     if(missing(S))
     {
@@ -22,15 +22,15 @@ linearities <- function(y, X, S, rational=FALSE, model=c("b","bcl","acl","cl","s
     if(!isTRUE(all.equal(length(y),dim(X)[1]))) stop("The length of vector y does not match the number of rows in matrix X.")
     ratcols <- rat_cols(X)
     if(ratcols) rational <- TRUE
-    if(missing(model)) model <- NULL
+    if(missing(model)) model <-  NULL
     if(is.null(model))
     {
         warning("Default model class used.","\n")
-        if(is.ordered(y) & length(unique(y))>2)
+        if(is.ordered(y) && length(unique(y))>2)
         {
-            linearities_cl(y=y,X=X,rational=rational)
+            return(linearities_cl(y=y,X=X,rational=rational))
         } else {
-            linearities_bcl(y=y,X=X,rational=rational)
+            return(linearities_bcl(y=y,X=X,rational=rational))
         }
     }
     model <- match.arg(model,several.ok=FALSE)
@@ -68,14 +68,14 @@ linearities <- function(y, X, S, rational=FALSE, model=c("b","bcl","acl","cl","s
     }
 }
 
-#' This function calculates the linearities in the negative structure vector matrix X* for a baseline-category link model, so the row vectors for which there is no separation. If this is an empty set or of length 0, then we have overlap. 
-#'
+#'This function calculates the linearities in the negative structure vector matrix X*, so the row vectors for which there is no separation for bcl
+#' 
 #' @param y the outcome variable. Can be factor, ordered, numeric, character or boolean. Works best if it is a factor or ordered factor. If it is not an (ordered) factor, we treat the outcome as nominal.    
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
 #' @param rational boolean flag whether rational arithmetic should be used. Default is FALSE.
 #'
 #' @return a list with elements $lins which lists the rows vectors that are linearities for any category and $index which gives the row index of the linearities. If there is complete separation they are both empty set. If their length/row dimension is number of categories*dim(X)[1], there is overlap. Anything in between is quasi-complete separation.
-#'
+#' @noRd
 linearities_bcl<- function(y, X, rational=FALSE)
 {
    ratcols <- rat_cols(X)
@@ -98,7 +98,8 @@ linearities_bcl<- function(y, X, rational=FALSE)
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
 #' @param rational boolean flag whether rational arithmetic should be used. Default is FALSE.
 #'
-#' @return a list with elements $lins which lists the rows vectors that are linearities for any category and $index which gives the row index of the linearities. If there is complete separation they are both empty set. If their length/row dimension is number of categories*dim(X)[1], there is overlap. Anything in between is quasi-complete separation.  
+#' @return a list with elements $lins which lists the rows vectors that are linearities for any category and $index which gives the row index of the linearities. If there is complete separation they are both empty set. If their length/row dimension is number of categories*dim(X)[1], there is overlap. Anything in between is quasi-complete separation.
+#' @noRd
 linearities_cl<- function(y, X, rational=FALSE)
 {
    ratcols <- rat_cols(X)
@@ -122,7 +123,8 @@ linearities_cl<- function(y, X, rational=FALSE)
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
 #' @param rational boolean flag whether rational arithmetic should be used. Default is FALSE
 #'
-#' @return a list with elements $lins which lists the rows vectors that are linearities for any category and $index which gives the row index of the linearities. If there is complete separation they are both empty set. If their length/row dimension is number of categories*dim(X)[1], there is overlap. Anything in between is quasi-complete separation.  
+#' @return a list with elements $lins which lists the rows vectors that are linearities for any category and $index which gives the row index of the linearities. If there is complete separation they are both empty set. If their length/row dimension is number of categories*dim(X)[1], there is overlap. Anything in between is quasi-complete separation.
+#' @noRd
 linearities_os<- function(y, X, rational=FALSE)
 {
    ratcols <- rat_cols(X)
@@ -140,7 +142,7 @@ linearities_os<- function(y, X, rational=FALSE)
 }
 
 
-#' @rdname linearities_bcl 
+#' @noRd
 linearities_b <- linearities_bcl
 
 #' This function calculates the linearities in the negative structure vector matrix X* for an adjacent-category link model, so the row vectors for which there is no separation. If this is an empty set or of length 0, then we have overlap. 
@@ -149,7 +151,8 @@ linearities_b <- linearities_bcl
 #' @param X a design matrix, e.g. generated via a call to 'model.matrix'. This means we expect that X already contains the desired contrasts for factors (e.g., dummies) and any other expanded columns (e.g., for polynomials).
 #' @param rational boolean flag whether rational arithmetic should be used. Default is FALSE
 #'
-#' @return a list with elements $lins which lists the rows vectors that are linearities for any category and $index which gives the row index of the linearities. If there is complete separation they are both empty set. If their length/row dimension is number of categories*dim(X)[1], there is overlap. Anything in between is quasi-complete separation.  
+#' @return a list with elements $lins which lists the rows vectors that are linearities for any category and $index which gives the row index of the linearities. If there is complete separation they are both empty set. If their length/row dimension is number of categories*dim(X)[1], there is overlap. Anything in between is quasi-complete separation.
+#' @noRd
 linearities_acl<- function(y, X, rational=FALSE)
 {
    ratcols <- rat_cols(X)
@@ -173,7 +176,8 @@ linearities_acl<- function(y, X, rational=FALSE)
 #' @param rational boolean flag whether rational arithmetic should be used. Default is FALSE
 #' @param reduced If TRUE (default) the per category results are merged into one objct and duplicates removed. If FALSE, the result is given for each category separately.   
 #'
-#' @return a list with elements $lins which lists the rows vectors that are linearities for any category (reduced=TRUE) or by category (reduced=FALSE), and $index which gives the row index of the linearities for any or by category. If there is complete separation they are both empty set. If their length/row dimension is number of categories*dim(X)[1], there is overlap. Anything in between is quasi-complete separation.  
+#' @return a list with elements $lins which lists the rows vectors that are linearities for any category (reduced=TRUE) or by category (reduced=FALSE), and $index which gives the row index of the linearities for any or by category. If there is complete separation they are both empty set. If their length/row dimension is number of categories*dim(X)[1], there is overlap. Anything in between is quasi-complete separation.
+#' @noRd
 linearities_sl<- function(y, X, rational=FALSE,reduced=TRUE)
 {
    ratcols <- rat_cols(X)
