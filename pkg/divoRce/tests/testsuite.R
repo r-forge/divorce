@@ -526,7 +526,7 @@ class(t) <- "nudlaug"
 tryCatch({
   diagnose_separation(t, rational = rational, model = "b", backend = backend, solver = solver)
 }, error = function(e) {
-    cat(sprintf("Works as planned: %s", conditionMessage(e)))
+    cat(sprintf("Works as planned: %s", conditionMessage(e)),"\n")
     test_results$passed <<- test_results$passed + 1
     #test_results$log[[length(test_results$log) + 1]] <<- list(
     ##test_name = test_name,
@@ -608,7 +608,7 @@ class(t) <- "nudlaug"
 tryCatch({
   separation_columns(t, rational = rational, model = "b", backend = backend, solver = solver)
 }, error = function(e) {
-    cat(sprintf("Works as planned %s", conditionMessage(e)))
+    cat(sprintf("Works as planned %s", conditionMessage(e)),"\n")
     test_results$passed <<- test_results$passed + 1
     #test_results$log[[length(test_results$log) + 1]] <<- list(
     #test_name = test_name,
@@ -681,7 +681,7 @@ class(t) <- "nudlaug"
 tryCatch({
   separation_rows(t, rational = rational, model = "b", backend = backend, solver = solver)
 }, error = function(e) {
-    cat(sprintf("Works as planned %s", conditionMessage(e)))
+    cat(sprintf("Works as planned %s", conditionMessage(e)),"\n")
     test_results$passed <<- test_results$passed + 1
     #test_results$log[[length(test_results$log) + 1]] <<- list(
     #test_name = test_name,
@@ -784,7 +784,7 @@ class(t) <- "nudlaug"
 tryCatch({
   recession_cone(t, rational = rational, model = "b", backend = backend, solver = solver)
 }, error = function(e) {
-    cat(printf("Works as planned: %s", conditionMessage(e)))
+    cat(sprintf("Works as planned: %s", conditionMessage(e)),"\n")
     test_results$passed <<- test_results$passed + 1
     #test_results$log[[length(test_results$log) + 1]] <<- list(
     #test_name = test_name,
