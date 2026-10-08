@@ -2,17 +2,21 @@
 % Please edit documentation in R/print.sepmod.R
 \name{print.sepmod_sl}
 \alias{print.sepmod_sl}
-\title{Print generic for sepmod_sl classes}
+\title{Print method for sepmod_sl classes}
 \usage{
 \method{print}{sepmod_sl}(x, info = c("minimal", "full"), ...)
 }
 \arguments{
-\item{x}{object of class sepmod}
+\item{x}{object of class sepmod_sl}
 
 \item{info}{how much info is printed. Possibilities are 'minimal' (default) and 'full'.}
 
 \item{...}{additional arguments}
 }
+\value{
+No return value, called for side effects. Returns the input 
+  object 'x' invisibly.
+}
 \description{
-Print generic for sepmod_sl classes
+Print method for sepmod_sl classes
 }

@@ -22,7 +22,8 @@
 
 .divorce_load_roi_plugins <- function() {
     .divorce_require_roi()
-    ip <- rownames(utils::installed.packages())
+    #ip <- rownames(utils::installed.packages())
+    ip <- .packages(all.available = TRUE)
     plugin_pkgs <- grep("^ROI\\.plugin\\.", ip, value = TRUE)
     for (pkg in plugin_pkgs) {
         requireNamespace(pkg, quietly = TRUE)

@@ -105,10 +105,14 @@ export(separation_rows)
 export(structure_vectors)
 import(rcdd)
 importFrom(parallel,mclapply)
-importFrom(rcdd,d2q)
-importFrom(rcdd,linearity)
-importFrom(rcdd,q2d)
-importFrom(stats,is.empty.model)
-importFrom(stats,model.frame)
-importFrom(stats,model.matrix)
-importFrom(stats,model.response)
+importFrom(rcdd,
+  d2q,
+  linearity,
+  q2d
+)
+importFrom(stats,
+  is.empty.model,
+  model.frame,
+  model.matrix,
+  model.response
+)

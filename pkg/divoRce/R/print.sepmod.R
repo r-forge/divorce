@@ -1,8 +1,10 @@
-#' Print generic for sepmod classes
+#' Print method for sepmod classes
 #'
 #' @param x object of class sepmod
 #' @param info how much info is printed. Possibilities are 'minimal' (default) and 'full'.
 #' @param ... additional arguments
+#' @return No return value, called for side effects. Returns the input 
+#'   object 'x' invisibly.
 #' @export
 print.sepmod <- function(x, info = c("minimal","full"),...)
 {
@@ -29,13 +31,16 @@ print.sepmod <- function(x, info = c("minimal","full"),...)
      cat("Number of Offending Columns:", length(obj$offcols),"\n")
      cat("Number of Offending Rows:", obj$nr.offrows,"\n")
      }
+     invisible(x)
 }
 
-#' Print generic for sepmod_sl classes
+#' Print method for sepmod_sl classes
 #'
-#' @param x object of class sepmod
+#' @param x object of class sepmod_sl
 #' @param info how much info is printed. Possibilities are 'minimal' (default) and 'full'.
 #' @param ... additional arguments
+#' @return No return value, called for side effects. Returns the input 
+#'   object 'x' invisibly.
 #' @export
 print.sepmod_sl<- function(x, info = c("minimal","full"),...)
 {
@@ -58,5 +63,6 @@ print.sepmod_sl<- function(x, info = c("minimal","full"),...)
      cat("Number of Offending Columns:", length(obj[[i]]$offcols),"\n")
      cat("Number of Offending Rows:", obj[[i]]$nr.offrows,"\n")
      }    
-    }
+     }
+    invisible(x)
 }

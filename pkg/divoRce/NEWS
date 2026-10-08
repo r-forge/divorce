@@ -1,3 +1,12 @@
+Version 1.0-2
+        - Added references to DESCRIPTION. Fixed other CRAN comments. First CRAN release. 
+
+Version 1.0-1
+        - Fixed typos. 
+
+Version 0.14-3 to 0.14-5 
+        - Slight changes to DESCRIPTION to minimize CRAN misspelled complaints.
+
 Version 0.14-2
         - Fixed bug in check_overlap_parallel
 

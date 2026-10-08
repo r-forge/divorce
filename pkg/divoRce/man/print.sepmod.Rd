@@ -2,7 +2,7 @@
 % Please edit documentation in R/print.sepmod.R
 \name{print.sepmod}
 \alias{print.sepmod}
-\title{Print generic for sepmod classes}
+\title{Print method for sepmod classes}
 \usage{
 \method{print}{sepmod}(x, info = c("minimal", "full"), ...)
 }
@@ -13,6 +13,10 @@
 
 \item{...}{additional arguments}
 }
+\value{
+No return value, called for side effects. Returns the input 
+  object 'x' invisibly.
+}
 \description{
-Print generic for sepmod classes
+Print method for sepmod classes
 }
