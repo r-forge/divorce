@@ -1,4 +1,4 @@
-#' Check separation
+#' Check for separation in categorical response models
 #'
 #' General separation check function.
 #'
@@ -77,7 +77,7 @@ check_separation <- function(object, ...) {
   UseMethod("check_separation")
 }
 
-#' Detailed separation diagnostic for all categorical outcomes. 
+#' Detailed separation diagnostic for categorical response models 
 #'
 #' This function checks whether there is (quasi-) complete separation, which type if any, gives the dimension of the recession cone, lists the number of columns in the design matrix that give rise to the separation as well as the columns names and lists the rows in X/S for which we have separation.   
 #'
@@ -163,7 +163,7 @@ diagnose_separation <- function(object, ...) {
 }
 
 
-#' Identify separation columns
+#' Identify separation columns in categorical response models
 #' 
 #' This function identifies the columns in a design matrix/structure vector matrix that are responsible for separation. It calls lower level functions if given an argument or chooses based on the response type.
 #'
@@ -245,7 +245,7 @@ separation_columns<- function(object, ...) {
   UseMethod("separation_columns")
 }
 
-#' Identify separation rows
+#' Identify separation rows in categorical response models
 #' 
 #' This function identifies the rows in a design matrix/structure vector matrix that are associated for separation. It calls lower level functions if given an argument or chooses based on the response type.
 #'
@@ -317,7 +317,7 @@ separation_rows <- function(object, ...) {
   UseMethod("separation_rows")
 }
 
-#' Recession cone calculation
+#' Recession cone calculation for categorical response models
 #'
 #' This function calculates the dimension of the recession cone and returns the recession cone.
 #'
@@ -391,7 +391,7 @@ recession_cone <- function(object, ...) {
   UseMethod("recession_cone")
 }
 
-#' Check overlap
+#' Check overlap in categorical response models
 #'
 #'  
 #' This function checks for overlap by calling the appropriate low-level functions. It can be run with the linear program (`quick = FALSE`, default), linear program 2 (`quick = TRUE`), on sequential subsets of data (`sequential = TRUE`) or via multicore parallelization (`parallel = TRUE`).
@@ -462,9 +462,9 @@ check_overlap <- function(object, ...) {
 
 
 
-#' Structure Vector S3 Generic
+#' Structure vectors in categorical response models
 #'
-#' Generic function to compute structure vectors from different types of inputs.
+#' Function to compute structure vectors for various categorical response models.
 #'
 #' @name structure_vectors
 #' @param x input object. Supported inputs:

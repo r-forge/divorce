@@ -4,7 +4,7 @@
 \alias{structure_vectors}
 \alias{structure_vectors.default}
 \alias{structure_vectors.formula}
-\title{Structure Vector S3 Generic}
+\title{Structure vectors in categorical response models}
 \usage{
 structure_vectors(x, ...)
 
@@ -87,7 +87,7 @@ data frames.}
 A structure vector matrix with or without labeled rows and columns. For \code{model = "sl"}, a list of structure vector matrices, where each list element corresponds sequentially to the categories of y, starting with the lowest and ending with the (K-1)-th category. At each category k, we consider all observations with category k or higher for the structure vector matrix.
 }
 \description{
-Generic function to compute structure vectors from different types of inputs.
+Function to compute structure vectors for various categorical response models.
 
 Method for \code{structure_vectors} when the input is a formula and data frame.
 }

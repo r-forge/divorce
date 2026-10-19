@@ -17,7 +17,7 @@
 \alias{check_separation.glm}
 \alias{check_separation.bracl}
 \alias{check_separation.brmultinom}
-\title{Check separation}
+\title{Check for separation in categorical response models}
 \usage{
 check_separation(object, ...)
 

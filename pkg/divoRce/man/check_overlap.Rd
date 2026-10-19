@@ -17,7 +17,7 @@
 \alias{check_overlap.glm}
 \alias{check_overlap.bracl}
 \alias{check_overlap.brmultinom}
-\title{Check overlap}
+\title{Check overlap in categorical response models}
 \usage{
 check_overlap(object, ...)
 
@@ -26,6 +26,7 @@ check_overlap(object, ...)
 \method{check_overlap}{factor}(
   object,
   X,
+  model = NULL,
   rational = FALSE,
   quick = FALSE,
   sequential = FALSE,
@@ -40,6 +41,7 @@ check_overlap(object, ...)
 \method{check_overlap}{logical}(
   object,
   X,
+  model = NULL,
   rational = FALSE,
   quick = FALSE,
   sequential = FALSE,
@@ -54,6 +56,7 @@ check_overlap(object, ...)
 \method{check_overlap}{numeric}(
   object,
   X,
+  model = NULL,
   rational = FALSE,
   quick = FALSE,
   sequential = FALSE,
@@ -68,6 +71,7 @@ check_overlap(object, ...)
 \method{check_overlap}{integer}(
   object,
   X,
+  model = NULL,
   rational = FALSE,
   quick = FALSE,
   sequential = FALSE,
@@ -82,6 +86,7 @@ check_overlap(object, ...)
 \method{check_overlap}{character}(
   object,
   X,
+  model = NULL,
   rational = FALSE,
   quick = FALSE,
   sequential = FALSE,
@@ -237,6 +242,19 @@ check_overlap(object, ...)
 desired contrasts for factors (e.g., dummies) and any other expanded
 columns (e.g., for polynomials).}
 
+\item{model}{character string specifying the model class to be fitted.
+One of:
+\itemize{
+  \item \code{"b"} – binary
+  \item \code{"bcl"} – baseline-category link
+  \item \code{"cl"} – cumulative link
+  \item \code{"acl"} – adjacent-category link
+  \item \code{"sl"} – sequential link
+  \item \code{"os"} – ordered stereotype model
+}
+If missing or \code{NULL}, defaults to \code{"cl"} for ordinal \code{y}
+and \code{"bcl"} otherwise.}
+
 \item{rational}{logical; should rational arithmetic be used?}
 
 \item{quick}{logical; if \code{TRUE}, use the quick linear program
@@ -271,19 +289,6 @@ and to the first LP solver returned by
   numbers, e.g. \code{"1"} or \code{"-234/19008"}). This is checked
   internally; see \sQuote{Details} for what happens when this structure
   is discovered.}
-
-\item{model}{character string specifying the model class to be fitted.
-One of:
-\itemize{
-  \item \code{"b"} – binary
-  \item \code{"bcl"} – baseline-category link
-  \item \code{"cl"} – cumulative link
-  \item \code{"acl"} – adjacent-category link
-  \item \code{"sl"} – sequential link
-  \item \code{"os"} – ordered stereotype model
-}
-If missing or \code{NULL}, defaults to \code{"cl"} for ordinal \code{y}
-and \code{"bcl"} otherwise.}
 
 \item{contrasts}{an optional list. See the \code{contrasts.arg} of
 \code{\link[stats]{model.matrix.default}}. Only effective for standard

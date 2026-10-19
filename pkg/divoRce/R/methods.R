@@ -1098,7 +1098,7 @@ check_overlap.default <- function(object, ... )
 #' @param nss number of subsets for parallel or sequneital execution. Defaults to 'nc' for parallel and 10 for sequential. If nss is below 1 or above n-1, it uses 'nss = 1'. 
 #' @param ... additional arguments to be passed to other functions (e.g. to mclappy in parallel execution)
 #' @importFrom parallel mclapply
-check_overlap.factor <- function(object, X, rational = FALSE, quick = FALSE, sequential= FALSE, parallel = FALSE, backend = c("rcdd", "ROI"), solver = NULL, nc = NULL, nss = NULL, ... ) {
+check_overlap.factor <- function(object, X, model = NULL, rational = FALSE, quick = FALSE, sequential= FALSE, parallel = FALSE, backend = c("rcdd", "ROI"), solver = NULL, nc = NULL, nss = NULL, ... ) {
     y <- object
     
     if (isTRUE(parallel) && isTRUE(sequential)) {
@@ -1108,14 +1108,14 @@ check_overlap.factor <- function(object, X, rational = FALSE, quick = FALSE, seq
 
 
     if(isTRUE(parallel)) {
-        return(check_overlap_parallel(y = y, X = X, rational = rational, quick = quick, backend = backend, solver = solver, nss = nss, nc = nc, ...))
+        return(check_overlap_parallel(y = y, X = X, model = model, rational = rational, quick = quick, backend = backend, solver = solver, nss = nss, nc = nc, ...))
     }
 
     if(isTRUE(sequential))  {
-        return(check_overlap_sequential(y = y, X = X, rational = rational, quick = quick, backend = backend, solver = solver, nss=nss, ...))
+        return(check_overlap_sequential(y = y, X = X, model = model, rational = rational, quick = quick, backend = backend, solver = solver, nss=nss, ...))
     }
 
-    return(check_overlap_worker(y = y, X = X, rational = rational, quick = quick, backend = backend, solver = solver, ...))
+    return(check_overlap_worker(y = y, X = X, model = model, rational = rational, quick = quick, backend = backend, solver = solver, ...))
 }
 
 ##' @export

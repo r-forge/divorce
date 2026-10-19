@@ -3,27 +3,26 @@
 \docType{data}
 \name{Alligators}
 \alias{Alligators}
-\title{Untabeled alligator food choice data}
+\title{Detabulated alligator food choice data}
 \format{
-A data frame with 219 rows corresponding to captured alligator and 5 variables:
-
-* `foodchoice`: primary food type, in volume, found in an alligator’s stomach, with levels `fish`, `invertebrate`,`reptile`, `bird`, `other`
-* `lake`: lake of capture with levels `Hancock`, `Oklawaha`, `Trafford`, `George`.
-* `sex`: sex of the alligator with levels `Male` and `Female`
-* `size`: size of the alligator with levels `<=2.3` meters long and `>2.3` meters long
-* `freq`: number of alligators for each foodchoice, lake, gender and size combination
+A data frame with 219 rows corresponding to captured alligators and 4 variables:
+\describe{
+  \item{\code{foodchoice}}{primary food type, in volume, found in an alligator's stomach, with levels \code{fish}, \code{invertebrate}, \code{reptile}, \code{bird}, \code{other}.}
+  \item{\code{lake}}{lake of capture with levels \code{Hancock}, \code{Oklawaha}, \code{Trafford}, \code{George}.}
+  \item{\code{sex}}{sex of the alligator with levels \code{Male} and \code{Female}.}
+  \item{\code{size}}{size of the alligator with levels \code{<=2.3} meters long and \code{>2.3} meters long.}
+  }
 }
 \source{
-The alligators data set is analyzed in Agresti (2002, Subsection 7.1.2). These data are an untabeled version.
+The alligators data set is analyzed in Agresti (2002, Subsection 7.1.2). These data is a detabulated version.
 }
 \usage{
 data(Alligators)
 }
 \description{
-Untabeled alligator food choice data
+Detabulated alligator food choice data
 }
 \references{
-Agresti A (2002). *Categorical Data Analysis*.  Wiley Series in
-Probability and Statistics. Wiley.
+Agresti, A. (2002). \emph{Categorical Data Analysis}. Wiley.
 }
 \keyword{datasets}

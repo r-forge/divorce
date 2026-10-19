@@ -1,4 +1,6 @@
-#' This function is meant to set up a response variable and a design matrix from a formula-data combination for the pre-fit separation check functions.
+#' Create y and X from a formula
+#'
+#' This function is a helper to set up a response variable and a design matrix from a formula-data combination for the pre-fit separation check functions.
 #'
 #' @details For standard data frames and formulas this function returns a list with the first element being the response variable (as specified by the left hand side of the formula) and the second element being a design matrix corresponding to the right hand side of the formula and the given optional contrasts. The design matrix is created in exactly the same way as in \code{\link[stats]{glm}}. For a data frame/matrix given as rational numbers in the rcdd definition, it returns a list with the first element being the response variable in rational format (as specified by the left hand side of the formula) and the second element being the character matrix in rational format corresponding to the right hand side of the formula. Note that in the latter the formula does not get expanded and is taken literally, so e.g. variables in formula must match exactly with the column names in data, or factors need to be converted to dummies before that (wouldn't be possible in the rational format in any other way anyway).  
 #'
